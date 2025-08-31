@@ -1,8 +1,10 @@
 // src/auth/otp/otp.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, IsNull, Repository } from 'typeorm';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs'; // ✅ Updated to bcryptjs
+
 import { Otp } from './otp.entity';
 import { OtpChannel } from '../../common/enums/otp-channel.enum';
 import { User } from '../../users/shared/user.entity';

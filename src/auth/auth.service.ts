@@ -1,11 +1,12 @@
 // src/auth/auth.service.ts
+
 import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs'; // ✅ Replaced bcrypt with bcryptjs
 
 import { UsersService } from '../users/shared/user.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -53,7 +54,6 @@ export class AuthService {
     const user = await this.usersService.findByEmailWithPassword(email);
     if (!user) return; // don't leak user existence
 
-    // OtpService.generateOtp -> { id, code }
     const { code } = await this.otpService.generateOtp(user.id, OtpChannel.EMAIL);
 
     await this.emailService.sendFromTemplate(
@@ -72,14 +72,12 @@ export class AuthService {
     const user = await this.usersService.findByEmailWithPassword(email);
     if (!user) throw new BadRequestException('Invalid reset request.');
 
-    // validateOtp(userId, token, channel?) -> returns Otp | null
     const otpRecord = await this.otpService.validateOtp(user.id, token, OtpChannel.EMAIL);
     if (!otpRecord) throw new BadRequestException('Invalid or expired reset token.');
 
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
     await this.usersService.updatePassword(user.id, newPasswordHash);
 
-    // consumeOtp expects the OTP id
     await this.otpService.consumeOtp(otpRecord.id);
   }
 
