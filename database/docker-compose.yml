@@ -1,0 +1,28 @@
+# /database/docker-compose.yml
+# This file configures a PostgreSQL database service using Docker Compose.
+# It reads its configuration from the main .env file at the project root.
+# To run: docker-compose up -d
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: pairova-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - '${DB_PORT}:5432'
+    volumes:
+      - pairova-data:/var/lib/postgresql/data
+    networks:
+      - pairova-net
+
+volumes:
+  pairova-data:
+
+networks:
+  pairova-net:
