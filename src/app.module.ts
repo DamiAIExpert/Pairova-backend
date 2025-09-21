@@ -17,6 +17,7 @@ import { AdminModule } from './admin/admin.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AiModule } from './ai/ai.module';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import { AiModule } from './ai/ai.module';
     MessagingModule,
     NotificationsModule,
     AiModule,
+    SmsModule,
   ],
 })
 export class AppModule {}

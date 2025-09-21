@@ -13,16 +13,28 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e:watch": "jest --config ./test/jest-e2e.json --watch",
+    "test:unit": "jest --testPathPattern=spec.ts",
+    "test:integration": "jest --testPathPattern=e2e-spec.ts",
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "test:ci": "npm run test:unit -- --coverage --watchAll=false && npm run test:e2e -- --watchAll=false",
+    "test:chat": "jest --testPathPattern=chat",
+    "test:sms": "jest --testPathPattern=sms",
+    "test:ai": "jest --testPathPattern=ai",
+    "test:admin": "jest --testPathPattern=admin",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli -d database/ormconfig.ts",
     "db:migration:run": "npm run typeorm -- migration:run",
     "db:migration:revert": "npm run typeorm -- migration:revert",
     "db:migration:show": "npm run typeorm -- migration:show",
-    "db:migration:generate": "npm run typeorm -- migration:generate database/migrations/auto -o"
+    "db:migration:generate": "npm run typeorm -- migration:generate database/migrations/auto -o",
+    "db:test:setup": "npm run typeorm -- schema:drop && npm run typeorm -- schema:sync",
+    "db:test:seed": "ts-node -r tsconfig-paths/register test/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -91,22 +103,5 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }

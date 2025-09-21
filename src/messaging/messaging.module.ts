@@ -1,24 +1,30 @@
-// src/messaging/messaging.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
+import { EnhancedChatGateway } from './enhanced-chat.gateway';
+import { EnhancedChatService } from './services/enhanced-chat.service';
+import { ChatController } from './controllers/chat.controller';
 import { Message } from './entities/message.entity';
 import { Conversation } from './entities/conversation.entity';
 import { ConversationParticipant } from './entities/conversation-participant.entity';
-
-import { ChatService } from './chat.service';
-import { ChatGateway } from './chat.gateway';
-
-import { UsersModule } from '../users/shared/user.module';
-import { AuthModule } from '../auth/auth.module';
+import { MessageStatus } from './entities/message-status.entity';
+import { User } from '../users/shared/user.entity';
+import { Job } from '../jobs/entities/job.entity';
+import { Upload } from '../profiles/uploads/entities/upload.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Message, Conversation, ConversationParticipant]),
-    UsersModule,
-    AuthModule,
+    TypeOrmModule.forFeature([
+      Message,
+      Conversation,
+      ConversationParticipant,
+      MessageStatus,
+      User,
+      Job,
+      Upload,
+    ]),
   ],
-  providers: [ChatService, ChatGateway],
-  exports: [ChatService],
+  controllers: [ChatController],
+  providers: [EnhancedChatGateway, EnhancedChatService],
+  exports: [EnhancedChatService, EnhancedChatGateway],
 })
 export class MessagingModule {}
