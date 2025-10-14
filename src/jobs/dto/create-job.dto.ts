@@ -17,14 +17,24 @@ import {
 } from '../../common/enums/job.enum';
 
 export class CreateJobDto {
-  @ApiProperty({ description: 'The title of the job.' })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ 
+    description: 'The title of the job posting. Should be clear and descriptive.',
+    example: 'Senior Software Developer',
+    minLength: 5,
+    maxLength: 100,
+  })
+  @IsString({ message: 'Title must be a string' })
+  @IsNotEmpty({ message: 'Job title is required' })
   title: string;
 
-  @ApiProperty({ description: 'A detailed description of the job role.' })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ 
+    description: 'A detailed description of the job role, responsibilities, and requirements. Use markdown formatting for better readability.',
+    example: 'We are looking for a Senior Software Developer to join our team...\n\n**Responsibilities:**\n- Develop and maintain web applications\n- Collaborate with cross-functional teams\n\n**Requirements:**\n- 5+ years of experience\n- Proficiency in JavaScript/TypeScript',
+    minLength: 50,
+    maxLength: 5000,
+  })
+  @IsString({ message: 'Description must be a string' })
+  @IsNotEmpty({ message: 'Job description is required' })
   description: string;
 
   @ApiProperty({

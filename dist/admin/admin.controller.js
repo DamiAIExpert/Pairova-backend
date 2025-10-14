@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
 const common_1 = require("@nestjs/common");
@@ -17,6 +20,7 @@ const roles_guard_1 = require("../auth/strategies/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const role_enum_1 = require("../common/enums/role.enum");
 const admin_service_1 = require("./admin.service");
+const dashboard_dto_1 = require("./dto/dashboard.dto");
 let AdminController = class AdminController {
     adminService;
     constructor(adminService) {
@@ -25,16 +29,51 @@ let AdminController = class AdminController {
     getDashboardStats() {
         return this.adminService.getDashboardStats();
     }
+    getPerformanceMetrics(period) {
+        return this.adminService.getPerformanceMetrics(period || '30d');
+    }
+    getActivityFeed(limit) {
+        return this.adminService.getActivityFeed(limit || 10);
+    }
+    getRecommendations() {
+        return this.adminService.getRecommendations();
+    }
 };
 exports.AdminController = AdminController;
 __decorate([
     (0, common_1.Get)('dashboard-stats'),
     (0, swagger_1.ApiOperation)({ summary: 'Get statistics for the admin dashboard' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Dashboard statistics retrieved successfully.' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Dashboard statistics retrieved successfully.', type: dashboard_dto_1.DashboardStatsDto }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getDashboardStats", null);
+__decorate([
+    (0, common_1.Get)('dashboard/performance'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get performance metrics over time' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Performance metrics retrieved successfully.', type: dashboard_dto_1.PerformanceMetricsDto }),
+    __param(0, (0, common_1.Query)('period')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getPerformanceMetrics", null);
+__decorate([
+    (0, common_1.Get)('dashboard/activity'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get recent activity feed' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Activity feed retrieved successfully.', type: dashboard_dto_1.ActivityFeedDto }),
+    __param(0, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getActivityFeed", null);
+__decorate([
+    (0, common_1.Get)('dashboard/recommendations'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get AI matching insights' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Recommendations retrieved successfully.' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getRecommendations", null);
 exports.AdminController = AdminController = __decorate([
     (0, swagger_1.ApiTags)('Admin - General'),
     (0, swagger_1.ApiBearerAuth)(),

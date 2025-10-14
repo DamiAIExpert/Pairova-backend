@@ -31,12 +31,85 @@ import { Role } from '../common/enums/role.enum';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({ summary: 'User Login' })
+  @ApiOperation({ 
+    summary: 'User Login',
+    description: `
+Authenticate a user with email and password. Returns JWT tokens for API access.
+
+**Frontend Integration:**
+\`\`\`javascript
+const response = await fetch('/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'SecurePassword123!'
+  })
+});
+
+if (response.ok) {
+  const { access_token, refresh_token, user } = await response.json();
+  localStorage.setItem('access_token', access_token);
+  localStorage.setItem('refresh_token', refresh_token);
+  // Redirect to dashboard
+} else {
+  const error = await response.json();
+  console.error('Login failed:', error.message);
+}
+\`\`\`
+    `
+  })
   @ApiResponse({
     status: 200,
     description: 'Login successful, returns access and refresh tokens.',
+    schema: {
+      example: {
+        statusCode: 200,
+        message: 'Login successful',
+        data: {
+          access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          user: {
+            id: '123e4567-e89b-12d3-a456-426614174000',
+            email: 'john.doe@example.com',
+            role: 'APPLICANT',
+            profile: {
+              firstName: 'John',
+              lastName: 'Doe'
+            }
+          }
+        }
+      }
+    }
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized, invalid credentials.' })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Invalid credentials or account not found.',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Invalid credentials',
+        error: 'Unauthorized'
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'Validation error - invalid email format or missing fields.',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Validation failed',
+        error: 'Bad Request',
+        details: [
+          {
+            field: 'email',
+            message: 'email must be a valid email address'
+          }
+        ]
+      }
+    }
+  })
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')

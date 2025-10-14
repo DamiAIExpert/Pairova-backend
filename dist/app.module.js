@@ -57,6 +57,7 @@ const admin_module_1 = require("./admin/admin.module");
 const messaging_module_1 = require("./messaging/messaging.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const ai_module_1 = require("./ai/ai.module");
+const sms_module_1 = require("./sms/sms.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -120,6 +121,7 @@ exports.AppModule = AppModule = __decorate([
             messaging_module_1.MessagingModule,
             notifications_module_1.NotificationsModule,
             ai_module_1.AiModule,
+            sms_module_1.SmsModule,
         ],
     })
 ], AppModule);

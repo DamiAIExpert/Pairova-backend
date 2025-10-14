@@ -29,15 +29,25 @@ class CreateJobDto {
 }
 exports.CreateJobDto = CreateJobDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'The title of the job.' }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)({
+        description: 'The title of the job posting. Should be clear and descriptive.',
+        example: 'Senior Software Developer',
+        minLength: 5,
+        maxLength: 100,
+    }),
+    (0, class_validator_1.IsString)({ message: 'Title must be a string' }),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Job title is required' }),
     __metadata("design:type", String)
 ], CreateJobDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'A detailed description of the job role.' }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)({
+        description: 'A detailed description of the job role, responsibilities, and requirements. Use markdown formatting for better readability.',
+        example: 'We are looking for a Senior Software Developer to join our team...\n\n**Responsibilities:**\n- Develop and maintain web applications\n- Collaborate with cross-functional teams\n\n**Requirements:**\n- 5+ years of experience\n- Proficiency in JavaScript/TypeScript',
+        minLength: 50,
+        maxLength: 5000,
+    }),
+    (0, class_validator_1.IsString)({ message: 'Description must be a string' }),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Job description is required' }),
     __metadata("design:type", String)
 ], CreateJobDto.prototype, "description", void 0);
 __decorate([

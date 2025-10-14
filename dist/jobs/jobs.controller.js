@@ -44,10 +44,116 @@ __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.NONPROFIT),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Create a new job posting (Non-Profit only)' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'The job has been successfully created.' }),
-    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden.' }),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Create a new job posting',
+        description: `
+Create a new job posting. Only nonprofit organizations can create job postings.
+
+**Frontend Integration:**
+\`\`\`javascript
+const createJob = async (jobData) => {
+  const token = localStorage.getItem('access_token');
+  
+  const response = await fetch('/jobs', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': \`Bearer \${token}\`
+    },
+    body: JSON.stringify(jobData)
+  });
+  
+  if (response.ok) {
+    const job = await response.json();
+    console.log('Job created:', job.data);
+    return job.data;
+  } else {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+};
+
+// Usage
+const newJob = await createJob({
+  title: 'Software Developer',
+  description: 'Join our team to build amazing software...',
+  placement: 'REMOTE',
+  employmentType: 'FULL_TIME',
+  salaryMin: 60000,
+  salaryMax: 80000,
+  currency: 'USD'
+});
+\`\`\`
+    `
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Job successfully created.',
+        schema: {
+            example: {
+                statusCode: 201,
+                message: 'Job created successfully',
+                data: {
+                    id: '123e4567-e89b-12d3-a456-426614174000',
+                    title: 'Software Developer',
+                    description: 'Join our team to build amazing software...',
+                    placement: 'REMOTE',
+                    employmentType: 'FULL_TIME',
+                    salaryMin: 60000,
+                    salaryMax: 80000,
+                    currency: 'USD',
+                    status: 'DRAFT',
+                    createdAt: '2024-01-15T10:30:00Z',
+                    updatedAt: '2024-01-15T10:30:00Z',
+                    organization: {
+                        id: 'org-123',
+                        name: 'Tech for Good',
+                        logo: 'https://example.com/logo.png'
+                    }
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden - Only nonprofit organizations can create jobs.',
+        schema: {
+            example: {
+                statusCode: 403,
+                message: 'Access denied. Only nonprofit organizations can create jobs.',
+                error: 'Forbidden'
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing JWT token.',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: 'Unauthorized',
+                error: 'Unauthorized'
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Invalid job data provided.',
+        schema: {
+            example: {
+                statusCode: 400,
+                message: 'Validation failed',
+                error: 'Bad Request',
+                details: [
+                    {
+                        field: 'title',
+                        message: 'title should not be empty'
+                    }
+                ]
+            }
+        }
+    }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
