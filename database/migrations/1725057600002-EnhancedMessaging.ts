@@ -31,36 +31,65 @@ export class EnhancedMessaging1725057600002 implements MigrationInterface {
         'FAILED'
       );
 
-      -- Update conversations table
-      ALTER TABLE "conversations" 
-      ADD COLUMN IF NOT EXISTS "type" "public"."conversation_type" NOT NULL DEFAULT 'DIRECT',
-      ADD COLUMN IF NOT EXISTS "status" "public"."conversation_status" NOT NULL DEFAULT 'ACTIVE',
-      ADD COLUMN IF NOT EXISTS "title" character varying(255),
-      ADD COLUMN IF NOT EXISTS "description" text,
-      ADD COLUMN IF NOT EXISTS "job_id" uuid,
-      ADD COLUMN IF NOT EXISTS "created_by_id" uuid,
-      ADD COLUMN IF NOT EXISTS "is_archived" boolean NOT NULL DEFAULT false,
-      ADD COLUMN IF NOT EXISTS "last_message_at" TIMESTAMP WITH TIME ZONE,
-      ADD COLUMN IF NOT EXISTS "metadata" jsonb;
+      -- Create conversations table
+      CREATE TABLE "conversations" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "type" "public"."conversation_type" NOT NULL DEFAULT 'DIRECT',
+        "status" "public"."conversation_status" NOT NULL DEFAULT 'ACTIVE',
+        "title" character varying(255),
+        "description" text,
+        "job_id" uuid,
+        "created_by_id" uuid,
+        "is_archived" boolean NOT NULL DEFAULT false,
+        "last_message_at" TIMESTAMP WITH TIME ZONE,
+        "metadata" jsonb,
+        "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        CONSTRAINT "PK_conversations" PRIMARY KEY ("id")
+      );
 
       -- Add foreign key constraints for conversations
       ALTER TABLE "conversations" 
       ADD CONSTRAINT "FK_conversation_job" FOREIGN KEY ("job_id") REFERENCES "jobs"("id") ON DELETE SET NULL,
       ADD CONSTRAINT "FK_conversation_created_by" FOREIGN KEY ("created_by_id") REFERENCES "users"("id") ON DELETE SET NULL;
 
-      -- Update conversation_participants table
+      -- Create conversation_participants table
+      CREATE TABLE "conversation_participants" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "conversation_id" uuid NOT NULL,
+        "user_id" uuid NOT NULL,
+        "joined_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        "last_seen_at" TIMESTAMP WITH TIME ZONE,
+        "role" character varying(50) NOT NULL DEFAULT 'PARTICIPANT',
+        "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        CONSTRAINT "PK_conversation_participants" PRIMARY KEY ("id")
+      );
+
+      -- Add foreign key constraints for conversation_participants
       ALTER TABLE "conversation_participants"
-      ADD COLUMN IF NOT EXISTS "joined_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-      ADD COLUMN IF NOT EXISTS "last_seen_at" TIMESTAMP WITH TIME ZONE,
-      ADD COLUMN IF NOT EXISTS "role" character varying(50) NOT NULL DEFAULT 'PARTICIPANT';
+      ADD CONSTRAINT "FK_conversation_participants_conversation" FOREIGN KEY ("conversation_id") REFERENCES "conversations"("id") ON DELETE CASCADE,
+      ADD CONSTRAINT "FK_conversation_participants_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
 
-      -- Update messages table
+      -- Create messages table
+      CREATE TABLE "messages" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "conversation_id" uuid NOT NULL,
+        "sender_id" uuid NOT NULL,
+        "content" text NOT NULL,
+        "type" "public"."message_type" NOT NULL DEFAULT 'TEXT',
+        "reply_to_id" uuid,
+        "metadata" jsonb,
+        "sent_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+        CONSTRAINT "PK_messages" PRIMARY KEY ("id")
+      );
+
+      -- Add foreign key constraints for messages
       ALTER TABLE "messages"
-      ADD COLUMN IF NOT EXISTS "reply_to_id" uuid,
-      ADD COLUMN IF NOT EXISTS "metadata" jsonb;
-
-      -- Add foreign key constraint for reply-to messages
-      ALTER TABLE "messages" 
+      ADD CONSTRAINT "FK_messages_conversation" FOREIGN KEY ("conversation_id") REFERENCES "conversations"("id") ON DELETE CASCADE,
+      ADD CONSTRAINT "FK_messages_sender" FOREIGN KEY ("sender_id") REFERENCES "users"("id") ON DELETE CASCADE,
       ADD CONSTRAINT "FK_message_reply_to" FOREIGN KEY ("reply_to_id") REFERENCES "messages"("id") ON DELETE SET NULL;
 
       -- Create message_status table

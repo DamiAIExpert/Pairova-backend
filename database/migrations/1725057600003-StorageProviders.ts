@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, Index } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class StorageProviders1725057600003 implements MigrationInterface {
   name = 'StorageProviders1725057600003';
@@ -211,44 +211,38 @@ export class StorageProviders1725057600003 implements MigrationInterface {
     );
 
     // Create indexes for performance
-    await queryRunner.createIndex(
-      'storage_providers',
-      new Index('IDX_storage_providers_active_priority', ['isActive', 'priority']),
-    );
+    await queryRunner.query(`
+      CREATE INDEX "IDX_storage_providers_active_priority" ON "storage_providers" ("isActive", "priority")
+    `);
 
-    await queryRunner.createIndex(
-      'storage_providers',
-      new Index('IDX_storage_providers_type', ['type']),
-    );
+    await queryRunner.query(`
+      CREATE INDEX "IDX_storage_providers_type" ON "storage_providers" ("type")
+    `);
 
-    await queryRunner.createIndex(
-      'file_uploads',
-      new Index('IDX_file_uploads_user_created', ['userId', 'createdAt']),
-    );
+    await queryRunner.query(`
+      CREATE INDEX "IDX_file_uploads_user_created" ON "file_uploads" ("userId", "createdAt")
+    `);
 
-    await queryRunner.createIndex(
-      'file_uploads',
-      new Index('IDX_file_uploads_provider_created', ['storageProviderId', 'createdAt']),
-    );
+    await queryRunner.query(`
+      CREATE INDEX "IDX_file_uploads_provider_created" ON "file_uploads" ("storageProviderId", "createdAt")
+    `);
 
-    await queryRunner.createIndex(
-      'file_uploads',
-      new Index('IDX_file_uploads_file_type', ['fileType']),
-    );
+    await queryRunner.query(`
+      CREATE INDEX "IDX_file_uploads_file_type" ON "file_uploads" ("fileType")
+    `);
 
-    await queryRunner.createIndex(
-      'file_uploads',
-      new Index('IDX_file_uploads_deleted_at', ['deletedAt']),
-    );
+    await queryRunner.query(`
+      CREATE INDEX "IDX_file_uploads_deleted_at" ON "file_uploads" ("deletedAt")
+    `);
 
     // Insert default Cloudinary provider if environment variables are available
     await queryRunner.query(`
       INSERT INTO storage_providers (
-        name, 
-        type, 
-        isActive, 
-        priority, 
-        configuration, 
+        name,
+        type,
+        "isActive",
+        priority,
+        configuration,
         description,
         metadata
       ) VALUES (

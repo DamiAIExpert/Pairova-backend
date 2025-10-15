@@ -10,43 +10,59 @@ export class SmsProviders1725057600001 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       -- SMS Provider Types
-      CREATE TYPE "public"."sms_provider_type" AS ENUM(
-        'TWILIO', 
-        'CLICKATELL', 
-        'MSG91', 
-        'NEXMO', 
-        'AFRICASTALKING', 
-        'CM_COM', 
-        'TELESIGN'
-      );
+      DO $$ BEGIN
+        CREATE TYPE "public"."sms_provider_type" AS ENUM(
+          'TWILIO', 
+          'CLICKATELL', 
+          'MSG91', 
+          'NEXMO', 
+          'AFRICASTALKING', 
+          'CM_COM', 
+          'TELESIGN'
+        );
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
 
       -- SMS Provider Status
-      CREATE TYPE "public"."sms_provider_status" AS ENUM(
-        'ACTIVE', 
-        'INACTIVE', 
-        'MAINTENANCE', 
-        'ERROR'
-      );
+      DO $$ BEGIN
+        CREATE TYPE "public"."sms_provider_status" AS ENUM(
+          'ACTIVE', 
+          'INACTIVE', 
+          'MAINTENANCE', 
+          'ERROR'
+        );
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
 
-      -- SMS Status
-      CREATE TYPE "public"."sms_status" AS ENUM(
-        'PENDING', 
-        'SENT', 
-        'DELIVERED', 
-        'FAILED', 
-        'EXPIRED', 
-        'UNKNOWN'
-      );
+      -- SMS Message Status (different from sms_status in initial schema)     
+      DO $$ BEGIN
+        CREATE TYPE "public"."sms_message_status" AS ENUM(
+          'PENDING', 
+          'SENT', 
+          'DELIVERED', 
+          'FAILED', 
+          'EXPIRED', 
+          'UNKNOWN'
+        );
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
 
       -- SMS Type
-      CREATE TYPE "public"."sms_type" AS ENUM(
-        'VERIFICATION', 
-        'NOTIFICATION', 
-        'MARKETING', 
-        'ALERT', 
-        'REMINDER', 
-        'SYSTEM'
-      );
+      DO $$ BEGIN
+        CREATE TYPE "public"."sms_type" AS ENUM(
+          'VERIFICATION', 
+          'NOTIFICATION', 
+          'MARKETING', 
+          'ALERT', 
+          'REMINDER', 
+          'SYSTEM'
+        );
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
 
       -- SMS Providers Table
       CREATE TABLE "sms_providers" (
@@ -84,7 +100,7 @@ export class SmsProviders1725057600001 implements MigrationInterface {
         "recipient" character varying(20) NOT NULL,
         "message" text NOT NULL,
         "type" "public"."sms_type" NOT NULL DEFAULT 'NOTIFICATION',
-        "status" "public"."sms_status" NOT NULL DEFAULT 'PENDING',
+        "status" "public"."sms_message_status" NOT NULL DEFAULT 'PENDING',
         "providerMessageId" character varying(255),
         "providerReference" character varying(255),
         "cost" numeric(10,4),
