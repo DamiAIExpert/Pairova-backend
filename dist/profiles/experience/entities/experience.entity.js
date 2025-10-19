@@ -16,6 +16,7 @@ const employment_type_enum_1 = require("../../../common/enums/employment-type.en
 let Experience = class Experience {
     id;
     userId;
+    applicantId;
     user;
     company;
     roleTitle;
@@ -37,6 +38,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'uuid' }),
     __metadata("design:type", String)
 ], Experience.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid' }),
+    __metadata("design:type", String)
+], Experience.prototype, "applicantId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'user_id' }),

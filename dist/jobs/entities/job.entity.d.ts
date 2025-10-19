@@ -1,6 +1,7 @@
 import { NonprofitOrg } from '../../users/nonprofit/nonprofit.entity';
 import { User } from '../../users/shared/user.entity';
 import { EmploymentType, JobPlacement, JobStatus } from '../../common/enums/job.enum';
+export { JobStatus, EmploymentType, JobPlacement } from '../../common/enums/job.enum';
 import { Application } from './application.entity';
 export declare class Job {
     id: string;
@@ -11,6 +12,11 @@ export declare class Job {
     placement: JobPlacement;
     employmentType: EmploymentType;
     experienceMinYrs: number;
+    experienceMaxYrs: number;
+    experienceLevel: string;
+    requiredSkills: string[];
+    benefits: string[];
+    deadline: Date;
     locationCity: string;
     locationState: string;
     locationCountry: string;
@@ -20,6 +26,8 @@ export declare class Job {
     status: JobStatus;
     createdBy: string;
     creator: User;
+    postedById: string;
+    postedBy: User;
     applications: Application[];
     createdAt: Date;
     updatedAt: Date;

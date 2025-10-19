@@ -12,13 +12,19 @@ const typeorm_1 = require("@nestjs/typeorm");
 const nonprofit_controller_1 = require("./nonprofit.controller");
 const nonprofit_service_1 = require("./nonprofit.service");
 const nonprofit_entity_1 = require("./nonprofit.entity");
+const ngo_jobs_controller_1 = require("./ngo-jobs.controller");
+const ngo_applications_controller_1 = require("./ngo-applications.controller");
+const jobs_module_1 = require("../../jobs/jobs.module");
 let NonprofitModule = class NonprofitModule {
 };
 exports.NonprofitModule = NonprofitModule;
 exports.NonprofitModule = NonprofitModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([nonprofit_entity_1.NonprofitOrg])],
-        controllers: [nonprofit_controller_1.NonprofitController],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([nonprofit_entity_1.NonprofitOrg]),
+            jobs_module_1.JobsModule,
+        ],
+        controllers: [nonprofit_controller_1.NonprofitController, ngo_jobs_controller_1.NgoJobsController, ngo_applications_controller_1.NgoApplicationsController],
         providers: [nonprofit_service_1.NonprofitService],
         exports: [nonprofit_service_1.NonprofitService],
     })

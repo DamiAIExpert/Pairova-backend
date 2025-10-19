@@ -10,6 +10,7 @@ import { MessageStatus } from './entities/message-status.entity';
 import { User } from '../users/shared/user.entity';
 import { Job } from '../jobs/entities/job.entity';
 import { Upload } from '../profiles/uploads/entities/upload.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Upload } from '../profiles/uploads/entities/upload.entity';
       Job,
       Upload,
     ]),
+    AuthModule,
   ],
   controllers: [ChatController],
   providers: [EnhancedChatGateway, EnhancedChatService],

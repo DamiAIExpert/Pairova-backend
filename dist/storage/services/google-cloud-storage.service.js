@@ -55,7 +55,7 @@ let GoogleCloudStorageService = class GoogleCloudStorageService {
                         resolve({
                             url: options.isPublic ? fileUpload.publicUrl() : url,
                             publicId: fileName,
-                            size: parseInt(metadata.size),
+                            size: parseInt(metadata.size.toString()),
                             metadata: {
                                 bucket: this.config.bucketName,
                                 name: fileName,
@@ -125,7 +125,7 @@ let GoogleCloudStorageService = class GoogleCloudStorageService {
             let totalSize = 0;
             for (const file of files) {
                 const [metadata] = await file.getMetadata();
-                totalSize += parseInt(metadata.size || '0');
+                totalSize += parseInt((metadata.size || '0').toString());
             }
             return {
                 totalStorage: totalSize,

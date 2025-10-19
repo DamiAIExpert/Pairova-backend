@@ -33,6 +33,12 @@ export class ConversationParticipant {
   @Column({ type: 'timestamptz', nullable: true })
   lastReadAt: Date;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  lastSeenAt: Date;
+
+  @Column({ type: 'enum', enum: ['ADMIN', 'MEMBER'], default: 'MEMBER' })
+  role: string;
+
   @CreateDateColumn({ type: 'timestamptz', name: 'joined_at' })
   joinedAt: Date;
 }

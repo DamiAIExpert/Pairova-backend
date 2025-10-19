@@ -25,11 +25,11 @@ var JobStatus;
 var ApplicationStatus;
 (function (ApplicationStatus) {
     ApplicationStatus["PENDING"] = "PENDING";
-    ApplicationStatus["UNDER_REVIEW"] = "UNDER_REVIEW";
-    ApplicationStatus["INTERVIEW"] = "INTERVIEW";
-    ApplicationStatus["HIRED"] = "HIRED";
-    ApplicationStatus["DENIED"] = "DENIED";
-    ApplicationStatus["WITHDRAWN"] = "WITHDRAWN";
+    ApplicationStatus["REVIEWED"] = "REVIEWED";
+    ApplicationStatus["SHORTLISTED"] = "SHORTLISTED";
+    ApplicationStatus["INTERVIEWED"] = "INTERVIEWED";
+    ApplicationStatus["ACCEPTED"] = "ACCEPTED";
+    ApplicationStatus["REJECTED"] = "REJECTED";
 })(ApplicationStatus || (exports.ApplicationStatus = ApplicationStatus = {}));
 var InterviewStatus;
 (function (InterviewStatus) {

@@ -15,7 +15,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@ne
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../common/enums/user.enum';
+import { Role } from '../common/enums/role.enum';
 import { AiService } from './ai.service';
 import { CalculateScoreDto } from './dto/calculate-score.dto';
 import { ScoreResultDto } from './dto/score-result.dto';
@@ -27,7 +27,7 @@ import { MatchInsightsDto } from './dto/match-insights.dto';
  * @description Controller for AI-powered job matching and recommendations.
  * Provides endpoints for calculating match scores, getting recommendations, and insights.
  */
-@ApiTags('AI')
+@ApiTags('AI Services')
 @Controller('ai')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()

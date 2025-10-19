@@ -178,11 +178,11 @@ export class AdminApplicationsService {
       return acc;
     }, {} as Record<ApplicationStatus, number>);
 
-    const hiredApplications = statusCounts[ApplicationStatus.HIRED] || 0;
+    const hiredApplications = statusCounts[ApplicationStatus.ACCEPTED] || 0;
     const hiringRate = total > 0 ? (hiredApplications / total) * 100 : 0;
 
     // Calculate average time to hire
-    const hiredApps = applications.filter(app => app.status === ApplicationStatus.HIRED);
+    const hiredApps = applications.filter(app => app.status === ApplicationStatus.ACCEPTED);
     const averageTimeToHire = hiredApps.length > 0
       ? hiredApps.reduce((sum, app) => {
           const timeToHire = (app.updatedAt.getTime() - app.createdAt.getTime()) / (1000 * 60 * 60 * 24);
@@ -192,11 +192,11 @@ export class AdminApplicationsService {
 
     return {
       pending: statusCounts[ApplicationStatus.PENDING] || 0,
-      underReview: statusCounts[ApplicationStatus.UNDER_REVIEW] || 0,
-      interview: statusCounts[ApplicationStatus.INTERVIEW] || 0,
+      underReview: statusCounts[ApplicationStatus.REVIEWED] || 0,
+      interview: statusCounts[ApplicationStatus.INTERVIEWED] || 0,
       hired: hiredApplications,
-      denied: statusCounts[ApplicationStatus.DENIED] || 0,
-      withdrawn: statusCounts[ApplicationStatus.WITHDRAWN] || 0,
+      denied: statusCounts[ApplicationStatus.REJECTED] || 0,
+      withdrawn: 0, // No longer tracked as a status
       total,
       hiringRate,
       averageTimeToHire,
@@ -274,11 +274,11 @@ export class AdminApplicationsService {
     );
 
     // Hiring rate
-    const hiredApplications = applicationsByStatus[ApplicationStatus.HIRED] || 0;
+    const hiredApplications = applicationsByStatus[ApplicationStatus.ACCEPTED] || 0;
     const hiringRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
 
     // Average time to hire
-    const hiredApps = applications.filter(app => app.status === ApplicationStatus.HIRED);
+    const hiredApps = applications.filter(app => app.status === ApplicationStatus.ACCEPTED);
     const averageTimeToHire = hiredApps.length > 0
       ? hiredApps.reduce((sum, app) => {
           const timeToHire = (app.updatedAt.getTime() - app.createdAt.getTime()) / (1000 * 60 * 60 * 24);

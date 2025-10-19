@@ -9,9 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.User = exports.Role = void 0;
 const typeorm_1 = require("typeorm");
 const role_enum_1 = require("../../common/enums/role.enum");
+var role_enum_2 = require("../../common/enums/role.enum");
+Object.defineProperty(exports, "Role", { enumerable: true, get: function () { return role_enum_2.Role; } });
 const applicant_entity_1 = require("../applicant/applicant.entity");
 const nonprofit_entity_1 = require("../nonprofit/nonprofit.entity");
 let User = class User {
@@ -21,11 +23,15 @@ let User = class User {
     passwordHash;
     phone;
     isVerified;
+    emailVerificationToken;
     lastLoginAt;
     createdAt;
     updatedAt;
     applicantProfile;
     nonprofitOrg;
+    get nonprofitProfile() {
+        return this.nonprofitOrg;
+    }
 };
 exports.User = User;
 __decorate([
@@ -56,6 +62,10 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'is_verified', default: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'email_verification_token', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "emailVerificationToken", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'last_login_at', type: 'timestamptz', nullable: true }),
     __metadata("design:type", Date)

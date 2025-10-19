@@ -12,13 +12,20 @@ const typeorm_1 = require("@nestjs/typeorm");
 const applicant_controller_1 = require("./applicant.controller");
 const applicant_service_1 = require("./applicant.service");
 const applicant_entity_1 = require("./applicant.entity");
+const applicant_jobs_controller_1 = require("./applicant-jobs.controller");
+const jobs_module_1 = require("../../jobs/jobs.module");
+const notifications_module_1 = require("../../notifications/notifications.module");
 let ApplicantModule = class ApplicantModule {
 };
 exports.ApplicantModule = ApplicantModule;
 exports.ApplicantModule = ApplicantModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([applicant_entity_1.ApplicantProfile])],
-        controllers: [applicant_controller_1.ApplicantController],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([applicant_entity_1.ApplicantProfile]),
+            jobs_module_1.JobsModule,
+            notifications_module_1.NotificationsModule,
+        ],
+        controllers: [applicant_controller_1.ApplicantController, applicant_jobs_controller_1.ApplicantJobsController],
         providers: [applicant_service_1.ApplicantService],
         exports: [applicant_service_1.ApplicantService],
     })

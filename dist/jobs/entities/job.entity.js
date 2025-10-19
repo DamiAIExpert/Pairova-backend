@@ -9,11 +9,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Job = void 0;
+exports.Job = exports.JobPlacement = exports.EmploymentType = exports.JobStatus = void 0;
 const typeorm_1 = require("typeorm");
 const nonprofit_entity_1 = require("../../users/nonprofit/nonprofit.entity");
 const user_entity_1 = require("../../users/shared/user.entity");
 const job_enum_1 = require("../../common/enums/job.enum");
+var job_enum_2 = require("../../common/enums/job.enum");
+Object.defineProperty(exports, "JobStatus", { enumerable: true, get: function () { return job_enum_2.JobStatus; } });
+Object.defineProperty(exports, "EmploymentType", { enumerable: true, get: function () { return job_enum_2.EmploymentType; } });
+Object.defineProperty(exports, "JobPlacement", { enumerable: true, get: function () { return job_enum_2.JobPlacement; } });
 const application_entity_1 = require("./application.entity");
 let Job = class Job {
     id;
@@ -24,6 +28,11 @@ let Job = class Job {
     placement;
     employmentType;
     experienceMinYrs;
+    experienceMaxYrs;
+    experienceLevel;
+    requiredSkills;
+    benefits;
+    deadline;
     locationCity;
     locationState;
     locationCountry;
@@ -33,6 +42,8 @@ let Job = class Job {
     status;
     createdBy;
     creator;
+    postedById;
+    postedBy;
     applications;
     createdAt;
     updatedAt;
@@ -73,6 +84,26 @@ __decorate([
     __metadata("design:type", Number)
 ], Job.prototype, "experienceMinYrs", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], Job.prototype, "experienceMaxYrs", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "experienceLevel", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', array: true, nullable: true }),
+    __metadata("design:type", Array)
+], Job.prototype, "requiredSkills", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', array: true, nullable: true }),
+    __metadata("design:type", Array)
+], Job.prototype, "benefits", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    __metadata("design:type", Date)
+], Job.prototype, "deadline", void 0);
+__decorate([
     (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "locationCity", void 0);
@@ -109,6 +140,15 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'created_by' }),
     __metadata("design:type", user_entity_1.User)
 ], Job.prototype, "creator", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid' }),
+    __metadata("design:type", String)
+], Job.prototype, "postedById", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User),
+    (0, typeorm_1.JoinColumn)({ name: 'posted_by_id' }),
+    __metadata("design:type", user_entity_1.User)
+], Job.prototype, "postedBy", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => application_entity_1.Application, (application) => application.job),
     __metadata("design:type", Array)

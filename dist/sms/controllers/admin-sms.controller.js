@@ -18,7 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
-const user_enum_1 = require("../../common/enums/user.enum");
+const role_enum_1 = require("../../common/enums/role.enum");
 const sms_service_1 = require("../services/sms.service");
 const sms_provider_dto_1 = require("../dto/sms-provider.dto");
 const sms_log_entity_1 = require("../entities/sms-log.entity");
@@ -156,7 +156,7 @@ let AdminSmsController = class AdminSmsController {
 exports.AdminSmsController = AdminSmsController;
 __decorate([
     (0, common_1.Post)('providers'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Create new SMS provider configuration' }),
     (0, swagger_1.ApiResponse)({
         status: 201,
@@ -171,7 +171,7 @@ __decorate([
 ], AdminSmsController.prototype, "createProvider", null);
 __decorate([
     (0, common_1.Get)('providers'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get all SMS providers' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -184,7 +184,7 @@ __decorate([
 ], AdminSmsController.prototype, "getProviders", null);
 __decorate([
     (0, common_1.Get)('providers/:id'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get SMS provider by ID' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -199,7 +199,7 @@ __decorate([
 ], AdminSmsController.prototype, "getProvider", null);
 __decorate([
     (0, common_1.Put)('providers/:id'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Update SMS provider configuration' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -216,7 +216,7 @@ __decorate([
 ], AdminSmsController.prototype, "updateProvider", null);
 __decorate([
     (0, common_1.Delete)('providers/:id'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Delete SMS provider' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -230,7 +230,7 @@ __decorate([
 ], AdminSmsController.prototype, "deleteProvider", null);
 __decorate([
     (0, common_1.Put)('providers/:id/toggle'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Toggle SMS provider active status' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -246,7 +246,7 @@ __decorate([
 ], AdminSmsController.prototype, "toggleProviderStatus", null);
 __decorate([
     (0, common_1.Put)('providers/:id/priority'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Update SMS provider priority' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -262,7 +262,7 @@ __decorate([
 ], AdminSmsController.prototype, "updateProviderPriority", null);
 __decorate([
     (0, common_1.Post)('providers/:id/health-check'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Perform health check on SMS provider' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -276,7 +276,7 @@ __decorate([
 ], AdminSmsController.prototype, "performHealthCheck", null);
 __decorate([
     (0, common_1.Post)('providers/health-check-all'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Perform health check on all SMS providers' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -288,7 +288,7 @@ __decorate([
 ], AdminSmsController.prototype, "performHealthCheckAll", null);
 __decorate([
     (0, common_1.Get)('logs'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get SMS logs with filtering and pagination' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -316,7 +316,7 @@ __decorate([
 ], AdminSmsController.prototype, "getSmsLogs", null);
 __decorate([
     (0, common_1.Get)('statistics'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get SMS statistics and analytics' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -328,7 +328,7 @@ __decorate([
 ], AdminSmsController.prototype, "getSmsStatistics", null);
 __decorate([
     (0, common_1.Post)('test'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Send test SMS message' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -342,7 +342,7 @@ __decorate([
 ], AdminSmsController.prototype, "sendTestSms", null);
 __decorate([
     (0, common_1.Get)('provider-types'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get supported SMS provider types' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -353,7 +353,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminSmsController.prototype, "getSupportedProviderTypes", null);
 exports.AdminSmsController = AdminSmsController = __decorate([
-    (0, swagger_1.ApiTags)('Admin SMS'),
+    (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('admin/sms'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),

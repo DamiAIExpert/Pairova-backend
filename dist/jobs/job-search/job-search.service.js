@@ -21,6 +21,7 @@ const application_entity_1 = require("../entities/application.entity");
 const user_entity_1 = require("../../users/shared/user.entity");
 const applicant_entity_1 = require("../../users/applicant/applicant.entity");
 const nonprofit_entity_1 = require("../../users/nonprofit/nonprofit.entity");
+const saved_jobs_service_1 = require("../saved-jobs/saved-jobs.service");
 const job_entity_2 = require("../entities/job.entity");
 const role_enum_1 = require("../../common/enums/role.enum");
 let JobSearchService = class JobSearchService {
@@ -29,12 +30,14 @@ let JobSearchService = class JobSearchService {
     userRepository;
     applicantRepository;
     nonprofitRepository;
-    constructor(jobRepository, applicationRepository, userRepository, applicantRepository, nonprofitRepository) {
+    savedJobsService;
+    constructor(jobRepository, applicationRepository, userRepository, applicantRepository, nonprofitRepository, savedJobsService) {
         this.jobRepository = jobRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.applicantRepository = applicantRepository;
         this.nonprofitRepository = nonprofitRepository;
+        this.savedJobsService = savedJobsService;
     }
     async searchJobs(paginationDto, filters) {
         const { page = 1, limit = 10 } = paginationDto;
@@ -422,6 +425,33 @@ let JobSearchService = class JobSearchService {
     toRadians(degrees) {
         return degrees * (Math.PI / 180);
     }
+    async searchJobsForApplicant(user, searchParams) {
+        const { page = 1, limit = 20, ...filters } = searchParams;
+        const result = await this.searchJobs({ page, limit }, filters);
+        return {
+            jobs: result.data,
+            total: result.total,
+            page: result.page,
+            limit: result.limit,
+            filters: result.filters,
+        };
+    }
+    async getRecommendedJobsForApplicant(user, limit = 10) {
+        const result = await this.getRecommendedJobs(user, { page: 1, limit });
+        return {
+            jobs: result.data,
+            total: result.total,
+        };
+    }
+    async getSavedJobsForApplicant(user, page = 1, limit = 20) {
+        return this.savedJobsService.getSavedJobs(user.id, page, limit);
+    }
+    async saveJobForApplicant(user, jobId) {
+        await this.savedJobsService.saveJob(user.id, jobId);
+    }
+    async unsaveJobForApplicant(user, jobId) {
+        await this.savedJobsService.unsaveJob(user.id, jobId);
+    }
 };
 exports.JobSearchService = JobSearchService;
 exports.JobSearchService = JobSearchService = __decorate([
@@ -435,6 +465,7 @@ exports.JobSearchService = JobSearchService = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        saved_jobs_service_1.SavedJobsService])
 ], JobSearchService);
 //# sourceMappingURL=job-search.service.js.map

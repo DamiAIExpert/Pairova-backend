@@ -12,6 +12,7 @@ import { CreateApplicationDto } from '../dto/create-application.dto';
 import { User } from '../../users/shared/user.entity';
 import { Role } from '../../common/enums/role.enum';
 import { JobsService } from '../jobs.service';
+import { ApplicationStatus } from '../../common/enums/job.enum';
 
 /**
  * @class ApplicationsService
@@ -105,5 +106,50 @@ export class ApplicationsService {
     }
 
     return application;
+  }
+
+  /**
+   * Updates the status of an application.
+   * @param id - The UUID of the application.
+   * @param status - The new status.
+   * @param notes - Optional notes about the status change.
+   * @param user - The user updating the status.
+   * @returns The updated application.
+   */
+  async updateStatus(
+    id: string,
+    status: ApplicationStatus,
+    notes: string | undefined,
+    user: User,
+  ): Promise<Application> {
+    const application = await this.findOne(id, user);
+
+    // Only nonprofits can update application status
+    if (user.role !== Role.NONPROFIT) {
+      throw new ForbiddenException('Only nonprofit organizations can update application status.');
+    }
+
+    // Check if the user owns the job
+    if (application.job.orgUserId !== user.id) {
+      throw new ForbiddenException('You are not authorized to update this application.');
+    }
+
+    application.status = status;
+    if (notes) {
+      application.notes = notes;
+    }
+
+    return this.applicationRepository.save(application);
+  }
+
+  /**
+   * Removes an application by ID.
+   * @param id - The UUID of the application to remove.
+   */
+  async remove(id: string): Promise<void> {
+    const result = await this.applicationRepository.delete(id);
+    if (!result.affected) {
+      throw new NotFoundException(`Application with ID "${id}" not found.`);
+    }
   }
 }

@@ -15,7 +15,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../../users/shared/user.entity';
 import { ScheduleInterviewDto } from './dto/schedule-interview.dto';
 
-@ApiTags('interviews')
+@ApiTags('Messaging')
 @Controller('interviews')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()

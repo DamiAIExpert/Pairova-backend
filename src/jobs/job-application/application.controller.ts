@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Patch,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -17,8 +18,9 @@ import { Role } from '../../common/enums/role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../../users/shared/user.entity';
 import { CreateApplicationDto } from '../dto/create-application.dto';
+import { UpdateApplicationStatusDto } from '../dto/update-application-status.dto';
 
-@ApiTags('applications')
+@ApiTags('Applications')
 @Controller('applications')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
@@ -47,5 +49,25 @@ export class ApplicationsController {
   @ApiResponse({ status: 404, description: 'Application not found.' })
   findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
     return this.applicationsService.findOne(id, user);
+  }
+
+  @Patch(':id/status')
+  @Roles(Role.NONPROFIT)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Update application status (Nonprofit only)' })
+  @ApiResponse({ status: 200, description: 'Application status updated successfully.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Only job owner can update status.' })
+  @ApiResponse({ status: 404, description: 'Application not found.' })
+  updateStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateStatusDto: UpdateApplicationStatusDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.applicationsService.updateStatus(
+      id,
+      updateStatusDto.status,
+      updateStatusDto.notes,
+      user,
+    );
   }
 }

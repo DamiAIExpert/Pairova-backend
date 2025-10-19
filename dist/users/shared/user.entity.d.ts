@@ -1,4 +1,5 @@
 import { Role } from '../../common/enums/role.enum';
+export { Role } from '../../common/enums/role.enum';
 import { ApplicantProfile } from '../applicant/applicant.entity';
 import { NonprofitOrg } from '../nonprofit/nonprofit.entity';
 export declare class User {
@@ -8,9 +9,11 @@ export declare class User {
     passwordHash: string;
     phone: string;
     isVerified: boolean;
+    emailVerificationToken: string;
     lastLoginAt: Date;
     createdAt: Date;
     updatedAt: Date;
     applicantProfile: ApplicantProfile;
     nonprofitOrg: NonprofitOrg;
+    get nonprofitProfile(): NonprofitOrg | undefined;
 }

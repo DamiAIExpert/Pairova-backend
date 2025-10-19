@@ -53,7 +53,7 @@ let AdminService = class AdminService {
             },
         });
         const hiredApplications = await this.applicationRepository.count({
-            where: { status: application_entity_2.ApplicationStatus.HIRED },
+            where: { status: application_entity_2.ApplicationStatus.ACCEPTED },
         });
         const hiringRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
         const averageApplicationsPerJob = totalJobs > 0 ? totalApplications / totalJobs : 0;
@@ -105,7 +105,7 @@ let AdminService = class AdminService {
             date: date.toISOString().split('T')[0],
             value: await this.applicationRepository.count({
                 where: {
-                    status: application_entity_2.ApplicationStatus.HIRED,
+                    status: application_entity_2.ApplicationStatus.ACCEPTED,
                     updatedAt: (0, typeorm_2.Between)(new Date(date.getFullYear(), date.getMonth(), date.getDate()), new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)),
                 },
             }),

@@ -158,7 +158,7 @@ export class SmsService {
     // Try each provider in order of priority
     for (const provider of providers) {
       try {
-        const result = await this.attemptSendSms(provider, recipient, message, type, campaignId, metadata);
+        const result = await this.attemptSendSms(provider, recipient, message, type as SmsType, campaignId, metadata);
         
         if (result.success) {
           this.logger.log(`SMS sent successfully via ${provider.name} to ${recipient}`);
@@ -186,9 +186,10 @@ export class SmsService {
     // If all providers failed, create a failed log entry
     const failedLog = this.smsLogRepository.create({
       providerId: providers[0].id, // Use first provider for logging
+      providerName: providers[0].name,
       recipient,
       message,
-      type,
+      type: type as SmsType,
       status: SmsStatus.FAILED,
       errorMessage: `All providers failed. Last error: ${lastError}`,
       errorCode: 'ALL_PROVIDERS_FAILED',

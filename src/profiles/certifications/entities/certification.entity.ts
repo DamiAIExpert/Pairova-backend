@@ -29,6 +29,9 @@ export class Certification {
   @Column({ type: 'uuid' })
   userId: string;
 
+  @Column({ type: 'uuid' })
+  applicantId: string;
+
   /**
    * @property user
    * @description The user entity associated with this certification.
@@ -57,6 +60,9 @@ export class Certification {
    */
   @Column({ type: 'date', nullable: true })
   issueDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  issuedDate: Date;
 
   /**
    * @property credentialUrl

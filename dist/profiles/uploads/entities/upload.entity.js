@@ -21,6 +21,9 @@ let Upload = class Upload {
     publicId;
     mimeType;
     sizeBytes;
+    filename;
+    url;
+    size;
     createdAt;
 };
 exports.Upload = Upload;
@@ -57,6 +60,18 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'bigint', nullable: true }),
     __metadata("design:type", Number)
 ], Upload.prototype, "sizeBytes", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Upload.prototype, "filename", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Upload.prototype, "url", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'bigint', nullable: true }),
+    __metadata("design:type", Number)
+], Upload.prototype, "size", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)

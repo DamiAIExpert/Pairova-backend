@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NgoStatisticsDto = exports.JobApplicantsListDto = exports.JobApplicantDto = exports.NgoJobsListDto = exports.NgoJobDto = exports.AdminNgoListDto = exports.AdminNgoDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
@@ -198,7 +197,7 @@ __decorate([
 ], NgoJobDto.prototype, "placement", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Job status', enum: job_entity_1.JobStatus }),
-    __metadata("design:type", typeof (_a = typeof job_entity_1.JobStatus !== "undefined" && job_entity_1.JobStatus) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], NgoJobDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Date posted' }),
@@ -260,7 +259,7 @@ __decorate([
 ], JobApplicantDto.prototype, "applicantEmail", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Application status', enum: application_entity_1.ApplicationStatus }),
-    __metadata("design:type", typeof (_b = typeof application_entity_1.ApplicationStatus !== "undefined" && application_entity_1.ApplicationStatus) === "function" ? _b : Object)
+    __metadata("design:type", String)
 ], JobApplicantDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Application date' }),

@@ -172,14 +172,14 @@ export class ClickatellSmsProvider implements SmsProviderInterface {
 
       const result = await response.json();
       
-      if (response.ok && result.messages?.[0]) {
+      if (response.ok && (result as any).messages?.[0]) {
         return {
           success: true,
-          messageId: result.messages[0].apiMessageId,
-          providerReference: result.messages[0].apiMessageId,
+          messageId: (result as any).messages[0].apiMessageId,
+          providerReference: (result as any).messages[0].apiMessageId,
         };
       } else {
-        throw new Error(result.error?.description || 'Unknown error');
+        throw new Error((result as any).error?.description || 'Unknown error');
       }
     } catch (error) {
       this.logger.error(`Clickatell SMS send failed: ${error.message}`);
@@ -218,7 +218,7 @@ export class ClickatellSmsProvider implements SmsProviderInterface {
         return {
           isHealthy: true,
           responseTime: Date.now() - startTime,
-          balance: data.balance,
+          balance: (data as any).balance,
           lastChecked: new Date(),
         };
       } else {
@@ -259,14 +259,14 @@ export class Msg91SmsProvider implements SmsProviderInterface {
 
       const result = await response.json();
       
-      if (response.ok && result.type === 'success') {
+      if (response.ok && (result as any).type === 'success') {
         return {
           success: true,
-          messageId: result.request_id,
-          providerReference: result.request_id,
+          messageId: (result as any).request_id,
+          providerReference: (result as any).request_id,
         };
       } else {
-        throw new Error(result.message || 'Unknown error');
+        throw new Error((result as any).message || 'Unknown error');
       }
     } catch (error) {
       this.logger.error(`MSG91 SMS send failed: ${error.message}`);
@@ -341,8 +341,8 @@ export class AfricastalkingSmsProvider implements SmsProviderInterface {
 
       const result = await response.json();
       
-      if (response.ok && result.SMSMessageData?.Recipients?.[0]) {
-        const recipient = result.SMSMessageData.Recipients[0];
+      if (response.ok && (result as any).SMSMessageData?.Recipients?.[0]) {
+        const recipient = (result as any).SMSMessageData.Recipients[0];
         return {
           success: recipient.status === 'Success',
           messageId: recipient.messageId,
@@ -350,7 +350,7 @@ export class AfricastalkingSmsProvider implements SmsProviderInterface {
           error: recipient.status !== 'Success' ? recipient.status : undefined,
         };
       } else {
-        throw new Error(result.SMSMessageData?.Message || 'Unknown error');
+        throw new Error((result as any).SMSMessageData?.Message || 'Unknown error');
       }
     } catch (error) {
       this.logger.error(`Africastalking SMS send failed: ${error.message}`);
@@ -389,7 +389,7 @@ export class AfricastalkingSmsProvider implements SmsProviderInterface {
         return {
           isHealthy: true,
           responseTime: Date.now() - startTime,
-          balance: data.balance,
+          balance: (data as any).balance,
           lastChecked: new Date(),
         };
       } else {

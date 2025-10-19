@@ -9,11 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Application = void 0;
+exports.Application = exports.ApplicationStatus = void 0;
 const typeorm_1 = require("typeorm");
 const job_entity_1 = require("./job.entity");
 const user_entity_1 = require("../../users/shared/user.entity");
 const job_enum_1 = require("../../common/enums/job.enum");
+var job_enum_2 = require("../../common/enums/job.enum");
+Object.defineProperty(exports, "ApplicationStatus", { enumerable: true, get: function () { return job_enum_2.ApplicationStatus; } });
 const upload_entity_1 = require("../../profiles/uploads/entities/upload.entity");
 let Application = class Application {
     id;
@@ -25,8 +27,11 @@ let Application = class Application {
     coverLetter;
     resumeUploadId;
     resume;
+    resumeUrl;
     matchScore;
+    notes;
     appliedAt;
+    createdAt;
     updatedAt;
 };
 exports.Application = Application;
@@ -74,13 +79,25 @@ __decorate([
     __metadata("design:type", upload_entity_1.Upload)
 ], Application.prototype, "resume", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Application.prototype, "resumeUrl", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'numeric', precision: 5, scale: 2, nullable: true }),
     __metadata("design:type", Number)
 ], Application.prototype, "matchScore", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Application.prototype, "notes", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'applied_at' }),
     __metadata("design:type", Date)
 ], Application.prototype, "appliedAt", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
+    __metadata("design:type", Date)
+], Application.prototype, "createdAt", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)

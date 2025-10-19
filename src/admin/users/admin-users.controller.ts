@@ -24,7 +24,7 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto';
  * @class AdminUsersController
  * @description Provides admin endpoints for managing all users (applicants and nonprofits).
  */
-@ApiTags('Admin - User Management')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

@@ -99,6 +99,9 @@ For API support and questions:
     .addTag('Users', 'User management and profiles')
     .addTag('Jobs', 'Job posting and management')
     .addTag('Applications', 'Job application management')
+    .addTag('NGO - Job Management', 'NGO-specific job posting and management')
+    .addTag('NGO - Application Management', 'NGO-specific application management')
+    .addTag('Job Seeker - Job Search & Applications', 'Job seeker-specific job search and applications')
     .addTag('Messaging', 'Real-time chat and communication')
     .addTag('Notifications', 'Email and push notifications')
     .addTag('File Uploads', 'Document and image uploads')
@@ -117,9 +120,11 @@ For API support and questions:
       filter: true,
       showExtensions: true,
       showCommonExtensions: true,
-      docExpansion: 'none',
+      docExpansion: 'list', // Changed from 'none' to 'list' to show all endpoints
       defaultModelsExpandDepth: 2,
       defaultModelExpandDepth: 2,
+      tagsSorter: 'alpha', // Sort tags alphabetically
+      operationsSorter: 'alpha', // Sort operations alphabetically
     },
     customSiteTitle: 'Pairova API Documentation',
     customfavIcon: '/favicon.ico',

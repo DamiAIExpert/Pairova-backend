@@ -11,6 +11,9 @@ import {
 import { Conversation } from './conversation.entity';
 import { User } from '../../users/shared/user.entity';
 import { MessageType } from '../../common/enums/message.enum';
+
+// Re-export enums for external use
+export { MessageType } from '../../common/enums/message.enum';
 import { Upload } from '../../profiles/uploads/entities/upload.entity';
 
 /**
@@ -88,4 +91,14 @@ export class Message {
    */
   @Column({ type: 'boolean', default: false })
   isDeleted: boolean;
+
+  @Column({ type: 'uuid', nullable: true })
+  replyToId: string | null;
+
+  @ManyToOne(() => Message, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'reply_to_id' })
+  replyTo: Message | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: any;
 }

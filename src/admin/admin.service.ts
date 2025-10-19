@@ -65,7 +65,7 @@ export class AdminService {
 
     // Calculate hiring rate
     const hiredApplications = await this.applicationRepository.count({
-      where: { status: ApplicationStatus.HIRED },
+      where: { status: ApplicationStatus.ACCEPTED },
     });
     const hiringRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
 
@@ -150,7 +150,7 @@ export class AdminService {
         date: date.toISOString().split('T')[0],
         value: await this.applicationRepository.count({
           where: {
-            status: ApplicationStatus.HIRED,
+            status: ApplicationStatus.ACCEPTED,
             updatedAt: Between(
               new Date(date.getFullYear(), date.getMonth(), date.getDate()),
               new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1),

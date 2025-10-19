@@ -10,4 +10,6 @@ export declare class UsersService {
     create(userDto: Partial<User>): Promise<User>;
     updatePassword(userId: string, passwordHash: string): Promise<void>;
     all(): Promise<User[]>;
+    findByEmailVerificationToken(token: string): Promise<User | undefined>;
+    markEmailAsVerified(userId: string): Promise<void>;
 }

@@ -6,7 +6,7 @@ import { Job } from '../jobs/entities/job.entity';
 import { Application } from '../jobs/entities/application.entity';
 import { ApplicantProfile } from '../users/applicant/applicant.entity';
 import { NonprofitOrg } from '../users/nonprofit/nonprofit.entity';
-import { Role } from '../common/enums/user.enum';
+import { Role } from '../common/enums/role.enum';
 import { CalculateScoreDto } from './dto/calculate-score.dto';
 import { ScoreResultDto } from './dto/score-result.dto';
 import { JobRecommendationsDto } from './dto/job-recommendations.dto';
@@ -83,9 +83,11 @@ export class AiService {
         jobId,
         applicantId,
         score: prediction.score,
+        breakdown: prediction.scoreDetails || {},
+        explanation: (prediction as any).explanation || 'Score calculated based on job-applicant match analysis',
         scoreDetails: prediction.scoreDetails,
         modelVersion: prediction.modelVersion,
-        predictionSource: prediction.predictionSource,
+        predictionSource: prediction.predictionSource, 
         calculatedAt: new Date(),
       };
     } catch (error) {
@@ -139,11 +141,11 @@ export class AiService {
       const jobs = await queryBuilder.getMany();
 
       // Prepare batch data for AI microservice
-      const jobApplicantPairs = jobs.map(job => ({
+      const jobApplicantPairs = await Promise.all(jobs.map(async job => ({
         jobId: job.id,
         applicantId,
-        data: this.prepareJobApplicantData(job, applicant),
-      }));
+        data: await this.prepareJobApplicantData(job, applicant),
+      })));
 
       // Get predictions from cache or AI microservice
       const predictions = await this.predictionCacheService.getBatchPredictions(jobApplicantPairs);
@@ -160,7 +162,7 @@ export class AiService {
           employmentType: job.employmentType,
           placement: job.placement,
           matchScore: prediction.score,
-          matchReason: prediction.scoreDetails?.recommendationReason || 'Good match based on your profile',
+          reason: prediction.scoreDetails?.recommendationReason || 'Good match based on your profile',
           skillGaps: prediction.scoreDetails?.skillGaps || [],
           strengths: prediction.scoreDetails?.strengths || [],
           postedAt: job.createdAt,
@@ -174,8 +176,13 @@ export class AiService {
       return {
         applicantId,
         recommendations: topRecommendations,
-        totalFound: recommendations.length,
+        totalCount: recommendations.length,
         generatedAt: new Date(),
+        metadata: {
+          algorithm: 'hybrid',
+          version: '1.0.0',
+          confidence: 0.85,
+        },
       };
     } catch (error) {
       this.logger.error(`Error getting recommendations: ${error.message}`);
@@ -213,18 +220,29 @@ export class AiService {
       const insights = {
         applicantId,
         totalApplications: applications.length,
+        totalJobsAnalyzed: applications.length,
         averageMatchScore: 0,
         topSkills: [],
         skillGaps: [],
+        topIndustries: [],
         industryPreferences: [],
         locationPreferences: [],
         salaryExpectations: null,
-        improvementSuggestions: [],
+        skillsAnalysis: {
+          strengths: [],
+          weaknesses: [],
+          recommendations: [],
+        },
+        locationInsights: {
+          preferredCities: [],
+          remoteWorkPreference: 0.5,
+        },
         marketTrends: {
           inDemandSkills: [],
           averageSalary: null,
           jobGrowth: null,
         },
+        improvementSuggestions: [],
         generatedAt: new Date(),
       };
 

@@ -23,6 +23,7 @@ const role_enum_1 = require("../../common/enums/role.enum");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const user_entity_1 = require("../../users/shared/user.entity");
 const create_application_dto_1 = require("../dto/create-application.dto");
+const update_application_status_dto_1 = require("../dto/update-application-status.dto");
 let ApplicationsController = class ApplicationsController {
     applicationsService;
     constructor(applicationsService) {
@@ -36,6 +37,9 @@ let ApplicationsController = class ApplicationsController {
     }
     findOne(id, user) {
         return this.applicationsService.findOne(id, user);
+    }
+    updateStatus(id, updateStatusDto, user) {
+        return this.applicationsService.updateStatus(id, updateStatusDto.status, updateStatusDto.notes, user);
     }
 };
 exports.ApplicationsController = ApplicationsController;
@@ -71,8 +75,24 @@ __decorate([
     __metadata("design:paramtypes", [String, user_entity_1.User]),
     __metadata("design:returntype", void 0)
 ], ApplicationsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id/status'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.NONPROFIT),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Update application status (Nonprofit only)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Application status updated successfully.' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden - Only job owner can update status.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Application not found.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_application_status_dto_1.UpdateApplicationStatusDto,
+        user_entity_1.User]),
+    __metadata("design:returntype", void 0)
+], ApplicationsController.prototype, "updateStatus", null);
 exports.ApplicationsController = ApplicationsController = __decorate([
-    (0, swagger_1.ApiTags)('applications'),
+    (0, swagger_1.ApiTags)('Applications'),
     (0, common_1.Controller)('applications'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),

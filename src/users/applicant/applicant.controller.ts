@@ -15,7 +15,7 @@ import { ApplicantProfile } from './applicant.entity';
  * @class ApplicantController
  * @description Manages endpoints for applicant-specific actions, such as viewing and updating their profile.
  */
-@ApiTags('Users - Applicant Profile')
+@ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('profiles/applicant')

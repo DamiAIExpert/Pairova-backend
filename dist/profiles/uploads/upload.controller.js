@@ -76,7 +76,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UploadController.prototype, "uploadFile", null);
 exports.UploadController = UploadController = __decorate([
-    (0, swagger_1.ApiTags)('Profile - Uploads'),
+    (0, swagger_1.ApiTags)('File Uploads'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('profiles/uploads'),

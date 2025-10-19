@@ -28,6 +28,10 @@ let NonprofitOrg = class NonprofitOrg {
     country;
     state;
     city;
+    addressLine1;
+    addressLine2;
+    latitude;
+    longitude;
     createdAt;
     updatedAt;
 };
@@ -93,6 +97,22 @@ __decorate([
     (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "city", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "addressLine1", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "addressLine2", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 8, nullable: true }),
+    __metadata("design:type", Number)
+], NonprofitOrg.prototype, "latitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 11, scale: 8, nullable: true }),
+    __metadata("design:type", Number)
+], NonprofitOrg.prototype, "longitude", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at', type: 'timestamptz' }),
     __metadata("design:type", Date)

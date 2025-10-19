@@ -73,6 +73,18 @@ export class NonprofitOrg {
   @Column({ length: 100, nullable: true })
   city: string;
 
+  @Column({ length: 255, nullable: true })
+  addressLine1: string;
+
+  @Column({ length: 255, nullable: true })
+  addressLine2: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude: number;
+
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude: number;
+
   /**
    * @property {Date} createdAt
    * @description A timestamp automatically set when the organization profile is created.

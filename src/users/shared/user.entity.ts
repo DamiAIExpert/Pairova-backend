@@ -7,6 +7,9 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Role } from '../../common/enums/role.enum';
+
+// Re-export enums for external use
+export { Role } from '../../common/enums/role.enum';
 import { ApplicantProfile } from '../applicant/applicant.entity';
 import { NonprofitOrg } from '../nonprofit/nonprofit.entity';
 
@@ -67,6 +70,13 @@ export class User {
   isVerified: boolean;
 
   /**
+   * @property {string} emailVerificationToken
+   * @description Token used for email verification.
+   */
+  @Column({ name: 'email_verification_token', length: 255, nullable: true })
+  emailVerificationToken: string;
+
+  /**
    * @property {Date} lastLoginAt
    * @description A timestamp recording the last time the user successfully logged in.
    */
@@ -106,5 +116,13 @@ export class User {
    */
   @OneToOne(() => NonprofitOrg, (org) => org.user, { cascade: true })
   nonprofitOrg: NonprofitOrg;
+
+  /**
+   * @property {NonprofitOrg} nonprofitProfile
+   * @description Alias for nonprofitOrg for backward compatibility.
+   */
+  get nonprofitProfile(): NonprofitOrg | undefined {
+    return this.nonprofitOrg;
+  }
 }
 

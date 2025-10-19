@@ -13,6 +13,9 @@ export declare class ApplicantProfile {
     city: string;
     photoUrl: string;
     portfolioUrl: string;
+    skills: string[];
+    experienceLevel: string;
+    preferredEmploymentType: string;
     createdAt: Date;
     updatedAt: Date;
 }

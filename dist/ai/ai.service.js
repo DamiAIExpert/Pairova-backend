@@ -22,7 +22,7 @@ const job_entity_1 = require("../jobs/entities/job.entity");
 const application_entity_1 = require("../jobs/entities/application.entity");
 const applicant_entity_1 = require("../users/applicant/applicant.entity");
 const nonprofit_entity_1 = require("../users/nonprofit/nonprofit.entity");
-const user_enum_1 = require("../common/enums/user.enum");
+const role_enum_1 = require("../common/enums/role.enum");
 const ai_microservice_service_1 = require("./services/ai-microservice.service");
 const prediction_cache_service_1 = require("./services/prediction-cache.service");
 let AiService = AiService_1 = class AiService {
@@ -53,7 +53,7 @@ let AiService = AiService_1 = class AiService {
             throw new common_1.NotFoundException('Job not found');
         }
         const applicant = await this.userRepository.findOne({
-            where: { id: applicantId, role: user_enum_1.Role.APPLICANT },
+            where: { id: applicantId, role: role_enum_1.Role.APPLICANT },
             relations: ['applicantProfile'],
         });
         if (!applicant || !applicant.applicantProfile) {
@@ -67,6 +67,8 @@ let AiService = AiService_1 = class AiService {
                 jobId,
                 applicantId,
                 score: prediction.score,
+                breakdown: prediction.scoreDetails || {},
+                explanation: prediction.explanation || 'Score calculated based on job-applicant match analysis',
                 scoreDetails: prediction.scoreDetails,
                 modelVersion: prediction.modelVersion,
                 predictionSource: prediction.predictionSource,
@@ -79,11 +81,11 @@ let AiService = AiService_1 = class AiService {
         }
     }
     async getRecommendations(applicantId, user, limit = 10) {
-        if (user.role !== user_enum_1.Role.ADMIN && user.id !== applicantId) {
+        if (user.role !== role_enum_1.Role.ADMIN && user.id !== applicantId) {
             throw new Error('Unauthorized access to applicant data');
         }
         const applicant = await this.userRepository.findOne({
-            where: { id: applicantId, role: user_enum_1.Role.APPLICANT },
+            where: { id: applicantId, role: role_enum_1.Role.APPLICANT },
             relations: ['applicantProfile'],
         });
         if (!applicant || !applicant.applicantProfile) {
@@ -106,11 +108,11 @@ let AiService = AiService_1 = class AiService {
                 queryBuilder = queryBuilder.andWhere('job.id NOT IN (:...appliedJobIds)', { appliedJobIds });
             }
             const jobs = await queryBuilder.getMany();
-            const jobApplicantPairs = jobs.map(job => ({
+            const jobApplicantPairs = await Promise.all(jobs.map(async (job) => ({
                 jobId: job.id,
                 applicantId,
-                data: this.prepareJobApplicantData(job, applicant),
-            }));
+                data: await this.prepareJobApplicantData(job, applicant),
+            })));
             const predictions = await this.predictionCacheService.getBatchPredictions(jobApplicantPairs);
             const recommendations = predictions.map((prediction, index) => {
                 const job = jobs[index];
@@ -123,7 +125,7 @@ let AiService = AiService_1 = class AiService {
                     employmentType: job.employmentType,
                     placement: job.placement,
                     matchScore: prediction.score,
-                    matchReason: prediction.scoreDetails?.recommendationReason || 'Good match based on your profile',
+                    reason: prediction.scoreDetails?.recommendationReason || 'Good match based on your profile',
                     skillGaps: prediction.scoreDetails?.skillGaps || [],
                     strengths: prediction.scoreDetails?.strengths || [],
                     postedAt: job.createdAt,
@@ -134,8 +136,13 @@ let AiService = AiService_1 = class AiService {
             return {
                 applicantId,
                 recommendations: topRecommendations,
-                totalFound: recommendations.length,
+                totalCount: recommendations.length,
                 generatedAt: new Date(),
+                metadata: {
+                    algorithm: 'hybrid',
+                    version: '1.0.0',
+                    confidence: 0.85,
+                },
             };
         }
         catch (error) {
@@ -144,11 +151,11 @@ let AiService = AiService_1 = class AiService {
         }
     }
     async getMatchInsights(applicantId, user) {
-        if (user.role !== user_enum_1.Role.ADMIN && user.id !== applicantId) {
+        if (user.role !== role_enum_1.Role.ADMIN && user.id !== applicantId) {
             throw new Error('Unauthorized access to applicant data');
         }
         const applicant = await this.userRepository.findOne({
-            where: { id: applicantId, role: user_enum_1.Role.APPLICANT },
+            where: { id: applicantId, role: role_enum_1.Role.APPLICANT },
             relations: ['applicantProfile'],
         });
         if (!applicant || !applicant.applicantProfile) {
@@ -164,18 +171,29 @@ let AiService = AiService_1 = class AiService {
             const insights = {
                 applicantId,
                 totalApplications: applications.length,
+                totalJobsAnalyzed: applications.length,
                 averageMatchScore: 0,
                 topSkills: [],
                 skillGaps: [],
+                topIndustries: [],
                 industryPreferences: [],
                 locationPreferences: [],
                 salaryExpectations: null,
-                improvementSuggestions: [],
+                skillsAnalysis: {
+                    strengths: [],
+                    weaknesses: [],
+                    recommendations: [],
+                },
+                locationInsights: {
+                    preferredCities: [],
+                    remoteWorkPreference: 0.5,
+                },
                 marketTrends: {
                     inDemandSkills: [],
                     averageSalary: null,
                     jobGrowth: null,
                 },
+                improvementSuggestions: [],
                 generatedAt: new Date(),
             };
             if (applications.length > 0) {

@@ -13,7 +13,7 @@ import { AuditLog } from './entities/audit-log.entity';
  * @class LogsController
  * @description Provides endpoints for viewing audit logs. Access is restricted to administrators.
  */
-@ApiTags('Admin - Audit')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

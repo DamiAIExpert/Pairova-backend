@@ -15,7 +15,7 @@ import { UpsertPageDto } from './dto/upsert-page.dto';
  * @class PagesController
  * @description Provides admin endpoints for managing CMS pages.
  */
-@ApiTags('Admin - CMS')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

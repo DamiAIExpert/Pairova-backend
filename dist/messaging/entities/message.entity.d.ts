@@ -1,6 +1,7 @@
 import { Conversation } from './conversation.entity';
 import { User } from '../../users/shared/user.entity';
 import { MessageType } from '../../common/enums/message.enum';
+export { MessageType } from '../../common/enums/message.enum';
 import { Upload } from '../../profiles/uploads/entities/upload.entity';
 export declare class Message {
     id: string;
@@ -14,4 +15,7 @@ export declare class Message {
     attachment?: Upload | null;
     sentAt: Date;
     isDeleted: boolean;
+    replyToId: string | null;
+    replyTo: Message | null;
+    metadata: any;
 }

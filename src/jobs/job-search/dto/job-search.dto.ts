@@ -4,6 +4,38 @@ import { EmploymentType } from '../../../common/enums/employment-type.enum';
 import { JobPlacement } from '../../../common/enums/job.enum';
 import { JobStatus } from '../../../jobs/entities/job.entity';
 
+export class JobSearchFiltersDto {
+  @ApiProperty({ description: 'Search query', required: false })
+  search?: string;
+
+  @ApiProperty({ description: 'Location filter', required: false })
+  location?: string;
+
+  @ApiProperty({ description: 'Employment type filter', enum: EmploymentType, required: false })
+  employmentType?: EmploymentType;
+
+  @ApiProperty({ description: 'Placement filter', enum: JobPlacement, required: false })
+  placement?: JobPlacement;
+
+  @ApiProperty({ description: 'Minimum salary', required: false })
+  salaryMin?: number;
+
+  @ApiProperty({ description: 'Maximum salary', required: false })
+  salaryMax?: number;
+
+  @ApiProperty({ description: 'Experience level filter', required: false })
+  experienceLevel?: string;
+
+  @ApiProperty({ description: 'NGO ID filter', required: false })
+  ngoId?: string;
+
+  @ApiProperty({ description: 'Sort by field', required: false })
+  sortBy?: string;
+
+  @ApiProperty({ description: 'Sort order', enum: ['ASC', 'DESC'], required: false })
+  sortOrder?: 'ASC' | 'DESC';
+}
+
 export class JobSearchResultDto {
   @ApiProperty({ description: 'Job ID' })
   id: string;
@@ -103,38 +135,6 @@ export class JobSearchDto {
     hasMore: boolean;
     totalPages: number;
   };
-}
-
-export class JobSearchFiltersDto {
-  @ApiProperty({ description: 'Search query', required: false })
-  search?: string;
-
-  @ApiProperty({ description: 'Location filter', required: false })
-  location?: string;
-
-  @ApiProperty({ description: 'Employment type filter', enum: EmploymentType, required: false })
-  employmentType?: EmploymentType;
-
-  @ApiProperty({ description: 'Placement filter', enum: JobPlacement, required: false })
-  placement?: JobPlacement;
-
-  @ApiProperty({ description: 'Minimum salary', required: false })
-  salaryMin?: number;
-
-  @ApiProperty({ description: 'Maximum salary', required: false })
-  salaryMax?: number;
-
-  @ApiProperty({ description: 'Experience level filter', required: false })
-  experienceLevel?: string;
-
-  @ApiProperty({ description: 'NGO ID filter', required: false })
-  ngoId?: string;
-
-  @ApiProperty({ description: 'Sort by field', required: false })
-  sortBy?: string;
-
-  @ApiProperty({ description: 'Sort order', enum: ['ASC', 'DESC'], required: false })
-  sortOrder?: 'ASC' | 'DESC';
 }
 
 export class SearchFiltersDto {

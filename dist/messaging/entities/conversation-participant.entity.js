@@ -19,6 +19,8 @@ let ConversationParticipant = class ConversationParticipant {
     conversation;
     user;
     lastReadAt;
+    lastSeenAt;
+    role;
     joinedAt;
 };
 exports.ConversationParticipant = ConversationParticipant;
@@ -44,6 +46,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
     __metadata("design:type", Date)
 ], ConversationParticipant.prototype, "lastReadAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    __metadata("design:type", Date)
+], ConversationParticipant.prototype, "lastSeenAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['ADMIN', 'MEMBER'], default: 'MEMBER' }),
+    __metadata("design:type", String)
+], ConversationParticipant.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'joined_at' }),
     __metadata("design:type", Date)

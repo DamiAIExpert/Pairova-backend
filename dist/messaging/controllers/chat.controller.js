@@ -18,7 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
-const user_enum_1 = require("../../common/enums/user.enum");
+const role_enum_1 = require("../../common/enums/role.enum");
 const enhanced_chat_service_1 = require("../services/enhanced-chat.service");
 const chat_dto_1 = require("../dto/chat.dto");
 const conversation_entity_1 = require("../entities/conversation.entity");
@@ -269,7 +269,7 @@ __decorate([
 ], ChatController.prototype, "updateMessageStatus", null);
 __decorate([
     (0, common_1.Get)('admin/statistics'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get chat statistics (Admin only)' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -281,7 +281,7 @@ __decorate([
 ], ChatController.prototype, "getChatStatistics", null);
 __decorate([
     (0, common_1.Get)('admin/conversations'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get all conversations (Admin only)' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -294,7 +294,7 @@ __decorate([
 ], ChatController.prototype, "getAllConversations", null);
 __decorate([
     (0, common_1.Delete)('admin/conversations/:id'),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Delete conversation (Admin only)' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -307,7 +307,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "deleteConversation", null);
 exports.ChatController = ChatController = __decorate([
-    (0, swagger_1.ApiTags)('Chat & Messaging'),
+    (0, swagger_1.ApiTags)('Messaging'),
     (0, common_1.Controller)('chat'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),

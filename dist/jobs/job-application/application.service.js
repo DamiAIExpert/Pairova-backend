@@ -71,6 +71,26 @@ let ApplicationsService = class ApplicationsService {
         }
         return application;
     }
+    async updateStatus(id, status, notes, user) {
+        const application = await this.findOne(id, user);
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can update application status.');
+        }
+        if (application.job.orgUserId !== user.id) {
+            throw new common_1.ForbiddenException('You are not authorized to update this application.');
+        }
+        application.status = status;
+        if (notes) {
+            application.notes = notes;
+        }
+        return this.applicationRepository.save(application);
+    }
+    async remove(id) {
+        const result = await this.applicationRepository.delete(id);
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`Application with ID "${id}" not found.`);
+        }
+    }
 };
 exports.ApplicationsService = ApplicationsService;
 exports.ApplicationsService = ApplicationsService = __decorate([

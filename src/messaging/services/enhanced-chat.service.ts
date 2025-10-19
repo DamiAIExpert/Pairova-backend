@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Message } from '../entities/message.entity';
+import { Message, MessageType } from '../entities/message.entity';
 import { Conversation, ConversationType, ConversationStatus } from '../entities/conversation.entity';
 import { ConversationParticipant } from '../entities/conversation-participant.entity';
 import { MessageStatus, MessageStatusType } from '../entities/message-status.entity';
@@ -215,9 +215,9 @@ export class EnhancedChatService {
 
     // Create message
     const message = this.messageRepository.create({
-      conversationId,
+      conversationId: conversationId,
       senderId: sender.id,
-      type,
+      type: type as MessageType,
       content,
       attachmentId,
       replyToId,

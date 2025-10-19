@@ -23,17 +23,17 @@ export class StorageProviderFactoryService {
     switch (type) {
       case StorageType.CLOUDINARY:
         provider = new CloudinaryStorageService();
-        provider.initialize(configuration as CloudinaryConfigDto);
+        // provider.initialize(configuration as CloudinaryConfigDto);
         break;
 
       case StorageType.AWS_S3:
         provider = new AwsS3StorageService();
-        provider.initialize(configuration as AwsS3ConfigDto);
+        // provider.initialize(configuration as AwsS3ConfigDto);
         break;
 
       case StorageType.GOOGLE_CLOUD_STORAGE:
         provider = new GoogleCloudStorageService();
-        provider.initialize(configuration as GoogleCloudConfigDto);
+        // provider.initialize(configuration as GoogleCloudConfigDto);
         break;
 
       case StorageType.AZURE_BLOB:

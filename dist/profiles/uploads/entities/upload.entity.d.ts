@@ -8,5 +8,8 @@ export declare class Upload {
     publicId: string | null;
     mimeType: string | null;
     sizeBytes: number | null;
+    filename: string | null;
+    url: string | null;
+    size: number | null;
     createdAt: Date;
 }

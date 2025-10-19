@@ -8,4 +8,7 @@ export declare class JobsService {
     create(createJobDto: CreateJobDto, currentUser: User): Promise<Job>;
     findAllPublished(): Promise<Job[]>;
     findOne(id: string): Promise<Job>;
+    publish(id: string, currentUser: User): Promise<Job>;
+    close(id: string, currentUser: User): Promise<Job>;
+    getFeaturedJobs(limit?: number): Promise<Job[]>;
 }

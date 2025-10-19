@@ -1,169 +1,108 @@
-// src/ai/dto/match-insights.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 
 export class MatchInsightsDto {
-  @ApiProperty({ description: 'Applicant ID' })
+  @ApiProperty({
+    description: 'The applicant ID for these insights',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
   applicantId: string;
 
-  @ApiProperty({ description: 'Total jobs analyzed' })
+  @ApiProperty({
+    description: 'Total number of applications analyzed',
+    example: 25,
+  })
+  totalApplications: number;
+
+  @ApiProperty({
+    description: 'Total number of jobs analyzed',
+    example: 150,
+  })
   totalJobsAnalyzed: number;
 
-  @ApiProperty({ description: 'Average match score' })
+  @ApiProperty({
+    description: 'Average match score across all applications',
+    example: 78.5,
+  })
   averageMatchScore: number;
 
-  @ApiProperty({ description: 'Top matching industries' })
-  topIndustries: Array<{
-    industry: string;
-    averageScore: number;
-    jobCount: number;
-  }>;
+  @ApiProperty({
+    description: 'Top skills identified',
+    example: ['JavaScript', 'React', 'Node.js'],
+  })
+  topSkills: string[];
 
-  @ApiProperty({ description: 'Skills analysis' })
-  skillsAnalysis: {
-    strongSkills: string[];
-    missingSkills: string[];
-    skillGaps: Array<{
-      skill: string;
-      demand: number;
-      currentLevel: number;
-    }>;
-  };
+  @ApiProperty({
+    description: 'Skill gaps identified',
+    example: ['TypeScript', 'AWS'],
+  })
+  skillGaps: string[];
 
-  @ApiProperty({ description: 'Location preferences' })
-  locationInsights: {
-    preferredLocations: string[];
-    remoteWorkPreference: boolean;
-    locationScoreDistribution: Array<{
-      location: string;
-      averageScore: number;
-    }>;
-  };
+  @ApiProperty({
+    description: 'Top industries the applicant has applied to',
+    example: ['Technology', 'Healthcare', 'Education'],
+  })
+  topIndustries: string[];
 
-  @ApiProperty({ description: 'Experience level insights' })
-  experienceInsights: {
-    currentLevel: string;
-    targetLevel: string;
-    yearsOfExperience: number;
-    recommendedLevel: string;
-  };
+  @ApiProperty({
+    description: 'Industry preferences based on applications',
+    example: ['Technology', 'Healthcare'],
+  })
+  industryPreferences: string[];
 
-  @ApiProperty({ description: 'Salary expectations analysis' })
-  salaryInsights: {
-    expectedRange: {
-      min: number;
-      max: number;
-      currency: string;
-    };
-    marketAverage: number;
-    recommendation: string;
-  };
+  @ApiProperty({
+    description: 'Location preferences based on applications',
+    example: ['San Francisco', 'New York', 'Remote'],
+  })
+  locationPreferences: string[];
 
-  @ApiProperty({ description: 'Career progression recommendations' })
-  careerRecommendations: {
-    nextSteps: string[];
-    skillDevelopment: string[];
-    experienceGaps: string[];
-    networkingOpportunities: string[];
-  };
+  @ApiProperty({
+    description: 'Salary expectations analysis',
+    example: {
+      min: 80000,
+      max: 120000,
+      currency: 'USD',
+    },
+  })
+  salaryExpectations: any;
 
-  @ApiProperty({ description: 'Market trends relevant to the applicant' })
-  marketTrends: {
-    growingSkills: string[];
-    decliningSkills: string[];
-    emergingOpportunities: string[];
-    salaryTrends: string;
-  };
-}
+  @ApiProperty({
+    description: 'Skills analysis details',
+    example: {
+      strengths: ['JavaScript', 'React'],
+      weaknesses: ['TypeScript', 'AWS'],
+      recommendations: ['Learn TypeScript', 'Get AWS certification'],
+    },
+  })
+  skillsAnalysis: any;
 
-export class JobRecommendationDto {
-  @ApiProperty({ description: 'Job ID' })
-  jobId: string;
+  @ApiProperty({
+    description: 'Location insights',
+    example: {
+      preferredCities: ['San Francisco', 'New York'],
+      remoteWorkPreference: 0.8,
+    },
+  })
+  locationInsights: any;
 
-  @ApiProperty({ description: 'Job title' })
-  title: string;
+  @ApiProperty({
+    description: 'Market trends analysis',
+    example: {
+      demandTrend: 'increasing',
+      salaryTrend: 'stable',
+      skillDemand: ['React', 'Node.js', 'TypeScript'],
+    },
+  })
+  marketTrends: any;
 
-  @ApiProperty({ description: 'Organization name' })
-  orgName: string;
+  @ApiProperty({
+    description: 'Improvement suggestions',
+    example: ['Learn TypeScript', 'Get AWS certification', 'Improve soft skills'],
+  })
+  improvementSuggestions: string[];
 
-  @ApiProperty({ description: 'Match score (0-100)' })
-  matchScore: number;
-
-  @ApiProperty({ description: 'Why this job is recommended' })
-  reasoning: string[];
-
-  @ApiProperty({ description: 'Key matching factors' })
-  matchingFactors: {
-    skills: string[];
-    location: boolean;
-    experience: boolean;
-    preferences: boolean;
-  };
-
-  @ApiProperty({ description: 'Potential concerns or gaps' })
-  concerns: string[];
-
-  @ApiProperty({ description: 'Job location' })
-  location: string;
-
-  @ApiProperty({ description: 'Employment type' })
-  employmentType: string;
-
-  @ApiProperty({ description: 'Salary range', required: false })
-  salaryRange?: {
-    min: number;
-    max: number;
-    currency: string;
-  };
-
-  @ApiProperty({ description: 'Date posted' })
-  postedAt: Date;
-}
-
-export class JobRecommendationsDto {
-  @ApiProperty({ description: 'Applicant ID' })
-  applicantId: string;
-
-  @ApiProperty({ description: 'List of recommended jobs', type: [JobRecommendationDto] })
-  recommendations: JobRecommendationDto[];
-
-  @ApiProperty({ description: 'Total recommendations found' })
-  total: number;
-
-  @ApiProperty({ description: 'Algorithm used for recommendations' })
-  algorithm: string;
-
-  @ApiProperty({ description: 'Timestamp of recommendation generation' })
+  @ApiProperty({
+    description: 'Timestamp when insights were generated',
+    example: '2024-01-15T10:30:00Z',
+  })
   generatedAt: Date;
-
-  @ApiProperty({ description: 'Personalization level' })
-  personalizationLevel: 'LOW' | 'MEDIUM' | 'HIGH';
-}
-
-export class CandidateMatchDto {
-  @ApiProperty({ description: 'Applicant ID' })
-  applicantId: string;
-
-  @ApiProperty({ description: 'Applicant name' })
-  name: string;
-
-  @ApiProperty({ description: 'Match score (0-100)' })
-  matchScore: number;
-
-  @ApiProperty({ description: 'Key strengths' })
-  strengths: string[];
-
-  @ApiProperty({ description: 'Potential concerns' })
-  concerns: string[];
-
-  @ApiProperty({ description: 'Years of experience' })
-  yearsOfExperience: number;
-
-  @ApiProperty({ description: 'Current location' })
-  location: string;
-
-  @ApiProperty({ description: 'Skills match percentage' })
-  skillsMatchPercentage: number;
-
-  @ApiProperty({ description: 'Profile completeness' })
-  profileCompleteness: number;
 }

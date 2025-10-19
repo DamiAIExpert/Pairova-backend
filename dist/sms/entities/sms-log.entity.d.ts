@@ -18,6 +18,7 @@ export declare enum SmsType {
 export declare class SmsLog {
     id: string;
     providerId: string;
+    providerName: string;
     provider: SmsProvider;
     recipient: string;
     message: string;

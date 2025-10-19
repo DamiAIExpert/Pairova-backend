@@ -65,14 +65,14 @@ export class PredictionCacheService {
       const aiPrediction = await this.aiMicroserviceService.getPredictionScore(jobApplicantData);
       
       // Store in cache
-      const cachedPrediction = await this.storePrediction(
+      const storedPrediction = await this.storePrediction(
         jobId,
         applicantId,
         aiPrediction,
         'ai_microservice',
       );
 
-      return cachedPrediction;
+      return storedPrediction;
     } catch (error) {
       this.logger.error(`Error getting prediction score: ${error.message}`);
       

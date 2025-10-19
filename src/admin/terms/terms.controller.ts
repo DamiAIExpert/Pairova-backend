@@ -15,7 +15,7 @@ import { User } from '../../users/shared/user.entity';
  * @class TermsController
  * @description Provides admin and public endpoints for managing and viewing legal policies.
  */
-@ApiTags('Admin - Policies')
+@ApiTags('Admin')
 @Controller('admin/terms')
 export class TermsController {
   constructor(private readonly termsService: TermsService) {}

@@ -40,8 +40,8 @@ let PredictionCacheService = PredictionCacheService_1 = class PredictionCacheSer
             }
             this.logger.log(`Cache miss for job ${jobId} and applicant ${applicantId}, fetching from AI microservice`);
             const aiPrediction = await this.aiMicroserviceService.getPredictionScore(jobApplicantData);
-            const cachedPrediction = await this.storePrediction(jobId, applicantId, aiPrediction, 'ai_microservice');
-            return cachedPrediction;
+            const storedPrediction = await this.storePrediction(jobId, applicantId, aiPrediction, 'ai_microservice');
+            return storedPrediction;
         }
         catch (error) {
             this.logger.error(`Error getting prediction score: ${error.message}`);

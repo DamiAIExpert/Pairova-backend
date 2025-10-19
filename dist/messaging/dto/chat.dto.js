@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConversationSearchDto = exports.MessageStatusUpdateDto = exports.ConversationResponseDto = exports.MessageResponseDto = exports.SendMessageDto = exports.UpdateConversationDto = exports.CreateConversationDto = void 0;
 const class_validator_1 = require("class-validator");
@@ -134,7 +133,7 @@ __decorate([
     (0, swagger_1.ApiPropertyOptional)({ enum: message_entity_1.MessageType, description: 'Message type' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(message_entity_1.MessageType),
-    __metadata("design:type", typeof (_a = typeof message_entity_1.MessageType !== "undefined" && message_entity_1.MessageType) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], SendMessageDto.prototype, "type", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Attachment file ID' }),
@@ -186,7 +185,7 @@ __decorate([
 ], MessageResponseDto.prototype, "sender", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: message_entity_1.MessageType, description: 'Message type' }),
-    __metadata("design:type", typeof (_b = typeof message_entity_1.MessageType !== "undefined" && message_entity_1.MessageType) === "function" ? _b : Object)
+    __metadata("design:type", String)
 ], MessageResponseDto.prototype, "type", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Message content' }),

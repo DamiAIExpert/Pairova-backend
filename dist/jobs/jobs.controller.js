@@ -38,6 +38,15 @@ let JobsController = class JobsController {
     findOne(id) {
         return this.jobsService.findOne(id);
     }
+    publish(id, user) {
+        return this.jobsService.publish(id, user);
+    }
+    close(id, user) {
+        return this.jobsService.close(id, user);
+    }
+    getFeaturedJobs(limit) {
+        return this.jobsService.getFeaturedJobs(limit ? parseInt(limit.toString()) : 10);
+    }
 };
 exports.JobsController = JobsController;
 __decorate([
@@ -179,8 +188,48 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], JobsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id/publish'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.NONPROFIT),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, swagger_1.ApiOperation)({ summary: 'Publish a job (change status from DRAFT to PUBLISHED)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Job published successfully.' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden - Only job owner can publish.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Job not found.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, user_entity_1.User]),
+    __metadata("design:returntype", void 0)
+], JobsController.prototype, "publish", null);
+__decorate([
+    (0, common_1.Patch)(':id/close'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.NONPROFIT),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, swagger_1.ApiOperation)({ summary: 'Close a job (change status to CLOSED)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Job closed successfully.' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden - Only job owner can close.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Job not found.' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, user_entity_1.User]),
+    __metadata("design:returntype", void 0)
+], JobsController.prototype, "close", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('featured'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get featured jobs' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Featured jobs retrieved successfully.' }),
+    __param(0, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], JobsController.prototype, "getFeaturedJobs", null);
 exports.JobsController = JobsController = __decorate([
-    (0, swagger_1.ApiTags)('jobs'),
+    (0, swagger_1.ApiTags)('Jobs'),
     (0, common_1.Controller)('jobs'),
     __metadata("design:paramtypes", [jobs_service_1.JobsService])
 ], JobsController);

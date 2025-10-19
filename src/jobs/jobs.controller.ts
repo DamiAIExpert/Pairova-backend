@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Patch,
   Query,
   UseGuards,
   ParseUUIDPipe,
@@ -20,7 +21,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/shared/user.entity';
 import { Public } from '../common/decorators/public.decorator';
 
-@ApiTags('jobs')
+@ApiTags('Jobs')
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
@@ -156,5 +157,37 @@ const newJob = await createJob({
   @ApiResponse({ status: 404, description: 'Job not found.' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.jobsService.findOne(id);
+  }
+
+  @Patch(':id/publish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.NONPROFIT)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Publish a job (change status from DRAFT to PUBLISHED)' })
+  @ApiResponse({ status: 200, description: 'Job published successfully.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Only job owner can publish.' })
+  @ApiResponse({ status: 404, description: 'Job not found.' })
+  publish(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return this.jobsService.publish(id, user);
+  }
+
+  @Patch(':id/close')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.NONPROFIT)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Close a job (change status to CLOSED)' })
+  @ApiResponse({ status: 200, description: 'Job closed successfully.' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Only job owner can close.' })
+  @ApiResponse({ status: 404, description: 'Job not found.' })
+  close(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return this.jobsService.close(id, user);
+  }
+
+  @Public()
+  @Get('featured')
+  @ApiOperation({ summary: 'Get featured jobs' })
+  @ApiResponse({ status: 200, description: 'Featured jobs retrieved successfully.' })
+  getFeaturedJobs(@Query('limit') limit?: number) {
+    return this.jobsService.getFeaturedJobs(limit ? parseInt(limit.toString()) : 10);
   }
 }

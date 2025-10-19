@@ -15,6 +15,7 @@ import { SendMessageDto } from './dto/chat.dto';
 import { WsJwtGuard } from '../auth/strategies/ws-jwt.guard';
 import { User } from '../users/shared/user.entity';
 import { MessageStatusType } from './entities/message-status.entity';
+import { MessageType } from './entities/message.entity';
 
 /**
  * @class EnhancedChatGateway
@@ -258,7 +259,7 @@ export class EnhancedChatGateway implements OnGatewayConnection, OnGatewayDiscon
       const sendMessageDto: SendMessageDto = {
         conversationId: data.conversationId,
         content: data.message || 'Shared a file',
-        type: 'FILE',
+        type: MessageType.FILE,
         attachmentId: data.fileId,
       };
 
@@ -299,7 +300,7 @@ export class EnhancedChatGateway implements OnGatewayConnection, OnGatewayDiscon
     }
 
     try {
-      const conversation = await this.chatService.createConversation(data, user);
+      const conversation = await this.chatService.createConversation(data as any, user);
       
       // Join all participants to the new conversation room
       const socketIds = data.participantIds

@@ -52,6 +52,36 @@ let JobsService = class JobsService {
         }
         return job;
     }
+    async publish(id, currentUser) {
+        const job = await this.findOne(id);
+        if (currentUser.role !== role_enum_1.Role.NONPROFIT || job.orgUserId !== currentUser.id) {
+            throw new common_1.ForbiddenException('Only the job owner can publish this job.');
+        }
+        if (job.status !== job_enum_1.JobStatus.DRAFT) {
+            throw new common_1.ForbiddenException('Only draft jobs can be published.');
+        }
+        job.status = job_enum_1.JobStatus.PUBLISHED;
+        return this.jobsRepository.save(job);
+    }
+    async close(id, currentUser) {
+        const job = await this.findOne(id);
+        if (currentUser.role !== role_enum_1.Role.NONPROFIT || job.orgUserId !== currentUser.id) {
+            throw new common_1.ForbiddenException('Only the job owner can close this job.');
+        }
+        if (job.status === job_enum_1.JobStatus.CLOSED) {
+            throw new common_1.ForbiddenException('Job is already closed.');
+        }
+        job.status = job_enum_1.JobStatus.CLOSED;
+        return this.jobsRepository.save(job);
+    }
+    async getFeaturedJobs(limit = 10) {
+        return this.jobsRepository.find({
+            where: { status: job_enum_1.JobStatus.PUBLISHED },
+            relations: ['organization'],
+            order: { createdAt: 'DESC' },
+            take: limit,
+        });
+    }
 };
 exports.JobsService = JobsService;
 exports.JobsService = JobsService = __decorate([

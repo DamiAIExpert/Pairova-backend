@@ -18,7 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/strategies/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/strategies/guards/roles.guard';
-import { Roles } from '../../auth/strategies/decorators/roles.decorator';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../../users/shared/user.entity';
@@ -36,7 +36,7 @@ import {
 import { FileType } from '../../common/enums/file-type.enum';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
-@ApiTags('Admin - Storage Management')
+@ApiTags('Admin')
 @Controller('admin/storage')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()

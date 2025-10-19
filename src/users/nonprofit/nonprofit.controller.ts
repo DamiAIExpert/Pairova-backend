@@ -15,7 +15,7 @@ import { NonprofitOrg } from './nonprofit.entity';
  * @class NonprofitController
  * @description Manages endpoints for non-profit-specific actions.
  */
-@ApiTags('Users - Non-Profit Profile')
+@ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('profiles/nonprofit')

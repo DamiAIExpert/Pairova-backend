@@ -105,6 +105,42 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('User not found.');
         return user;
     }
+    async logout() {
+        return { message: 'Logged out successfully' };
+    }
+    async verifyEmail(token) {
+        const user = await this.usersService.findOneById(token);
+        if (!user) {
+            throw new common_1.BadRequestException('Invalid or expired verification token');
+        }
+        await this.usersService.markEmailAsVerified(user.id);
+        return { message: 'Email verified successfully' };
+    }
+    async resendVerificationEmail(email) {
+        const user = await this.usersService.findByEmailWithPassword(email);
+        if (!user) {
+            throw new common_1.BadRequestException('User not found');
+        }
+        if (user.isVerified) {
+            throw new common_1.BadRequestException('Email is already verified');
+        }
+        const { code } = await this.otpService.generateOtp(user.id, otp_channel_enum_1.OtpChannel.EMAIL);
+        await this.emailService.sendFromTemplate(user.email, 'Verify Your Email', 'email-verification', { code, name: user.email });
+        return { message: 'Verification email sent successfully' };
+    }
+    async refreshToken(refreshToken) {
+        try {
+            const payload = this.jwtService.verify(refreshToken);
+            const user = await this.usersService.findOneByIdWithProfile(payload.sub);
+            if (!user)
+                throw new common_1.UnauthorizedException('User not found');
+            const newPayload = { sub: user.id, email: user.email, role: user.role };
+            return { accessToken: this.jwtService.sign(newPayload) };
+        }
+        catch (error) {
+            throw new common_1.UnauthorizedException('Invalid refresh token');
+        }
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

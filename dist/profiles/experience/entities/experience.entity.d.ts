@@ -3,6 +3,7 @@ import { EmploymentType } from '../../../common/enums/employment-type.enum';
 export declare class Experience {
     id: string;
     userId: string;
+    applicantId: string;
     user: User;
     company: string;
     roleTitle: string;

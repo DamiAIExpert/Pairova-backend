@@ -16,7 +16,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@ne
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { Role } from '../../common/enums/user.enum';
+import { Role } from '../../common/enums/role.enum';
 import { SmsService } from '../services/sms.service';
 import { CreateSmsProviderDto, UpdateSmsProviderDto, SmsProviderResponseDto, SmsLogResponseDto } from '../dto/sms-provider.dto';
 import { SmsStatus, SmsType } from '../entities/sms-log.entity';
@@ -25,7 +25,7 @@ import { SmsStatus, SmsType } from '../entities/sms-log.entity';
  * @class AdminSmsController
  * @description Admin controller for SMS provider management and configuration
  */
-@ApiTags('Admin SMS')
+@ApiTags('Admin')
 @Controller('admin/sms')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()

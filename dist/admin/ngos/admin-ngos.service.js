@@ -209,7 +209,7 @@ let AdminNgosService = class AdminNgosService {
             return acc;
         }, {});
         const averageApplicationsPerJob = totalJobs > 0 ? totalApplications / totalJobs : 0;
-        const hiredApplications = applicationsByStatus[application_entity_2.ApplicationStatus.HIRED] || 0;
+        const hiredApplications = applicationsByStatus[application_entity_2.ApplicationStatus.ACCEPTED] || 0;
         const hiringRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
         return {
             totalJobs,

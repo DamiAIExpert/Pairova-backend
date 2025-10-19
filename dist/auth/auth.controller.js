@@ -22,6 +22,8 @@ const register_dto_1 = require("./dto/register.dto");
 const login_dto_1 = require("./dto/login.dto");
 const request_password_reset_dto_1 = require("./dto/request-password-reset.dto");
 const reset_password_dto_1 = require("./dto/reset-password.dto");
+const verify_email_dto_1 = require("./dto/verify-email.dto");
+const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const jwt_auth_guard_1 = require("./strategies/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const user_entity_1 = require("../users/shared/user.entity");
@@ -44,6 +46,18 @@ let AuthController = class AuthController {
     }
     getProfile(user) {
         return user;
+    }
+    async logout(user) {
+        return this.authService.logout();
+    }
+    async verifyEmail(dto) {
+        return this.authService.verifyEmail(dto.token);
+    }
+    async resendVerification(dto) {
+        return this.authService.resendVerificationEmail(dto.email);
+    }
+    async refreshToken(dto) {
+        return this.authService.refreshToken(dto.refreshToken);
     }
 };
 exports.AuthController = AuthController;
@@ -191,6 +205,62 @@ __decorate([
     __metadata("design:paramtypes", [user_entity_1.User]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'User Logout' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'User logged out successfully.',
+    }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('logout'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Verify Email Address' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Email verified successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid or expired verification token.' }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('verify-email'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [verify_email_dto_1.VerifyEmailDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verifyEmail", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Resend Email Verification' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Verification email sent successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'User not found or email already verified.' }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('resend-verification'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [request_password_reset_dto_1.RequestPasswordResetDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resendVerification", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Refresh Access Token' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'New access token generated successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid refresh token.' }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('refresh'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [refresh_token_dto_1.RefreshTokenDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "refreshToken", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, common_1.Controller)('auth'),

@@ -24,7 +24,7 @@ import { UpdateJobSeekerDto } from './dto/update-job-seeker.dto';
  * @class AdminJobSeekersController
  * @description Provides admin endpoints for managing job seekers (applicants).
  */
-@ApiTags('Admin - Job Seekers')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

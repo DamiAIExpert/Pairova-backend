@@ -62,7 +62,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TermsController.prototype, "update", null);
 exports.TermsController = TermsController = __decorate([
-    (0, swagger_1.ApiTags)('Admin - Policies'),
+    (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('admin/terms'),
     __metadata("design:paramtypes", [terms_service_1.TermsService])
 ], TermsController);

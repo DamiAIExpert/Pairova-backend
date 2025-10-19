@@ -52,6 +52,9 @@ export class SmsLog {
   @Column({ type: 'uuid' })
   providerId: string;
 
+  @Column({ type: 'varchar', length: 100 })
+  providerName: string;
+
   @ManyToOne(() => SmsProvider, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'provider_id' })
   provider: SmsProvider;

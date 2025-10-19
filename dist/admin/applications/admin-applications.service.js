@@ -120,9 +120,9 @@ let AdminApplicationsService = class AdminApplicationsService {
             acc[app.status] = (acc[app.status] || 0) + 1;
             return acc;
         }, {});
-        const hiredApplications = statusCounts[application_entity_2.ApplicationStatus.HIRED] || 0;
+        const hiredApplications = statusCounts[application_entity_2.ApplicationStatus.ACCEPTED] || 0;
         const hiringRate = total > 0 ? (hiredApplications / total) * 100 : 0;
-        const hiredApps = applications.filter(app => app.status === application_entity_2.ApplicationStatus.HIRED);
+        const hiredApps = applications.filter(app => app.status === application_entity_2.ApplicationStatus.ACCEPTED);
         const averageTimeToHire = hiredApps.length > 0
             ? hiredApps.reduce((sum, app) => {
                 const timeToHire = (app.updatedAt.getTime() - app.createdAt.getTime()) / (1000 * 60 * 60 * 24);
@@ -131,11 +131,11 @@ let AdminApplicationsService = class AdminApplicationsService {
             : undefined;
         return {
             pending: statusCounts[application_entity_2.ApplicationStatus.PENDING] || 0,
-            underReview: statusCounts[application_entity_2.ApplicationStatus.UNDER_REVIEW] || 0,
-            interview: statusCounts[application_entity_2.ApplicationStatus.INTERVIEW] || 0,
+            underReview: statusCounts[application_entity_2.ApplicationStatus.REVIEWED] || 0,
+            interview: statusCounts[application_entity_2.ApplicationStatus.INTERVIEWED] || 0,
             hired: hiredApplications,
-            denied: statusCounts[application_entity_2.ApplicationStatus.DENIED] || 0,
-            withdrawn: statusCounts[application_entity_2.ApplicationStatus.WITHDRAWN] || 0,
+            denied: statusCounts[application_entity_2.ApplicationStatus.REJECTED] || 0,
+            withdrawn: 0,
             total,
             hiringRate,
             averageTimeToHire,
@@ -188,9 +188,9 @@ let AdminApplicationsService = class AdminApplicationsService {
                 applicationCount: jobApplicationCounts[jobId].applicationCount,
             };
         }));
-        const hiredApplications = applicationsByStatus[application_entity_2.ApplicationStatus.HIRED] || 0;
+        const hiredApplications = applicationsByStatus[application_entity_2.ApplicationStatus.ACCEPTED] || 0;
         const hiringRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
-        const hiredApps = applications.filter(app => app.status === application_entity_2.ApplicationStatus.HIRED);
+        const hiredApps = applications.filter(app => app.status === application_entity_2.ApplicationStatus.ACCEPTED);
         const averageTimeToHire = hiredApps.length > 0
             ? hiredApps.reduce((sum, app) => {
                 const timeToHire = (app.updatedAt.getTime() - app.createdAt.getTime()) / (1000 * 60 * 60 * 24);

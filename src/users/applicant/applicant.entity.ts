@@ -80,6 +80,15 @@ export class ApplicantProfile {
   })
   portfolioUrl: string;
 
+  @Column({ type: 'text', array: true, nullable: true })
+  skills: string[];
+
+  @Column({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true })
+  experienceLevel: string;
+
+  @Column({ type: 'enum', enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'INTERNSHIP'], nullable: true })
+  preferredEmploymentType: string;
+
   /**
    * @property {Date} createdAt
    * @description A timestamp automatically set to the date and time of profile creation.

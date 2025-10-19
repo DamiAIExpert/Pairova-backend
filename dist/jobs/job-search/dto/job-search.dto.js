@@ -8,13 +8,65 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NearbyJobsDto = exports.SearchFiltersDto = exports.JobSearchFiltersDto = exports.JobSearchDto = exports.JobSearchResultDto = void 0;
+exports.NearbyJobsDto = exports.SearchFiltersDto = exports.JobSearchDto = exports.JobSearchResultDto = exports.JobSearchFiltersDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const employment_type_enum_1 = require("../../../common/enums/employment-type.enum");
 const job_enum_1 = require("../../../common/enums/job.enum");
 const job_entity_1 = require("../../../jobs/entities/job.entity");
+class JobSearchFiltersDto {
+    search;
+    location;
+    employmentType;
+    placement;
+    salaryMin;
+    salaryMax;
+    experienceLevel;
+    ngoId;
+    sortBy;
+    sortOrder;
+}
+exports.JobSearchFiltersDto = JobSearchFiltersDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Search query', required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "search", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Location filter', required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "location", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Employment type filter', enum: employment_type_enum_1.EmploymentType, required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "employmentType", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Placement filter', enum: job_enum_1.JobPlacement, required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "placement", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Minimum salary', required: false }),
+    __metadata("design:type", Number)
+], JobSearchFiltersDto.prototype, "salaryMin", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Maximum salary', required: false }),
+    __metadata("design:type", Number)
+], JobSearchFiltersDto.prototype, "salaryMax", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Experience level filter', required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "experienceLevel", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'NGO ID filter', required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "ngoId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Sort by field', required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "sortBy", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Sort order', enum: ['ASC', 'DESC'], required: false }),
+    __metadata("design:type", String)
+], JobSearchFiltersDto.prototype, "sortOrder", void 0);
 class JobSearchResultDto {
     id;
     title;
@@ -62,7 +114,7 @@ __decorate([
 ], JobSearchResultDto.prototype, "placement", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Job status', enum: job_entity_1.JobStatus }),
-    __metadata("design:type", typeof (_a = typeof job_entity_1.JobStatus !== "undefined" && job_entity_1.JobStatus) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], JobSearchResultDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Date posted' }),
@@ -166,59 +218,6 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Search metadata' }),
     __metadata("design:type", Object)
 ], JobSearchDto.prototype, "metadata", void 0);
-class JobSearchFiltersDto {
-    search;
-    location;
-    employmentType;
-    placement;
-    salaryMin;
-    salaryMax;
-    experienceLevel;
-    ngoId;
-    sortBy;
-    sortOrder;
-}
-exports.JobSearchFiltersDto = JobSearchFiltersDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Search query', required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "search", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Location filter', required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "location", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Employment type filter', enum: employment_type_enum_1.EmploymentType, required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "employmentType", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Placement filter', enum: job_enum_1.JobPlacement, required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "placement", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Minimum salary', required: false }),
-    __metadata("design:type", Number)
-], JobSearchFiltersDto.prototype, "salaryMin", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Maximum salary', required: false }),
-    __metadata("design:type", Number)
-], JobSearchFiltersDto.prototype, "salaryMax", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Experience level filter', required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "experienceLevel", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'NGO ID filter', required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "ngoId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Sort by field', required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "sortBy", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Sort order', enum: ['ASC', 'DESC'], required: false }),
-    __metadata("design:type", String)
-], JobSearchFiltersDto.prototype, "sortOrder", void 0);
 class SearchFiltersDto {
     employmentTypes;
     placements;

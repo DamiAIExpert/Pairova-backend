@@ -33,7 +33,7 @@ import {
   getMulterMemoryStorage,
 } from './cloudinary.storage';
 
-@ApiTags('Profile - Uploads')
+@ApiTags('File Uploads')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('profiles/uploads')

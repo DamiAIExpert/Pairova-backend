@@ -84,4 +84,24 @@ export class UsersService {
   async all(): Promise<User[]> {
     return this.usersRepository.find();
   }
+
+  /**
+   * Finds a user by email verification token.
+   */
+  async findByEmailVerificationToken(token: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { emailVerificationToken: token } });
+  }
+
+  /**
+   * Marks a user's email as verified.
+   */
+  async markEmailAsVerified(userId: string): Promise<void> {
+    const result: UpdateResult = await this.usersRepository.update(
+      { id: userId },
+      { isVerified: true, emailVerificationToken: null },
+    );
+    if (!result.affected) {
+      throw new NotFoundException(`User with ID "${userId}" not found.`);
+    }
+  }
 }

@@ -44,6 +44,15 @@ export class Upload {
   @Column({ type: 'bigint', nullable: true })
   sizeBytes: number | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  filename: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  url: string | null;
+
+  @Column({ type: 'bigint', nullable: true })
+  size: number | null;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

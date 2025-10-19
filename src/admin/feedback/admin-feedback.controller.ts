@@ -29,7 +29,7 @@ import {
  * @class AdminFeedbackController
  * @description Provides admin endpoints for managing user feedback.
  */
-@ApiTags('Admin - Feedback')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

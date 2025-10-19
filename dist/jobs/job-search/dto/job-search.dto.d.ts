@@ -1,6 +1,18 @@
 import { EmploymentType } from '../../../common/enums/employment-type.enum';
 import { JobPlacement } from '../../../common/enums/job.enum';
 import { JobStatus } from '../../../jobs/entities/job.entity';
+export declare class JobSearchFiltersDto {
+    search?: string;
+    location?: string;
+    employmentType?: EmploymentType;
+    placement?: JobPlacement;
+    salaryMin?: number;
+    salaryMax?: number;
+    experienceLevel?: string;
+    ngoId?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+}
 export declare class JobSearchResultDto {
     id: string;
     title: string;
@@ -41,18 +53,6 @@ export declare class JobSearchDto {
         hasMore: boolean;
         totalPages: number;
     };
-}
-export declare class JobSearchFiltersDto {
-    search?: string;
-    location?: string;
-    employmentType?: EmploymentType;
-    placement?: JobPlacement;
-    salaryMin?: number;
-    salaryMax?: number;
-    experienceLevel?: string;
-    ngoId?: string;
-    sortBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
 }
 export declare class SearchFiltersDto {
     employmentTypes: string[];

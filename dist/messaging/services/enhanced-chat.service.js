@@ -153,9 +153,9 @@ let EnhancedChatService = class EnhancedChatService {
             }
         }
         const message = this.messageRepository.create({
-            conversationId,
+            conversationId: conversationId,
             senderId: sender.id,
-            type,
+            type: type,
             content,
             attachmentId,
             replyToId,

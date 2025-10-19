@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApplicationStatisticsDto = exports.ApplicationPipelineDto = exports.UpdateApplicationStatusDto = exports.AdminApplicationListDto = exports.AdminApplicationDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
@@ -47,7 +46,7 @@ __decorate([
 ], AdminApplicationDto.prototype, "id", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Application status', enum: application_entity_1.ApplicationStatus }),
-    __metadata("design:type", typeof (_a = typeof application_entity_1.ApplicationStatus !== "undefined" && application_entity_1.ApplicationStatus) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], AdminApplicationDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Application creation date' }),
@@ -163,7 +162,7 @@ class UpdateApplicationStatusDto {
 exports.UpdateApplicationStatusDto = UpdateApplicationStatusDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'New application status', enum: application_entity_1.ApplicationStatus }),
-    __metadata("design:type", typeof (_b = typeof application_entity_1.ApplicationStatus !== "undefined" && application_entity_1.ApplicationStatus) === "function" ? _b : Object)
+    __metadata("design:type", String)
 ], UpdateApplicationStatusDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Admin notes about the status change', required: false }),

@@ -14,7 +14,7 @@ import { UpsertPageDto } from '../pages/dto/upsert-page.dto';
  * @class LandingController
  * @description Provides a dedicated endpoint for admins to manage the landing page content.
  */
-@ApiTags('Admin - CMS')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

@@ -21,7 +21,7 @@ import { JobPlacement } from '../../common/enums/job.enum';
  * @class JobSearchController
  * @description Provides endpoints for job search and discovery functionality.
  */
-@ApiTags('Jobs - Search & Discovery')
+@ApiTags('Jobs')
 @Controller('jobs/search')
 export class JobSearchController {
   constructor(private readonly jobSearchService: JobSearchService) {}

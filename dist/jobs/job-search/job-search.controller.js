@@ -130,7 +130,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], JobSearchController.prototype, "getNearbyJobs", null);
 exports.JobSearchController = JobSearchController = __decorate([
-    (0, swagger_1.ApiTags)('Jobs - Search & Discovery'),
+    (0, swagger_1.ApiTags)('Jobs'),
     (0, common_1.Controller)('jobs/search'),
     __metadata("design:paramtypes", [job_search_service_1.JobSearchService])
 ], JobSearchController);

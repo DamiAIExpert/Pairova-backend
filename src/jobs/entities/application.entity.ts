@@ -12,6 +12,9 @@ import {
 import { Job } from './job.entity';
 import { User } from '../../users/shared/user.entity';
 import { ApplicationStatus } from '../../common/enums/job.enum';
+
+// Re-export enums for external use
+export { ApplicationStatus } from '../../common/enums/job.enum';
 import { Upload } from '../../profiles/uploads/entities/upload.entity';
 
 /**
@@ -55,11 +58,20 @@ export class Application {
   @JoinColumn({ name: 'resume_upload_id' })
   resume: Upload | null;
 
+  @Column({ type: 'text', nullable: true })
+  resumeUrl: string | null;
+
   @Column({ type: 'numeric', precision: 5, scale: 2, nullable: true })
   matchScore: number | null;
 
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
+
   @CreateDateColumn({ type: 'timestamptz', name: 'applied_at' })
   appliedAt: Date;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;

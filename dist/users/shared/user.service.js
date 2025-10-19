@@ -58,6 +58,15 @@ let UsersService = class UsersService {
     async all() {
         return this.usersRepository.find();
     }
+    async findByEmailVerificationToken(token) {
+        return this.usersRepository.findOne({ where: { emailVerificationToken: token } });
+    }
+    async markEmailAsVerified(userId) {
+        const result = await this.usersRepository.update({ id: userId }, { isVerified: true, emailVerificationToken: null });
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
+        }
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

@@ -18,11 +18,11 @@ export declare enum JobStatus {
 }
 export declare enum ApplicationStatus {
     PENDING = "PENDING",
-    UNDER_REVIEW = "UNDER_REVIEW",
-    INTERVIEW = "INTERVIEW",
-    HIRED = "HIRED",
-    DENIED = "DENIED",
-    WITHDRAWN = "WITHDRAWN"
+    REVIEWED = "REVIEWED",
+    SHORTLISTED = "SHORTLISTED",
+    INTERVIEWED = "INTERVIEWED",
+    ACCEPTED = "ACCEPTED",
+    REJECTED = "REJECTED"
 }
 export declare enum InterviewStatus {
     SCHEDULED = "SCHEDULED",

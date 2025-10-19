@@ -23,11 +23,11 @@ export enum JobStatus {
 
 export enum ApplicationStatus {
   PENDING = 'PENDING',
-  UNDER_REVIEW = 'UNDER_REVIEW',
-  INTERVIEW = 'INTERVIEW',
-  HIRED = 'HIRED',
-  DENIED = 'DENIED',
-  WITHDRAWN = 'WITHDRAWN',
+  REVIEWED = 'REVIEWED',
+  SHORTLISTED = 'SHORTLISTED',
+  INTERVIEWED = 'INTERVIEWED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }
 
 export enum InterviewStatus {

@@ -55,7 +55,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], InterviewController.prototype, "findOne", null);
 exports.InterviewController = InterviewController = __decorate([
-    (0, swagger_1.ApiTags)('interviews'),
+    (0, swagger_1.ApiTags)('Messaging'),
     (0, common_1.Controller)('interviews'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),

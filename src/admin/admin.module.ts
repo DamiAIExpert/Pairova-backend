@@ -30,6 +30,9 @@ import { AdminApplicationsService } from './applications/admin-applications.serv
 import { AuditLog } from './audit/entities/audit-log.entity';
 import { Page } from './pages/entities/page.entity';
 import { Feedback } from './feedback/entities/feedback.entity';
+import { EmailSettings } from './settings/entities/email-settings.entity';
+import { SmsSettings } from './settings/entities/sms-settings.entity';
+import { Policy } from './terms/entities/policy.entity';
 import { User } from '../users/shared/user.entity';
 import { Job } from '../jobs/entities/job.entity';
 import { Application } from '../jobs/entities/application.entity';
@@ -49,6 +52,9 @@ import { Certification } from '../profiles/certifications/entities/certification
       AuditLog,
       Page,
       Feedback,
+      EmailSettings,
+      SmsSettings,
+      Policy,
       User,
       Job,
       Application,

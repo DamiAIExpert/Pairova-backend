@@ -24,7 +24,7 @@ import { UpdateNgoDto } from './dto/update-ngo.dto';
  * @class AdminNgosController
  * @description Provides admin endpoints for managing NGOs (non-profit organizations).
  */
-@ApiTags('Admin - NGOs')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)

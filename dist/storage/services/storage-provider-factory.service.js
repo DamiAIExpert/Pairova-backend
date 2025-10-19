@@ -19,15 +19,12 @@ let StorageProviderFactoryService = class StorageProviderFactoryService {
         switch (type) {
             case storage_type_enum_1.StorageType.CLOUDINARY:
                 provider = new cloudinary_storage_service_1.CloudinaryStorageService();
-                provider.initialize(configuration);
                 break;
             case storage_type_enum_1.StorageType.AWS_S3:
                 provider = new aws_s3_storage_service_1.AwsS3StorageService();
-                provider.initialize(configuration);
                 break;
             case storage_type_enum_1.StorageType.GOOGLE_CLOUD_STORAGE:
                 provider = new google_cloud_storage_service_1.GoogleCloudStorageService();
-                provider.initialize(configuration);
                 break;
             case storage_type_enum_1.StorageType.AZURE_BLOB:
                 throw new Error('Azure Blob Storage not implemented yet');

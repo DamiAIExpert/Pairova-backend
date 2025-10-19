@@ -7,6 +7,7 @@ import { Application } from '../entities/application.entity';
 import { User } from '../../users/shared/user.entity';
 import { ApplicantProfile } from '../../users/applicant/applicant.entity';
 import { NonprofitOrg } from '../../users/nonprofit/nonprofit.entity';
+import { SavedJobsService } from '../saved-jobs/saved-jobs.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { 
   JobSearchDto, 
@@ -37,6 +38,7 @@ export class JobSearchService {
     private readonly applicantRepository: Repository<ApplicantProfile>,
     @InjectRepository(NonprofitOrg)
     private readonly nonprofitRepository: Repository<NonprofitOrg>,
+    private readonly savedJobsService: SavedJobsService,
   ) {}
 
   /**
@@ -588,5 +590,65 @@ export class JobSearchService {
 
   private toRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
+  }
+
+  /**
+   * Search jobs for applicants with additional applicant-specific logic
+   */
+  async searchJobsForApplicant(
+    user: User,
+    searchParams: any,
+  ): Promise<{ jobs: any[]; total: number; page: number; limit: number; filters: any }> {
+    const { page = 1, limit = 20, ...filters } = searchParams;
+    
+    const result = await this.searchJobs({ page, limit }, filters);
+    
+    return {
+      jobs: result.data,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      filters: result.filters,
+    };
+  }
+
+  /**
+   * Get recommended jobs for applicants
+   */
+  async getRecommendedJobsForApplicant(
+    user: User,
+    limit: number = 10,
+  ): Promise<{ jobs: any[]; total: number }> {
+    const result = await this.getRecommendedJobs(user, { page: 1, limit });
+    
+    return {
+      jobs: result.data,
+      total: result.total,
+    };
+  }
+
+  /**
+   * Get saved jobs for applicants
+   */
+  async getSavedJobsForApplicant(
+    user: User,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ jobs: any[]; total: number; page: number; limit: number }> {
+    return this.savedJobsService.getSavedJobs(user.id, page, limit);
+  }
+
+  /**
+   * Save a job for an applicant
+   */
+  async saveJobForApplicant(user: User, jobId: string): Promise<void> {
+    await this.savedJobsService.saveJob(user.id, jobId);
+  }
+
+  /**
+   * Unsave a job for an applicant
+   */
+  async unsaveJobForApplicant(user: User, jobId: string): Promise<void> {
+    await this.savedJobsService.unsaveJob(user.id, jobId);
   }
 }

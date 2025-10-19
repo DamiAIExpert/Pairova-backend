@@ -20,6 +20,7 @@ const common_1 = require("@nestjs/common");
 const enhanced_chat_service_1 = require("./services/enhanced-chat.service");
 const chat_dto_1 = require("./dto/chat.dto");
 const ws_jwt_guard_1 = require("../auth/strategies/ws-jwt.guard");
+const message_entity_1 = require("./entities/message.entity");
 let EnhancedChatGateway = EnhancedChatGateway_1 = class EnhancedChatGateway {
     chatService;
     server;
@@ -164,7 +165,7 @@ let EnhancedChatGateway = EnhancedChatGateway_1 = class EnhancedChatGateway {
             const sendMessageDto = {
                 conversationId: data.conversationId,
                 content: data.message || 'Shared a file',
-                type: 'FILE',
+                type: message_entity_1.MessageType.FILE,
                 attachmentId: data.fileId,
             };
             const message = await this.chatService.sendMessage(sendMessageDto, user);

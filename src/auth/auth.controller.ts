@@ -21,6 +21,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './strategies/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/shared/user.entity';
@@ -170,5 +172,51 @@ if (response.ok) {
     return user;
   }
 
-  // NOTE: Add refresh and logout endpoints here if needed.
+  @ApiOperation({ summary: 'User Logout' })
+  @ApiResponse({
+    status: 200,
+    description: 'User logged out successfully.',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@CurrentUser() user: User) {
+    return this.authService.logout();
+  }
+
+  @ApiOperation({ summary: 'Verify Email Address' })
+  @ApiResponse({
+    status: 200,
+    description: 'Email verified successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid or expired verification token.' })
+  @Public()
+  @Post('verify-email')
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto.token);
+  }
+
+  @ApiOperation({ summary: 'Resend Email Verification' })
+  @ApiResponse({
+    status: 200,
+    description: 'Verification email sent successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'User not found or email already verified.' })
+  @Public()
+  @Post('resend-verification')
+  async resendVerification(@Body() dto: RequestPasswordResetDto) {
+    return this.authService.resendVerificationEmail(dto.email);
+  }
+
+  @ApiOperation({ summary: 'Refresh Access Token' })
+  @ApiResponse({
+    status: 200,
+    description: 'New access token generated successfully.',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid refresh token.' })
+  @Public()
+  @Post('refresh')
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto.refreshToken);
+  }
 }

@@ -17,7 +17,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@ne
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { Role } from '../../common/enums/user.enum';
+import { Role } from '../../common/enums/role.enum';
 import { EnhancedChatService } from '../services/enhanced-chat.service';
 import {
   CreateConversationDto,
@@ -35,7 +35,7 @@ import { MessageStatusType } from '../entities/message-status.entity';
  * @class ChatController
  * @description Controller for chat and messaging functionality
  */
-@ApiTags('Chat & Messaging')
+@ApiTags('Messaging')
 @Controller('chat')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()

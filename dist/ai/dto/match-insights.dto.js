@@ -9,198 +9,144 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CandidateMatchDto = exports.JobRecommendationsDto = exports.JobRecommendationDto = exports.MatchInsightsDto = void 0;
+exports.MatchInsightsDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 class MatchInsightsDto {
     applicantId;
+    totalApplications;
     totalJobsAnalyzed;
     averageMatchScore;
+    topSkills;
+    skillGaps;
     topIndustries;
+    industryPreferences;
+    locationPreferences;
+    salaryExpectations;
     skillsAnalysis;
     locationInsights;
-    experienceInsights;
-    salaryInsights;
-    careerRecommendations;
     marketTrends;
+    improvementSuggestions;
+    generatedAt;
 }
 exports.MatchInsightsDto = MatchInsightsDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Applicant ID' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'The applicant ID for these insights',
+        example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
     __metadata("design:type", String)
 ], MatchInsightsDto.prototype, "applicantId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Total jobs analyzed' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Total number of applications analyzed',
+        example: 25,
+    }),
+    __metadata("design:type", Number)
+], MatchInsightsDto.prototype, "totalApplications", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Total number of jobs analyzed',
+        example: 150,
+    }),
     __metadata("design:type", Number)
 ], MatchInsightsDto.prototype, "totalJobsAnalyzed", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Average match score' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Average match score across all applications',
+        example: 78.5,
+    }),
     __metadata("design:type", Number)
 ], MatchInsightsDto.prototype, "averageMatchScore", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Top matching industries' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Top skills identified',
+        example: ['JavaScript', 'React', 'Node.js'],
+    }),
+    __metadata("design:type", Array)
+], MatchInsightsDto.prototype, "topSkills", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Skill gaps identified',
+        example: ['TypeScript', 'AWS'],
+    }),
+    __metadata("design:type", Array)
+], MatchInsightsDto.prototype, "skillGaps", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Top industries the applicant has applied to',
+        example: ['Technology', 'Healthcare', 'Education'],
+    }),
     __metadata("design:type", Array)
 ], MatchInsightsDto.prototype, "topIndustries", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Skills analysis' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Industry preferences based on applications',
+        example: ['Technology', 'Healthcare'],
+    }),
+    __metadata("design:type", Array)
+], MatchInsightsDto.prototype, "industryPreferences", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Location preferences based on applications',
+        example: ['San Francisco', 'New York', 'Remote'],
+    }),
+    __metadata("design:type", Array)
+], MatchInsightsDto.prototype, "locationPreferences", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Salary expectations analysis',
+        example: {
+            min: 80000,
+            max: 120000,
+            currency: 'USD',
+        },
+    }),
+    __metadata("design:type", Object)
+], MatchInsightsDto.prototype, "salaryExpectations", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Skills analysis details',
+        example: {
+            strengths: ['JavaScript', 'React'],
+            weaknesses: ['TypeScript', 'AWS'],
+            recommendations: ['Learn TypeScript', 'Get AWS certification'],
+        },
+    }),
     __metadata("design:type", Object)
 ], MatchInsightsDto.prototype, "skillsAnalysis", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Location preferences' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Location insights',
+        example: {
+            preferredCities: ['San Francisco', 'New York'],
+            remoteWorkPreference: 0.8,
+        },
+    }),
     __metadata("design:type", Object)
 ], MatchInsightsDto.prototype, "locationInsights", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Experience level insights' }),
-    __metadata("design:type", Object)
-], MatchInsightsDto.prototype, "experienceInsights", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Salary expectations analysis' }),
-    __metadata("design:type", Object)
-], MatchInsightsDto.prototype, "salaryInsights", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Career progression recommendations' }),
-    __metadata("design:type", Object)
-], MatchInsightsDto.prototype, "careerRecommendations", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Market trends relevant to the applicant' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Market trends analysis',
+        example: {
+            demandTrend: 'increasing',
+            salaryTrend: 'stable',
+            skillDemand: ['React', 'Node.js', 'TypeScript'],
+        },
+    }),
     __metadata("design:type", Object)
 ], MatchInsightsDto.prototype, "marketTrends", void 0);
-class JobRecommendationDto {
-    jobId;
-    title;
-    orgName;
-    matchScore;
-    reasoning;
-    matchingFactors;
-    concerns;
-    location;
-    employmentType;
-    salaryRange;
-    postedAt;
-}
-exports.JobRecommendationDto = JobRecommendationDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Job ID' }),
-    __metadata("design:type", String)
-], JobRecommendationDto.prototype, "jobId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Job title' }),
-    __metadata("design:type", String)
-], JobRecommendationDto.prototype, "title", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Organization name' }),
-    __metadata("design:type", String)
-], JobRecommendationDto.prototype, "orgName", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Match score (0-100)' }),
-    __metadata("design:type", Number)
-], JobRecommendationDto.prototype, "matchScore", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Why this job is recommended' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Improvement suggestions',
+        example: ['Learn TypeScript', 'Get AWS certification', 'Improve soft skills'],
+    }),
     __metadata("design:type", Array)
-], JobRecommendationDto.prototype, "reasoning", void 0);
+], MatchInsightsDto.prototype, "improvementSuggestions", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Key matching factors' }),
-    __metadata("design:type", Object)
-], JobRecommendationDto.prototype, "matchingFactors", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Potential concerns or gaps' }),
-    __metadata("design:type", Array)
-], JobRecommendationDto.prototype, "concerns", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Job location' }),
-    __metadata("design:type", String)
-], JobRecommendationDto.prototype, "location", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Employment type' }),
-    __metadata("design:type", String)
-], JobRecommendationDto.prototype, "employmentType", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Salary range', required: false }),
-    __metadata("design:type", Object)
-], JobRecommendationDto.prototype, "salaryRange", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Date posted' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Timestamp when insights were generated',
+        example: '2024-01-15T10:30:00Z',
+    }),
     __metadata("design:type", Date)
-], JobRecommendationDto.prototype, "postedAt", void 0);
-class JobRecommendationsDto {
-    applicantId;
-    recommendations;
-    total;
-    algorithm;
-    generatedAt;
-    personalizationLevel;
-}
-exports.JobRecommendationsDto = JobRecommendationsDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Applicant ID' }),
-    __metadata("design:type", String)
-], JobRecommendationsDto.prototype, "applicantId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'List of recommended jobs', type: [JobRecommendationDto] }),
-    __metadata("design:type", Array)
-], JobRecommendationsDto.prototype, "recommendations", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Total recommendations found' }),
-    __metadata("design:type", Number)
-], JobRecommendationsDto.prototype, "total", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Algorithm used for recommendations' }),
-    __metadata("design:type", String)
-], JobRecommendationsDto.prototype, "algorithm", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Timestamp of recommendation generation' }),
-    __metadata("design:type", Date)
-], JobRecommendationsDto.prototype, "generatedAt", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Personalization level' }),
-    __metadata("design:type", String)
-], JobRecommendationsDto.prototype, "personalizationLevel", void 0);
-class CandidateMatchDto {
-    applicantId;
-    name;
-    matchScore;
-    strengths;
-    concerns;
-    yearsOfExperience;
-    location;
-    skillsMatchPercentage;
-    profileCompleteness;
-}
-exports.CandidateMatchDto = CandidateMatchDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Applicant ID' }),
-    __metadata("design:type", String)
-], CandidateMatchDto.prototype, "applicantId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Applicant name' }),
-    __metadata("design:type", String)
-], CandidateMatchDto.prototype, "name", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Match score (0-100)' }),
-    __metadata("design:type", Number)
-], CandidateMatchDto.prototype, "matchScore", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Key strengths' }),
-    __metadata("design:type", Array)
-], CandidateMatchDto.prototype, "strengths", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Potential concerns' }),
-    __metadata("design:type", Array)
-], CandidateMatchDto.prototype, "concerns", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Years of experience' }),
-    __metadata("design:type", Number)
-], CandidateMatchDto.prototype, "yearsOfExperience", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Current location' }),
-    __metadata("design:type", String)
-], CandidateMatchDto.prototype, "location", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Skills match percentage' }),
-    __metadata("design:type", Number)
-], CandidateMatchDto.prototype, "skillsMatchPercentage", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Profile completeness' }),
-    __metadata("design:type", Number)
-], CandidateMatchDto.prototype, "profileCompleteness", void 0);
+], MatchInsightsDto.prototype, "generatedAt", void 0);
 //# sourceMappingURL=match-insights.dto.js.map

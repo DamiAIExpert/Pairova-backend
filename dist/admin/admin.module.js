@@ -34,6 +34,9 @@ const admin_applications_service_1 = require("./applications/admin-applications.
 const audit_log_entity_1 = require("./audit/entities/audit-log.entity");
 const page_entity_1 = require("./pages/entities/page.entity");
 const feedback_entity_1 = require("./feedback/entities/feedback.entity");
+const email_settings_entity_1 = require("./settings/entities/email-settings.entity");
+const sms_settings_entity_1 = require("./settings/entities/sms-settings.entity");
+const policy_entity_1 = require("./terms/entities/policy.entity");
 const user_entity_1 = require("../users/shared/user.entity");
 const job_entity_1 = require("../jobs/entities/job.entity");
 const application_entity_1 = require("../jobs/entities/application.entity");
@@ -52,6 +55,9 @@ exports.AdminModule = AdminModule = __decorate([
                 audit_log_entity_1.AuditLog,
                 page_entity_1.Page,
                 feedback_entity_1.Feedback,
+                email_settings_entity_1.EmailSettings,
+                sms_settings_entity_1.SmsSettings,
+                policy_entity_1.Policy,
                 user_entity_1.User,
                 job_entity_1.Job,
                 application_entity_1.Application,

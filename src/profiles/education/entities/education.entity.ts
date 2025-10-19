@@ -10,6 +10,9 @@ export class Education {
   @Column({ type: 'uuid' })
   userId!: string;
 
+  @Column({ type: 'uuid' })
+  applicantId!: string;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User;

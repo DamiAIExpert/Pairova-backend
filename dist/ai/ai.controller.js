@@ -18,7 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const user_enum_1 = require("../common/enums/user.enum");
+const role_enum_1 = require("../common/enums/role.enum");
 const ai_service_1 = require("./ai.service");
 const calculate_score_dto_1 = require("./dto/calculate-score.dto");
 const score_result_dto_1 = require("./dto/score-result.dto");
@@ -121,7 +121,7 @@ __decorate([
         status: 200,
         description: 'AI service status retrieved successfully',
     }),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -133,13 +133,13 @@ __decorate([
         status: 200,
         description: 'Expired predictions cleaned up successfully',
     }),
-    (0, roles_decorator_1.Roles)(user_enum_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "cleanupExpiredPredictions", null);
 exports.AiController = AiController = __decorate([
-    (0, swagger_1.ApiTags)('AI'),
+    (0, swagger_1.ApiTags)('AI Services'),
     (0, common_1.Controller)('ai'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),

@@ -15,6 +15,7 @@ const user_entity_1 = require("../../../users/shared/user.entity");
 let Education = class Education {
     id;
     userId;
+    applicantId;
     user;
     school;
     degree;
@@ -33,6 +34,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'uuid' }),
     __metadata("design:type", String)
 ], Education.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid' }),
+    __metadata("design:type", String)
+], Education.prototype, "applicantId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'user_id' }),

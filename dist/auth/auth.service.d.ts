@@ -18,4 +18,16 @@ export declare class AuthService {
     requestPasswordReset(email: string): Promise<void>;
     resetPassword(email: string, token: string, newPassword: string): Promise<void>;
     verifyUserFromToken(token: string): Promise<User>;
+    logout(): Promise<{
+        message: string;
+    }>;
+    verifyEmail(token: string): Promise<{
+        message: string;
+    }>;
+    resendVerificationEmail(email: string): Promise<{
+        message: string;
+    }>;
+    refreshToken(refreshToken: string): Promise<{
+        accessToken: string;
+    }>;
 }

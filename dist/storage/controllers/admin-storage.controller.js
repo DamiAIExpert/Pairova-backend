@@ -18,7 +18,7 @@ const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../../auth/strategies/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../auth/strategies/guards/roles.guard");
-const roles_decorator_1 = require("../../auth/strategies/decorators/roles.decorator");
+const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
 const role_enum_1 = require("../../common/enums/role.enum");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const user_entity_1 = require("../../users/shared/user.entity");
@@ -298,7 +298,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminStorageController.prototype, "updateProviderPriority", null);
 exports.AdminStorageController = AdminStorageController = __decorate([
-    (0, swagger_1.ApiTags)('Admin - Storage Management'),
+    (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('admin/storage'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),

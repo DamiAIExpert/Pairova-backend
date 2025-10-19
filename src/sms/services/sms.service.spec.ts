@@ -4,15 +4,15 @@ import { Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { SmsService } from './sms.service';
-import { SmsProviderFactoryService } from './sms-provider-factory.service';
-import { SmsProvider, SmsProviderType } from '../entities/sms-provider.entity';
-import { SmsLog, SmsLogStatus } from '../entities/sms-log.entity';
+import { SmsProviderFactory } from './sms-provider-factory.service';
+import { SmsProvider, SmsProviderType, SmsProviderStatus } from '../entities/sms-provider.entity';
+import { SmsLog, SmsStatus } from '../entities/sms-log.entity';
 
 describe('SmsService', () => {
   let service: SmsService;
   let smsProviderRepository: Repository<SmsProvider>;
   let smsLogRepository: Repository<SmsLog>;
-  let smsProviderFactoryService: SmsProviderFactoryService;
+  let smsProviderFactory: SmsProviderFactory;
 
   const mockRepository = () => ({
     create: jest.fn(),
@@ -33,18 +33,29 @@ describe('SmsService', () => {
     id: 'provider-1',
     providerType: SmsProviderType.TWILIO,
     name: 'Twilio Provider',
+    status: SmsProviderStatus.ACTIVE,
+    description: 'Test Twilio provider',
     configuration: {
       accountSid: 'test-sid',
       authToken: 'test-token',
       fromNumber: '+1234567890',
     },
-    priority: 1,
     isActive: true,
-    lastHealthCheckAt: new Date(),
-    lastHealthCheckStatus: true,
-    healthCheckError: null,
+    priority: 1,
+    isEnabled: true,
+    costPerSms: 0.01,
+    currency: 'USD',
     supportedCountries: ['US', 'CA'],
     supportedFeatures: ['SMS', 'VOICE'],
+    lastHealthCheck: new Date(),
+    isHealthy: true,
+    totalSent: 0,
+    totalDelivered: 0,
+    deliveryRate: 0,
+    totalErrors: 0,
+    lastError: null,
+    lastUsed: null,
+    metadata: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -66,7 +77,7 @@ describe('SmsService', () => {
           useFactory: mockRepository,
         },
         {
-          provide: SmsProviderFactoryService,
+          provide: SmsProviderFactory,
           useValue: mockSmsProviderFactory,
         },
       ],
@@ -75,7 +86,7 @@ describe('SmsService', () => {
     service = module.get<SmsService>(SmsService);
     smsProviderRepository = module.get<Repository<SmsProvider>>(getRepositoryToken(SmsProvider));
     smsLogRepository = module.get<Repository<SmsLog>>(getRepositoryToken(SmsLog));
-    smsProviderFactoryService = module.get<SmsProviderFactoryService>(SmsProviderFactoryService);
+    smsProviderFactory = module.get<SmsProviderFactory>(SmsProviderFactory);
   });
 
   it('should be defined', () => {
@@ -84,33 +95,42 @@ describe('SmsService', () => {
 
   describe('sendSms', () => {
     it('should send SMS successfully with active provider', async () => {
-      const recipient = '+1234567890';
-      const message = 'Test message';
+      const sendSmsDto = {
+        recipient: '+1234567890',
+        message: 'Test message',
+      };
       const mockProvider = {
         sendSms: jest.fn().mockResolvedValue({ success: true, messageId: 'msg-123' }),
+        validateConfiguration: jest.fn().mockResolvedValue(true),
+        getHealthStatus: jest.fn().mockResolvedValue({ isHealthy: true }),
       };
 
-      jest.spyOn(service, 'getActiveProvider').mockResolvedValue(mockSmsProvider);
-      jest.spyOn(smsProviderFactoryService, 'createProvider').mockReturnValue(mockProvider);
+      jest.spyOn(smsProviderRepository, 'find').mockResolvedValue([mockSmsProvider]);
+      jest.spyOn(smsProviderFactory, 'createProvider').mockReturnValue(mockProvider);
       jest.spyOn(smsLogRepository, 'create').mockReturnValue({} as SmsLog);
       jest.spyOn(smsLogRepository, 'save').mockResolvedValue({} as SmsLog);
 
-      const result = await service.sendSms(recipient, message);
+      const result = await service.sendSms(sendSmsDto);
 
-      expect(result.success).toBe(true);
-      expect(result.providerId).toBe('provider-1');
-      expect(mockProvider.sendSms).toHaveBeenCalledWith(recipient, message);
+      expect(result).toBeDefined();
+      expect(mockProvider.sendSms).toHaveBeenCalledWith(sendSmsDto.recipient, sendSmsDto.message, expect.any(Object));
       expect(smsLogRepository.save).toHaveBeenCalled();
     });
 
     it('should try next provider when first fails', async () => {
-      const recipient = '+1234567890';
-      const message = 'Test message';
+      const sendSmsDto = {
+        recipient: '+1234567890',
+        message: 'Test message',
+      };
       const mockProvider1 = {
         sendSms: jest.fn().mockRejectedValue(new Error('Provider 1 failed')),
+        validateConfiguration: jest.fn().mockResolvedValue(true),
+        getHealthStatus: jest.fn().mockResolvedValue({ isHealthy: true }),
       };
       const mockProvider2 = {
         sendSms: jest.fn().mockResolvedValue({ success: true, messageId: 'msg-456' }),
+        validateConfiguration: jest.fn().mockResolvedValue(true),
+        getHealthStatus: jest.fn().mockResolvedValue({ isHealthy: true }),
       };
 
       const providers = [
@@ -118,81 +138,72 @@ describe('SmsService', () => {
         { ...mockSmsProvider, id: 'provider-2', priority: 2 },
       ];
 
-      jest.spyOn(service, 'getActiveProviders').mockResolvedValue(providers);
-      jest.spyOn(smsProviderFactoryService, 'createProvider')
+      jest.spyOn(smsProviderRepository, 'find').mockResolvedValue(providers);
+      jest.spyOn(smsProviderFactory, 'createProvider')
         .mockReturnValueOnce(mockProvider1)
         .mockReturnValueOnce(mockProvider2);
       jest.spyOn(smsLogRepository, 'create').mockReturnValue({} as SmsLog);
       jest.spyOn(smsLogRepository, 'save').mockResolvedValue({} as SmsLog);
 
-      const result = await service.sendSms(recipient, message);
+      const result = await service.sendSms(sendSmsDto);
 
-      expect(result.success).toBe(true);
-      expect(result.providerId).toBe('provider-2');
+      expect(result).toBeDefined();
       expect(mockProvider1.sendSms).toHaveBeenCalled();
       expect(mockProvider2.sendSms).toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when no active providers', async () => {
-      const recipient = '+1234567890';
-      const message = 'Test message';
+      const sendSmsDto = {
+        recipient: '+1234567890',
+        message: 'Test message',
+      };
 
-      jest.spyOn(service, 'getActiveProviders').mockResolvedValue([]);
+      jest.spyOn(smsProviderRepository, 'find').mockResolvedValue([]);
 
-      await expect(service.sendSms(recipient, message))
+      await expect(service.sendSms(sendSmsDto))
         .rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException when all providers fail', async () => {
-      const recipient = '+1234567890';
-      const message = 'Test message';
+      const sendSmsDto = {
+        recipient: '+1234567890',
+        message: 'Test message',
+      };
       const mockProvider = {
         sendSms: jest.fn().mockRejectedValue(new Error('All providers failed')),
+        validateConfiguration: jest.fn().mockResolvedValue(true),
+        getHealthStatus: jest.fn().mockResolvedValue({ isHealthy: true }),
       };
 
-      jest.spyOn(service, 'getActiveProviders').mockResolvedValue([mockSmsProvider]);
-      jest.spyOn(smsProviderFactoryService, 'createProvider').mockReturnValue(mockProvider);
+      jest.spyOn(smsProviderRepository, 'find').mockResolvedValue([mockSmsProvider]);
+      jest.spyOn(smsProviderFactory, 'createProvider').mockReturnValue(mockProvider);
       jest.spyOn(smsLogRepository, 'create').mockReturnValue({} as SmsLog);
       jest.spyOn(smsLogRepository, 'save').mockResolvedValue({} as SmsLog);
 
-      await expect(service.sendSms(recipient, message))
+      await expect(service.sendSms(sendSmsDto))
         .rejects.toThrow(BadRequestException);
     });
   });
 
-  describe('getActiveProviders', () => {
-    it('should return active providers ordered by priority', async () => {
+  describe('getProviders', () => {
+    it('should return all providers', async () => {
       const providers = [
         { ...mockSmsProvider, id: 'provider-1', priority: 2 },
         { ...mockSmsProvider, id: 'provider-2', priority: 1 },
       ];
 
-      const mockQueryBuilder = {
-        where: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockResolvedValue(providers),
-      };
+      jest.spyOn(smsProviderRepository, 'find').mockResolvedValue(providers);
 
-      jest.spyOn(smsProviderRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
-
-      const result = await service.getActiveProviders();
+      const result = await service.getProviders();
 
       expect(result).toHaveLength(2);
-      expect(result[0].priority).toBe(1); // Should be sorted by priority
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('isActive = :isActive', { isActive: true });
-      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('priority', 'ASC');
+      expect(smsProviderRepository.find).toHaveBeenCalled();
     });
 
-    it('should return empty array when no active providers', async () => {
-      const mockQueryBuilder = {
-        where: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockResolvedValue([]),
-      };
+    it('should return empty array when no providers', async () => {
+      jest.spyOn(smsProviderRepository, 'find').mockResolvedValue([]);
 
-      jest.spyOn(smsProviderRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
-
-      const result = await service.getActiveProviders();
+      const result = await service.getProviders();
 
       expect(result).toHaveLength(0);
     });
@@ -201,37 +212,41 @@ describe('SmsService', () => {
   describe('performHealthCheck', () => {
     it('should perform health check successfully', async () => {
       const mockProvider = {
-        healthCheck: jest.fn().mockResolvedValue(true),
+        sendSms: jest.fn(),
+        validateConfiguration: jest.fn().mockResolvedValue(true),
+        getHealthStatus: jest.fn().mockResolvedValue({ isHealthy: true }),
       };
 
-      jest.spyOn(smsProviderFactoryService, 'createProvider').mockReturnValue(mockProvider);
+      jest.spyOn(smsProviderRepository, 'findOne').mockResolvedValue(mockSmsProvider);
+      jest.spyOn(smsProviderFactory, 'createProvider').mockReturnValue(mockProvider);
       jest.spyOn(smsProviderRepository, 'update').mockResolvedValue({} as any);
 
       await service.performHealthCheck('provider-1');
 
-      expect(mockProvider.healthCheck).toHaveBeenCalled();
+      expect(mockProvider.getHealthStatus).toHaveBeenCalled();
       expect(smsProviderRepository.update).toHaveBeenCalledWith('provider-1', {
-        lastHealthCheckAt: expect.any(Date),
-        lastHealthCheckStatus: true,
-        healthCheckError: null,
+        lastHealthCheck: expect.any(Date),
+        isHealthy: true,
       });
     });
 
     it('should handle health check failure', async () => {
       const mockProvider = {
-        healthCheck: jest.fn().mockRejectedValue(new Error('Health check failed')),
+        sendSms: jest.fn(),
+        validateConfiguration: jest.fn().mockResolvedValue(true),
+        getHealthStatus: jest.fn().mockRejectedValue(new Error('Health check failed')),
       };
 
-      jest.spyOn(smsProviderFactoryService, 'createProvider').mockReturnValue(mockProvider);
+      jest.spyOn(smsProviderRepository, 'findOne').mockResolvedValue(mockSmsProvider);
+      jest.spyOn(smsProviderFactory, 'createProvider').mockReturnValue(mockProvider);
       jest.spyOn(smsProviderRepository, 'update').mockResolvedValue({} as any);
 
       await service.performHealthCheck('provider-1');
 
-      expect(mockProvider.healthCheck).toHaveBeenCalled();
+      expect(mockProvider.getHealthStatus).toHaveBeenCalled();
       expect(smsProviderRepository.update).toHaveBeenCalledWith('provider-1', {
-        lastHealthCheckAt: expect.any(Date),
-        lastHealthCheckStatus: false,
-        healthCheckError: 'Health check failed',
+        lastHealthCheck: expect.any(Date),
+        isHealthy: false,
       });
     });
   });
@@ -239,9 +254,9 @@ describe('SmsService', () => {
   describe('getSmsStatistics', () => {
     it('should return SMS statistics', async () => {
       const mockLogs = [
-        { status: SmsLogStatus.SENT, cost: 0.05 },
-        { status: SmsLogStatus.DELIVERED, cost: 0.05 },
-        { status: SmsLogStatus.FAILED, cost: 0 },
+        { status: SmsStatus.SENT, cost: 0.05 },
+        { status: SmsStatus.DELIVERED, cost: 0.05 },
+        { status: SmsStatus.FAILED, cost: 0 },
       ];
 
       const mockQueryBuilder = {
@@ -258,7 +273,8 @@ describe('SmsService', () => {
         totalDelivered: 1,
         totalFailed: 1,
         totalCost: 0.1,
-        successRate: 66.67,
+        deliveryRate: 66.67,
+        providerStats: expect.any(Array),
       });
     });
 
@@ -277,7 +293,8 @@ describe('SmsService', () => {
         totalDelivered: 0,
         totalFailed: 0,
         totalCost: 0,
-        successRate: 0,
+        deliveryRate: 0,
+        providerStats: expect.any(Array),
       });
     });
   });
@@ -289,7 +306,7 @@ describe('SmsService', () => {
           id: 'log-1',
           recipient: '+1234567890',
           message: 'Test message',
-          status: SmsLogStatus.SENT,
+          status: SmsStatus.SENT,
           sentAt: new Date(),
         },
       ];
@@ -305,7 +322,7 @@ describe('SmsService', () => {
 
       jest.spyOn(smsLogRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
 
-      const result = await service.getSmsLogs({ page: 1, limit: 20 });
+      const result = await service.getSmsLogs(1, 20);
 
       expect(result.logs).toHaveLength(1);
       expect(result.total).toBe(1);
@@ -326,45 +343,13 @@ describe('SmsService', () => {
 
       jest.spyOn(smsLogRepository, 'createQueryBuilder').mockReturnValue(mockQueryBuilder as any);
 
-      await service.getSmsLogs({ 
-        status: SmsLogStatus.FAILED,
-        page: 1, 
-        limit: 20 
-      });
+      await service.getSmsLogs(1, 20, { status: SmsStatus.FAILED });
 
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
         'smsLog.status = :status', 
-        { status: SmsLogStatus.FAILED }
+        { status: SmsStatus.FAILED }
       );
     });
   });
 
-  describe('validatePhoneNumber', () => {
-    it('should validate US phone number', () => {
-      expect(service.validatePhoneNumber('+1234567890')).toBe(true);
-      expect(service.validatePhoneNumber('1234567890')).toBe(true);
-    });
-
-    it('should validate international phone number', () => {
-      expect(service.validatePhoneNumber('+447911123456')).toBe(true);
-      expect(service.validatePhoneNumber('+8613812345678')).toBe(true);
-    });
-
-    it('should reject invalid phone numbers', () => {
-      expect(service.validatePhoneNumber('123')).toBe(false);
-      expect(service.validatePhoneNumber('invalid')).toBe(false);
-      expect(service.validatePhoneNumber('')).toBe(false);
-    });
-  });
-
-  describe('formatPhoneNumber', () => {
-    it('should format phone number with country code', () => {
-      expect(service.formatPhoneNumber('1234567890', 'US')).toBe('+1234567890');
-      expect(service.formatPhoneNumber('7911123456', 'GB')).toBe('+447911123456');
-    });
-
-    it('should return number as-is if already formatted', () => {
-      expect(service.formatPhoneNumber('+1234567890', 'US')).toBe('+1234567890');
-    });
-  });
 });

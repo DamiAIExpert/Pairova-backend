@@ -6,5 +6,7 @@ export declare class ConversationParticipant {
     conversation: Conversation;
     user: User;
     lastReadAt: Date;
+    lastSeenAt: Date;
+    role: string;
     joinedAt: Date;
 }

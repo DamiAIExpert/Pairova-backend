@@ -15,10 +15,12 @@ const user_entity_1 = require("../../../users/shared/user.entity");
 let Certification = class Certification {
     id;
     userId;
+    applicantId;
     user;
     name;
     issuer;
     issueDate;
+    issuedDate;
     credentialUrl;
     createdAt;
 };
@@ -31,6 +33,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'uuid' }),
     __metadata("design:type", String)
 ], Certification.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid' }),
+    __metadata("design:type", String)
+], Certification.prototype, "applicantId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
@@ -48,6 +54,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Date)
 ], Certification.prototype, "issueDate", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'date', nullable: true }),
+    __metadata("design:type", Date)
+], Certification.prototype, "issuedDate", void 0);
 __decorate([
     (0, typeorm_1.Column)('text', { nullable: true }),
     __metadata("design:type", String)

@@ -33,6 +33,7 @@ var SmsType;
 let SmsLog = class SmsLog {
     id;
     providerId;
+    providerName;
     provider;
     recipient;
     message;
@@ -63,6 +64,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'uuid' }),
     __metadata("design:type", String)
 ], SmsLog.prototype, "providerId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 100 }),
+    __metadata("design:type", String)
+], SmsLog.prototype, "providerName", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => sms_provider_entity_1.SmsProvider, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'provider_id' }),

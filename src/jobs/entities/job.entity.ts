@@ -16,6 +16,9 @@ import {
   JobPlacement,
   JobStatus,
 } from '../../common/enums/job.enum';
+
+// Re-export enums for external use
+export { JobStatus, EmploymentType, JobPlacement } from '../../common/enums/job.enum';
 import { Application } from './application.entity';
 
 /**
@@ -49,6 +52,21 @@ export class Job {
   @Column({ type: 'int', nullable: true })
   experienceMinYrs!: number;
 
+  @Column({ type: 'int', nullable: true })
+  experienceMaxYrs!: number;
+
+  @Column({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true })
+  experienceLevel!: string;
+
+  @Column({ type: 'text', array: true, nullable: true })
+  requiredSkills!: string[];
+
+  @Column({ type: 'text', array: true, nullable: true })
+  benefits!: string[];
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deadline!: Date;
+
   @Column({ length: 100, nullable: true })
   locationCity!: string;
 
@@ -76,6 +94,13 @@ export class Job {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
   creator!: User;
+
+  @Column({ type: 'uuid' })
+  postedById!: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'posted_by_id' })
+  postedBy!: User;
 
   @OneToMany(() => Application, (application) => application.job)
   applications!: Application[];

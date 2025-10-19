@@ -19,6 +19,7 @@ const message_status_entity_1 = require("./entities/message-status.entity");
 const user_entity_1 = require("../users/shared/user.entity");
 const job_entity_1 = require("../jobs/entities/job.entity");
 const upload_entity_1 = require("../profiles/uploads/entities/upload.entity");
+const auth_module_1 = require("../auth/auth.module");
 let MessagingModule = class MessagingModule {
 };
 exports.MessagingModule = MessagingModule;
@@ -34,6 +35,7 @@ exports.MessagingModule = MessagingModule = __decorate([
                 job_entity_1.Job,
                 upload_entity_1.Upload,
             ]),
+            auth_module_1.AuthModule,
         ],
         controllers: [chat_controller_1.ChatController],
         providers: [enhanced_chat_gateway_1.EnhancedChatGateway, enhanced_chat_service_1.EnhancedChatService],

@@ -26,6 +26,9 @@ let ApplicantProfile = class ApplicantProfile {
     city;
     photoUrl;
     portfolioUrl;
+    skills;
+    experienceLevel;
+    preferredEmploymentType;
     createdAt;
     updatedAt;
 };
@@ -93,6 +96,18 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "portfolioUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', array: true, nullable: true }),
+    __metadata("design:type", Array)
+], ApplicantProfile.prototype, "skills", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true }),
+    __metadata("design:type", String)
+], ApplicantProfile.prototype, "experienceLevel", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'INTERNSHIP'], nullable: true }),
+    __metadata("design:type", String)
+], ApplicantProfile.prototype, "preferredEmploymentType", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)

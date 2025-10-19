@@ -296,7 +296,7 @@ export class AdminNgosService {
     }, {} as Record<JobStatus, number>);
 
     const averageApplicationsPerJob = totalJobs > 0 ? totalApplications / totalJobs : 0;
-    const hiredApplications = applicationsByStatus[ApplicationStatus.HIRED] || 0;
+    const hiredApplications = applicationsByStatus[ApplicationStatus.ACCEPTED] || 0;
     const hiringRate = totalApplications > 0 ? (hiredApplications / totalApplications) * 100 : 0;
 
     return {

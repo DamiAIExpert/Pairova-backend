@@ -131,9 +131,10 @@ let SmsService = SmsService_1 = class SmsService {
         }
         const failedLog = this.smsLogRepository.create({
             providerId: providers[0].id,
+            providerName: providers[0].name,
             recipient,
             message,
-            type,
+            type: type,
             status: sms_log_entity_1.SmsStatus.FAILED,
             errorMessage: `All providers failed. Last error: ${lastError}`,
             errorCode: 'ALL_PROVIDERS_FAILED',

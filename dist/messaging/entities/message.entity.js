@@ -9,11 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Message = void 0;
+exports.Message = exports.MessageType = void 0;
 const typeorm_1 = require("typeorm");
 const conversation_entity_1 = require("./conversation.entity");
 const user_entity_1 = require("../../users/shared/user.entity");
 const message_enum_1 = require("../../common/enums/message.enum");
+var message_enum_2 = require("../../common/enums/message.enum");
+Object.defineProperty(exports, "MessageType", { enumerable: true, get: function () { return message_enum_2.MessageType; } });
 const upload_entity_1 = require("../../profiles/uploads/entities/upload.entity");
 let Message = class Message {
     id;
@@ -27,6 +29,9 @@ let Message = class Message {
     attachment;
     sentAt;
     isDeleted;
+    replyToId;
+    replyTo;
+    metadata;
 };
 exports.Message = Message;
 __decorate([
@@ -76,6 +81,19 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
 ], Message.prototype, "isDeleted", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    __metadata("design:type", String)
+], Message.prototype, "replyToId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Message, { nullable: true, onDelete: 'SET NULL' }),
+    (0, typeorm_1.JoinColumn)({ name: 'reply_to_id' }),
+    __metadata("design:type", Message)
+], Message.prototype, "replyTo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
+    __metadata("design:type", Object)
+], Message.prototype, "metadata", void 0);
 exports.Message = Message = __decorate([
     (0, typeorm_1.Entity)('messages')
 ], Message);
