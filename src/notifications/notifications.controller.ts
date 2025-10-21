@@ -98,8 +98,8 @@ export class NotificationsController {
   @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
   async getEmailHistory(
     @Request() req,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 20,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ): Promise<{ emails: any[]; total: number; page: number; limit: number }> {
     // TODO: Implement email history retrieval
     return {
@@ -160,8 +160,8 @@ export class NotificationsController {
   async getReminders(
     @Request() req,
     @Query('status') status?: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 20,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
   ): Promise<{ reminders: any[]; total: number; page: number; limit: number }> {
     // TODO: Implement getUserReminders method in ReminderService
     return {
@@ -224,8 +224,8 @@ export class NotificationsController {
   @ApiQuery({ name: 'unreadOnly', required: false, type: Boolean, description: 'Show only unread notifications' })
   async getNotifications(
     @Request() req,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 20,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
     @Query('unreadOnly') unreadOnly: boolean = false,
   ): Promise<{
     notifications: any[];

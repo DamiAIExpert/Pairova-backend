@@ -52,7 +52,7 @@ export class EnhancedChatService {
     // Validate participants
     const participants = await this.userRepository.find({
       where: { id: In(participantIds) },
-      relations: ['applicantProfile', 'nonprofitProfile'],
+      relations: ['applicantProfile', 'nonprofitOrg'],
     });
 
     if (participants.length !== participantIds.length) {
@@ -64,7 +64,7 @@ export class EnhancedChatService {
     if (jobId) {
       job = await this.jobRepository.findOne({
         where: { id: jobId },
-        relations: ['postedBy', 'postedBy.nonprofitProfile'],
+        relations: ['postedBy', 'postedBy.nonprofitOrg'],
       });
       if (!job) {
         throw new BadRequestException('Job not found');

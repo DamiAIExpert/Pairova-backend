@@ -1,5 +1,6 @@
 // src/admin/feedback/dto/feedback.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsObject } from 'class-validator';
 import { FeedbackStatus, FeedbackPriority, FeedbackCategory } from '../entities/feedback.entity';
 
 export class FeedbackDto {
@@ -74,30 +75,48 @@ export class FeedbackListDto {
 
 export class CreateFeedbackDto {
   @ApiProperty({ description: 'Feedback title' })
+  @IsString()
+  @IsNotEmpty()
   title: string;
 
   @ApiProperty({ description: 'Feedback description' })
+  @IsString()
+  @IsNotEmpty()
   description: string;
 
-  @ApiProperty({ description: 'Feedback category', enum: FeedbackCategory })
-  category: FeedbackCategory;
+  @ApiProperty({ description: 'Feedback category', enum: FeedbackCategory, default: FeedbackCategory.GENERAL })
+  @IsEnum(FeedbackCategory)
+  @IsOptional()
+  category?: FeedbackCategory;
 
   @ApiProperty({ description: 'User email', required: false })
+  @IsString()
+  @IsOptional()
   userEmail?: string;
 
   @ApiProperty({ description: 'User name', required: false })
+  @IsString()
+  @IsOptional()
   userName?: string;
 
   @ApiProperty({ description: 'Browser information', required: false })
+  @IsString()
+  @IsOptional()
   browserInfo?: string;
 
   @ApiProperty({ description: 'Device information', required: false })
+  @IsString()
+  @IsOptional()
   deviceInfo?: string;
 
   @ApiProperty({ description: 'Page URL where feedback was submitted', required: false })
+  @IsString()
+  @IsOptional()
   pageUrl?: string;
 
   @ApiProperty({ description: 'Additional metadata', required: false })
+  @IsObject()
+  @IsOptional()
   metadata?: Record<string, any>;
 }
 
