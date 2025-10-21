@@ -22,7 +22,7 @@ export class NonprofitOrg {
    * @description The primary key, also a foreign key to the `users` table.
    * This establishes a one-to-one link between a user and their organization profile.
    */
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ name: 'user_id', type: 'uuid' })
   userId: string;
 
   /**
@@ -31,13 +31,13 @@ export class NonprofitOrg {
    * is deleted, their organization profile is also removed.
    */
   @OneToOne(() => User, (user) => user.nonprofitOrg, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 
   @Column({ name: 'org_name', length: 255 })
   orgName: string;
 
-  @Column('text', { name: 'logo_url', nullable: true })
+  @Column({ name: 'logo_url', type: 'text', nullable: true })
   logoUrl: string;
 
   @Column('text', { nullable: true })
@@ -73,16 +73,16 @@ export class NonprofitOrg {
   @Column({ length: 100, nullable: true })
   city: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ name: 'address_line1', length: 255, nullable: true })
   addressLine1: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ name: 'address_line2', length: 255, nullable: true })
   addressLine2: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  @Column({ name: 'latitude', type: 'decimal', precision: 10, scale: 8, nullable: true })
   latitude: number;
 
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  @Column({ name: 'longitude', type: 'decimal', precision: 11, scale: 8, nullable: true })
   longitude: number;
 
   /**

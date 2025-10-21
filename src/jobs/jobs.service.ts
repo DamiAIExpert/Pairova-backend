@@ -54,7 +54,7 @@ export class JobsService {
   async findAllPublished(): Promise<Job[]> {
     return this.jobsRepository.find({
       where: { status: JobStatus.PUBLISHED },
-      relations: ['organization'],
+      // relations: ['organization'], // Temporarily disabled to test
     });
   }
 
@@ -67,7 +67,7 @@ export class JobsService {
   async findOne(id: string): Promise<Job> {
     const job = await this.jobsRepository.findOne({
       where: { id },
-      relations: ['organization', 'applications'],
+      relations: ['applications'],
     });
     if (!job) {
       throw new NotFoundException(`Job with ID "${id}" not found.`);
@@ -125,7 +125,7 @@ export class JobsService {
   async getFeaturedJobs(limit: number = 10): Promise<Job[]> {
     return this.jobsRepository.find({
       where: { status: JobStatus.PUBLISHED },
-      relations: ['organization'],
+      // relations: ['organization'], // Temporarily disabled
       order: { createdAt: 'DESC' },
       take: limit,
     });

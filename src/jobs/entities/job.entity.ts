@@ -30,7 +30,7 @@ export class Job {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'org_user_id', type: 'uuid', nullable: true })
   orgUserId!: string;
 
   @ManyToOne(() => NonprofitOrg, { onDelete: 'CASCADE' })
@@ -46,56 +46,56 @@ export class Job {
   @Column({ type: 'enum', enum: JobPlacement, nullable: true })
   placement!: JobPlacement;
 
-  @Column({ type: 'enum', enum: EmploymentType, nullable: true })
+  @Column({ name: 'employment_type', type: 'enum', enum: EmploymentType, nullable: true })
   employmentType!: EmploymentType;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ name: 'experience_min_yrs', type: 'int', nullable: true })
   experienceMinYrs!: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ name: 'experience_max_yrs', type: 'int', nullable: true })
   experienceMaxYrs!: number;
 
-  @Column({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true })
+  @Column({ name: 'experience_level', type: 'varchar', length: 50, nullable: true })
   experienceLevel!: string;
 
-  @Column({ type: 'text', array: true, nullable: true })
+  @Column({ name: 'required_skills', type: 'text', array: true, nullable: true })
   requiredSkills!: string[];
 
-  @Column({ type: 'text', array: true, nullable: true })
+  @Column({ name: 'benefits', type: 'text', array: true, nullable: true })
   benefits!: string[];
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ name: 'deadline', type: 'timestamptz', nullable: true })
   deadline!: Date;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ name: 'location_city', length: 100, nullable: true })
   locationCity!: string;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ name: 'location_state', length: 100, nullable: true })
   locationState!: string;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ name: 'location_country', length: 100, nullable: true })
   locationCountry!: string;
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, nullable: true })
+  @Column({ name: 'salary_min', type: 'numeric', precision: 14, scale: 2, nullable: true })
   salaryMin!: number;
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, nullable: true })
+  @Column({ name: 'salary_max', type: 'numeric', precision: 14, scale: 2, nullable: true })
   salaryMax!: number;
 
-  @Column({ length: 16, nullable: true })
+  @Column({ name: 'currency', length: 16, nullable: true })
   currency!: string;
 
   @Column({ type: 'enum', enum: JobStatus, default: JobStatus.DRAFT })
   status!: JobStatus;
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'created_by', type: 'uuid', nullable: true })
   createdBy!: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
   creator!: User;
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'posted_by_id', type: 'uuid', nullable: true })
   postedById!: string;
 
   @ManyToOne(() => User)
@@ -105,12 +105,12 @@ export class Job {
   @OneToMany(() => Application, (application) => application.job)
   applications!: Application[];
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ name: 'published_at', type: 'timestamptz', nullable: true })
   publishedAt!: Date;
 }

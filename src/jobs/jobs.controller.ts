@@ -151,6 +151,15 @@ const newJob = await createJob({
   }
 
   @Public()
+  @Get('featured')
+  @ApiOperation({ summary: 'Get featured jobs' })
+  @ApiResponse({ status: 200, description: 'Featured jobs retrieved successfully.' })
+  getFeaturedJobs(@Query('limit') limit?: string) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+    return this.jobsService.getFeaturedJobs(parsedLimit);
+  }
+
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get details of a single job' })
   @ApiResponse({ status: 200, description: 'Returns the job details.'})
@@ -183,11 +192,4 @@ const newJob = await createJob({
     return this.jobsService.close(id, user);
   }
 
-  @Public()
-  @Get('featured')
-  @ApiOperation({ summary: 'Get featured jobs' })
-  @ApiResponse({ status: 200, description: 'Featured jobs retrieved successfully.' })
-  getFeaturedJobs(@Query('limit') limit?: number) {
-    return this.jobsService.getFeaturedJobs(limit ? parseInt(limit.toString()) : 10);
-  }
 }

@@ -39,15 +39,39 @@ export class AuthService {
 
   login(user: User) {
     const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
-    return { accessToken: this.jwtService.sign(payload) };
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    
+    // Remove sensitive data
+    const { passwordHash, ...userWithoutPassword } = user;
+    
+    return {
+      accessToken,
+      refreshToken,
+      user: userWithoutPassword,
+    };
   }
 
-  async register(email: string, password: string, role: Role): Promise<User> {
+  async register(email: string, password: string, role: Role) {
     const existing = await this.usersService.findByEmailWithPassword(email);
     if (existing) throw new BadRequestException('Email already in use.');
 
     const passwordHash = await bcrypt.hash(password, 10);
-    return this.usersService.create({ email, passwordHash, role });
+    const user = await this.usersService.create({ email, passwordHash, role });
+    
+    // Generate tokens for the new user
+    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    
+    // Remove sensitive data
+    const { passwordHash: _, ...userWithoutPassword } = user;
+    
+    return {
+      accessToken,
+      refreshToken,
+      user: userWithoutPassword,
+    };
   }
 
   async requestPasswordReset(email: string): Promise<void> {

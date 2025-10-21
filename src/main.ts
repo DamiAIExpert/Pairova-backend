@@ -25,11 +25,21 @@ async function bootstrap() {
 
     // --- CORS Configuration ---
     const clientUrl = configService.get<string>('CLIENT_URL', 'http://localhost:3001');
+    const allowedOrigins = [
+      clientUrl,
+      'http://localhost:5173', // Vite dev server (pairova-frontend)
+      'http://localhost:3001', // Next.js dev server (pairova-admin)
+      'https://pairova.com',
+      'https://www.pairova.com',
+      'https://admin.pairova.com',
+    ];
     app.enableCors({
-      origin: [clientUrl],
+      origin: allowedOrigins,
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     });
-    logger.log(`CORS enabled for origin: ${clientUrl}`);
+    logger.log(`CORS enabled for origins: ${allowedOrigins.join(', ')}`);
 
     // --- Global Application Setup ---
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));

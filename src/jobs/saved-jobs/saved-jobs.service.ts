@@ -57,7 +57,7 @@ export class SavedJobsService {
   }> {
     const [savedJobs, total] = await this.savedJobsRepository.findAndCount({
       where: { userId },
-      relations: ['job', 'job.organization'],
+      relations: ['job'],
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },

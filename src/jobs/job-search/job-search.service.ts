@@ -54,7 +54,7 @@ export class JobSearchService {
     const queryBuilder = this.jobRepository
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.postedBy', 'postedBy')
-      .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+      .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
       .where('job.status = :status', { status: JobStatus.PUBLISHED })
       .skip((page - 1) * limit)
       .take(limit);
@@ -184,7 +184,7 @@ export class JobSearchService {
     const queryBuilder = this.jobRepository
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.postedBy', 'postedBy')
-      .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+      .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
       .where('job.status = :status', { status: JobStatus.PUBLISHED })
       .skip((page - 1) * limit)
       .take(limit);
@@ -253,13 +253,10 @@ export class JobSearchService {
     const trendingJobs = await this.jobRepository
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.postedBy', 'postedBy')
-      .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
-      .leftJoin('job.applications', 'application')
+      .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
       .where('job.status = :status', { status: JobStatus.PUBLISHED })
       .andWhere('job.createdAt >= :thirtyDaysAgo', { thirtyDaysAgo })
-      .groupBy('job.id, postedBy.id, nonprofitProfile.id')
-      .addGroupBy('application.id')
-      .orderBy('COUNT(application.id)', 'DESC')
+      .orderBy('job.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .getMany();
@@ -328,7 +325,7 @@ export class JobSearchService {
 
       this.nonprofitRepository
         .createQueryBuilder('nonprofit')
-        .select('nonprofit.id', 'id')
+        .select('nonprofit.userId', 'id')
         .addSelect('nonprofit.orgName', 'name')
         .addSelect('CONCAT(nonprofit.city, \', \', nonprofit.country)', 'location')
         .getRawMany(),
@@ -376,7 +373,7 @@ export class JobSearchService {
     // Get the reference job
     const referenceJob = await this.jobRepository.findOne({
       where: { id: jobId },
-      relations: ['postedBy', 'postedBy.nonprofitProfile'],
+      relations: ['postedBy', 'postedBy.nonprofitOrg'],
     });
 
     if (!referenceJob) {
@@ -387,7 +384,7 @@ export class JobSearchService {
     const similarJobs = await this.jobRepository
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.postedBy', 'postedBy')
-      .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+      .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
       .where('job.id != :jobId', { jobId })
       .andWhere('job.status = :status', { status: JobStatus.PUBLISHED })
       .andWhere(
@@ -443,7 +440,7 @@ export class JobSearchService {
     const nearbyJobs = await this.jobRepository
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.postedBy', 'postedBy')
-      .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+      .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
       .where('job.status = :status', { status: JobStatus.PUBLISHED })
       .andWhere('nonprofitProfile.latitude IS NOT NULL')
       .andWhere('nonprofitProfile.longitude IS NOT NULL')
