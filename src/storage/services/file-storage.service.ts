@@ -29,22 +29,34 @@ export class FileStorageService {
     options: UploadOptions = {},
   ): Promise<FileUpload> {
     try {
+      this.logger.log('🔍 [FileStorageService] Starting file upload...');
+      this.logger.log(`📦 File: ${file.originalname}, Size: ${file.size}, Type: ${file.mimetype}`);
+      
       // Get the best available storage provider
+      this.logger.log('🔍 Getting best storage provider...');
       const provider = await this.getBestStorageProvider();
       if (!provider) {
+        this.logger.error('❌ No active storage providers available');
         throw new BadRequestException('No active storage providers available');
       }
+      this.logger.log(`✅ Found provider: ${provider.name} (${provider.type})`);
 
       // Validate file
+      this.logger.log('🔍 Validating file...');
       this.validateFile(file);
+      this.logger.log('✅ File validation passed');
 
       // Upload file using the provider
+      this.logger.log('🔍 Getting storage provider instance...');
       const storageService = this.storageProviderFactory.getProvider(
         provider.type,
         provider.configuration,
       );
+      this.logger.log('✅ Storage provider instance created');
 
+      this.logger.log('⬆️  Uploading to storage...');
       const uploadResult = await storageService.upload(file, options);
+      this.logger.log('✅ Upload to storage successful:', uploadResult.url);
 
       // Save file record to database
       const fileUpload = this.fileUploadRepository.create({

@@ -28,6 +28,10 @@ export class UploadService {
     kind: string = 'general',
     fileType?: FileType,
   ): Promise<UploadDto> {
+    console.log('🔍 [UploadService] Starting upload process...');
+    console.log(`📦 File: ${file?.originalname}, Size: ${file?.size}, Type: ${file?.mimetype}`);
+    console.log(`👤 User: ${user?.id}, Kind: ${kind}`);
+    
     if (!file) {
       throw new BadRequestException('No file provided');
     }
@@ -37,8 +41,10 @@ export class UploadService {
 
     // Determine file type based on kind or provided fileType
     const resolvedFileType = fileType || this.mapKindToFileType(kind);
+    console.log(`📁 Resolved file type: ${resolvedFileType}`);
 
     // Upload using dynamic storage service
+    console.log('⬆️  Calling fileStorageService.uploadFile...');
     const uploadedFile = await this.fileStorageService.uploadFile(
       file,
       user.id,
@@ -49,6 +55,7 @@ export class UploadService {
         metadata: { kind, originalUpload: true },
       },
     );
+    console.log('✅ File uploaded to storage:', uploadedFile.url);
 
     // Also persist to legacy uploads table for backward compatibility
     const record = this.uploadsRepo.create({
