@@ -34,7 +34,7 @@ import {
 } from './cloudinary.storage';
 
 @ApiTags('File Uploads')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('profiles/uploads')
 export class UploadController {
@@ -76,9 +76,9 @@ export class UploadController {
         validators: [
           // 10 MB max (adjust as needed)
           new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
-          // Validate MIME type (matches 'image/jpeg', 'image/png', 'application/pdf')
+          // Validate MIME type (images including SVG, and PDF)
           new FileTypeValidator({
-            fileType: /(image\/jpeg|image\/png|application\/pdf)/,
+            fileType: /(image\/jpeg|image\/jpg|image\/png|image\/svg\+xml|application\/pdf)/,
           }),
         ],
       }),
