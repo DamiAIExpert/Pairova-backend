@@ -81,13 +81,26 @@ export class UploadController {
             fileType: /(image\/jpeg|image\/jpg|image\/png|image\/svg\+xml|application\/pdf)/,
           }),
         ],
+        fileIsRequired: false, // Make file optional to debug
       }),
     )
     file: Express.Multer.File, // memory storage -> file.buffer is set
     @CurrentUser() user: User,
     @Query('kind') kind: string = 'general',
   ) {
-    // Your service can now read file.buffer and forward to Cloudinary using uploadToCloudinary()
-    return this.uploadService.processAndRecordUpload(file, user, kind);
+    console.log('🎯 [UploadController] Upload endpoint hit!');
+    console.log('📦 File received:', file ? `${file.originalname} (${file.mimetype}, ${file.size} bytes)` : 'NO FILE');
+    console.log('👤 User:', user?.id);
+    console.log('🏷️  Kind:', kind);
+    
+    try {
+      const result = await this.uploadService.processAndRecordUpload(file, user, kind);
+      console.log('✅ [UploadController] Upload completed successfully');
+      return result;
+    } catch (error) {
+      console.error('❌ [UploadController] Upload failed:', error.message);
+      console.error(error.stack);
+      throw error;
+    }
   }
 }
