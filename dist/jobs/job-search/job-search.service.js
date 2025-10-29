@@ -45,7 +45,7 @@ let JobSearchService = class JobSearchService {
         const queryBuilder = this.jobRepository
             .createQueryBuilder('job')
             .leftJoinAndSelect('job.postedBy', 'postedBy')
-            .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+            .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
             .where('job.status = :status', { status: job_entity_2.JobStatus.PUBLISHED })
             .skip((page - 1) * limit)
             .take(limit);
@@ -91,7 +91,7 @@ let JobSearchService = class JobSearchService {
         const searchTime = Date.now() - startTime;
         const totalPages = Math.ceil(total / limit);
         return {
-            data: jobResults,
+            jobs: jobResults,
             total,
             page,
             limit,
@@ -114,7 +114,7 @@ let JobSearchService = class JobSearchService {
         });
         if (!applicantProfile) {
             return {
-                data: [],
+                jobs: [],
                 total: 0,
                 page,
                 limit,
@@ -136,7 +136,7 @@ let JobSearchService = class JobSearchService {
         const queryBuilder = this.jobRepository
             .createQueryBuilder('job')
             .leftJoinAndSelect('job.postedBy', 'postedBy')
-            .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+            .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
             .where('job.status = :status', { status: job_entity_2.JobStatus.PUBLISHED })
             .skip((page - 1) * limit)
             .take(limit);
@@ -162,7 +162,7 @@ let JobSearchService = class JobSearchService {
         }));
         jobResults.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
         return {
-            data: jobResults,
+            jobs: jobResults,
             total,
             page,
             limit,
@@ -182,13 +182,10 @@ let JobSearchService = class JobSearchService {
         const trendingJobs = await this.jobRepository
             .createQueryBuilder('job')
             .leftJoinAndSelect('job.postedBy', 'postedBy')
-            .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
-            .leftJoin('job.applications', 'application')
+            .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
             .where('job.status = :status', { status: job_entity_2.JobStatus.PUBLISHED })
             .andWhere('job.createdAt >= :thirtyDaysAgo', { thirtyDaysAgo })
-            .groupBy('job.id, postedBy.id, nonprofitProfile.id')
-            .addGroupBy('application.id')
-            .orderBy('COUNT(application.id)', 'DESC')
+            .orderBy('job.createdAt', 'DESC')
             .skip((page - 1) * limit)
             .take(limit)
             .getMany();
@@ -199,7 +196,7 @@ let JobSearchService = class JobSearchService {
             .getCount();
         const jobResults = await Promise.all(trendingJobs.map(async (job) => this.transformToSearchResult(job)));
         return {
-            data: jobResults,
+            jobs: jobResults,
             total,
             page,
             limit,
@@ -237,7 +234,7 @@ let JobSearchService = class JobSearchService {
                 .getRawMany(),
             this.nonprofitRepository
                 .createQueryBuilder('nonprofit')
-                .select('nonprofit.id', 'id')
+                .select('nonprofit.userId', 'id')
                 .addSelect('nonprofit.orgName', 'name')
                 .addSelect('CONCAT(nonprofit.city, \', \', nonprofit.country)', 'location')
                 .getRawMany(),
@@ -272,7 +269,7 @@ let JobSearchService = class JobSearchService {
         const { page = 1, limit = 10 } = paginationDto;
         const referenceJob = await this.jobRepository.findOne({
             where: { id: jobId },
-            relations: ['postedBy', 'postedBy.nonprofitProfile'],
+            relations: ['postedBy', 'postedBy.nonprofitOrg'],
         });
         if (!referenceJob) {
             throw new Error('Job not found');
@@ -280,7 +277,7 @@ let JobSearchService = class JobSearchService {
         const similarJobs = await this.jobRepository
             .createQueryBuilder('job')
             .leftJoinAndSelect('job.postedBy', 'postedBy')
-            .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+            .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
             .where('job.id != :jobId', { jobId })
             .andWhere('job.status = :status', { status: job_entity_2.JobStatus.PUBLISHED })
             .andWhere('(job.employmentType = :employmentType OR job.placement = :placement OR nonprofitProfile.city = :city)', {
@@ -299,7 +296,7 @@ let JobSearchService = class JobSearchService {
             .getCount();
         const jobResults = await Promise.all(similarJobs.map(async (job) => this.transformToSearchResult(job)));
         return {
-            data: jobResults,
+            jobs: jobResults,
             total,
             page,
             limit,
@@ -318,7 +315,7 @@ let JobSearchService = class JobSearchService {
         const nearbyJobs = await this.jobRepository
             .createQueryBuilder('job')
             .leftJoinAndSelect('job.postedBy', 'postedBy')
-            .leftJoinAndSelect('postedBy.nonprofitProfile', 'nonprofitProfile')
+            .leftJoinAndSelect('postedBy.nonprofitOrg', 'nonprofitProfile')
             .where('job.status = :status', { status: job_entity_2.JobStatus.PUBLISHED })
             .andWhere('nonprofitProfile.latitude IS NOT NULL')
             .andWhere('nonprofitProfile.longitude IS NOT NULL')
@@ -334,7 +331,7 @@ let JobSearchService = class JobSearchService {
         });
         const jobResults = await Promise.all(filteredJobs.map(async (job) => this.transformToSearchResult(job)));
         return {
-            data: jobResults,
+            jobs: jobResults,
             total: filteredJobs.length,
             page,
             limit,
@@ -429,7 +426,7 @@ let JobSearchService = class JobSearchService {
         const { page = 1, limit = 20, ...filters } = searchParams;
         const result = await this.searchJobs({ page, limit }, filters);
         return {
-            jobs: result.data,
+            jobs: result.jobs,
             total: result.total,
             page: result.page,
             limit: result.limit,
@@ -439,7 +436,7 @@ let JobSearchService = class JobSearchService {
     async getRecommendedJobsForApplicant(user, limit = 10) {
         const result = await this.getRecommendedJobs(user, { page: 1, limit });
         return {
-            jobs: result.data,
+            jobs: result.jobs,
             total: result.total,
         };
     }

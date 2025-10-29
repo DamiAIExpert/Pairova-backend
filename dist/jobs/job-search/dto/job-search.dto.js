@@ -181,7 +181,7 @@ __decorate([
     __metadata("design:type", String)
 ], JobSearchResultDto.prototype, "applicationStatus", void 0);
 class JobSearchDto {
-    data;
+    jobs;
     total;
     page;
     limit;
@@ -193,7 +193,7 @@ exports.JobSearchDto = JobSearchDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ type: [JobSearchResultDto], description: 'List of jobs' }),
     __metadata("design:type", Array)
-], JobSearchDto.prototype, "data", void 0);
+], JobSearchDto.prototype, "jobs", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Total number of jobs found' }),
     __metadata("design:type", Number)

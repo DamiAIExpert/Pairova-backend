@@ -29,12 +29,17 @@ let ApplicantProfile = class ApplicantProfile {
     skills;
     experienceLevel;
     preferredEmploymentType;
+    allowAiTraining;
+    allowProfileIndexing;
+    allowDataAnalytics;
+    allowThirdPartySharing;
+    privacyUpdatedAt;
     createdAt;
     updatedAt;
 };
 exports.ApplicantProfile = ApplicantProfile;
 __decorate([
-    (0, typeorm_1.PrimaryColumn)({ type: 'uuid' }),
+    (0, typeorm_1.PrimaryColumn)({ type: 'uuid', name: 'user_id' }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "userId", void 0);
 __decorate([
@@ -43,11 +48,11 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], ApplicantProfile.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'first_name', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "firstName", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'last_name', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "lastName", void 0);
 __decorate([
@@ -84,13 +89,15 @@ __decorate([
 ], ApplicantProfile.prototype, "city", void 0);
 __decorate([
     (0, typeorm_1.Column)('text', {
+        name: 'photo_url',
         nullable: true,
-        comment: 'URL to the applicant’s profile photo.',
+        comment: 'URL to the applicant profile photo.',
     }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "photoUrl", void 0);
 __decorate([
     (0, typeorm_1.Column)('text', {
+        name: 'portfolio_url',
         nullable: true,
         comment: 'URL to an external portfolio (e.g., Behance, GitHub).',
     }),
@@ -101,19 +108,74 @@ __decorate([
     __metadata("design:type", Array)
 ], ApplicantProfile.prototype, "skills", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'experience_level',
+        type: 'enum',
+        enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'],
+        nullable: true
+    }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "experienceLevel", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'INTERNSHIP'], nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'preferred_employment_type',
+        type: 'enum',
+        enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'INTERNSHIP'],
+        nullable: true
+    }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "preferredEmploymentType", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.Column)({
+        name: 'allow_ai_training',
+        type: 'boolean',
+        default: true,
+        comment: 'Whether the applicant allows their data to be used for AI model training'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowAiTraining", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_profile_indexing',
+        type: 'boolean',
+        default: true,
+        comment: 'Whether the applicant profile can be indexed and shown in search results'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowProfileIndexing", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_data_analytics',
+        type: 'boolean',
+        default: true,
+        comment: 'Whether the applicant allows their data to be used for analytics and insights'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowDataAnalytics", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_third_party_sharing',
+        type: 'boolean',
+        default: false,
+        comment: 'Whether the applicant allows their data to be shared with third-party partners'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowThirdPartySharing", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'privacy_updated_at',
+        type: 'timestamptz',
+        nullable: true,
+        comment: 'Timestamp of the last privacy settings update'
+    }),
+    __metadata("design:type", Date)
+], ApplicantProfile.prototype, "privacyUpdatedAt", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ name: 'created_at', type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], ApplicantProfile.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at', type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], ApplicantProfile.prototype, "updatedAt", void 0);
 exports.ApplicantProfile = ApplicantProfile = __decorate([

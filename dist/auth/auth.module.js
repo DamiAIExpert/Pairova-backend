@@ -15,7 +15,11 @@ const auth_controller_1 = require("./auth.controller");
 const local_strategy_1 = require("./strategies/local.strategy");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
 const otp_strategy_1 = require("./strategies/otp.strategy");
+const google_strategy_1 = require("./strategies/google.strategy");
+const linkedin_strategy_1 = require("./strategies/linkedin.strategy");
 const user_module_1 = require("../users/shared/user.module");
+const applicant_module_1 = require("../users/applicant/applicant.module");
+const nonprofit_module_1 = require("../users/nonprofit/nonprofit.module");
 const otp_module_1 = require("./otp/otp.module");
 const notifications_module_1 = require("../notifications/notifications.module");
 let AuthModule = class AuthModule {
@@ -30,10 +34,19 @@ exports.AuthModule = AuthModule = __decorate([
                 signOptions: { expiresIn: process.env.JWT_EXPIRES || '1d' },
             }),
             user_module_1.UsersModule,
+            applicant_module_1.ApplicantModule,
+            nonprofit_module_1.NonprofitModule,
             otp_module_1.OtpModule,
             notifications_module_1.NotificationsModule,
         ],
-        providers: [auth_service_1.AuthService, local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy, otp_strategy_1.OtpStrategy],
+        providers: [
+            auth_service_1.AuthService,
+            local_strategy_1.LocalStrategy,
+            jwt_strategy_1.JwtStrategy,
+            otp_strategy_1.OtpStrategy,
+            google_strategy_1.GoogleStrategy,
+            linkedin_strategy_1.LinkedInStrategy,
+        ],
         controllers: [auth_controller_1.AuthController],
         exports: [auth_service_1.AuthService],
     })

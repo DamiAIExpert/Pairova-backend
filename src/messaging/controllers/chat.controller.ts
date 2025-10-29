@@ -38,7 +38,7 @@ import { MessageStatusType } from '../entities/message-status.entity';
 @ApiTags('Messaging')
 @Controller('chat')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ChatController {
   constructor(private readonly chatService: EnhancedChatService) {}
 

@@ -303,10 +303,60 @@ export class AiService {
 
   /**
    * Prepare job and applicant data for AI microservice
+   * Respects applicant privacy settings
    */
   private async prepareJobApplicantData(job: Job, applicant: User): Promise<JobApplicantData> {
     const applicantProfile = applicant.applicantProfile;
     const nonprofitProfile = job.postedBy.nonprofitProfile;
+
+    // Check if applicant allows AI training/analytics
+    const allowsAiTraining = applicantProfile?.allowAiTraining ?? true;
+    const allowsDataAnalytics = applicantProfile?.allowDataAnalytics ?? true;
+
+    // If user doesn't allow AI training or analytics, return minimal data
+    if (!allowsAiTraining && !allowsDataAnalytics) {
+      this.logger.log(`User ${applicant.id} has disabled AI training and analytics - using minimal data`);
+      return {
+        job: {
+          id: job.id,
+          title: job.title,
+          description: job.description,
+          requirements: [],
+          skills: [],
+          experienceLevel: 'MID_LEVEL',
+          employmentType: job.employmentType,
+          placement: job.placement,
+          salaryRange: undefined,
+          location: {
+            country: nonprofitProfile?.country || 'Unknown',
+            state: nonprofitProfile?.state || 'Unknown',
+            city: nonprofitProfile?.city || 'Unknown',
+          },
+          industry: nonprofitProfile?.industry || 'Unknown',
+          orgSize: nonprofitProfile?.sizeLabel || 'Unknown',
+          orgType: nonprofitProfile?.orgType || 'Unknown',
+        },
+        applicant: {
+          id: applicant.id,
+          skills: [],
+          experience: [],
+          education: [],
+          certifications: [],
+          location: {
+            country: 'Unknown',
+            state: 'Unknown',
+            city: 'Unknown',
+          },
+          availability: 'IMMEDIATE',
+          preferredSalaryRange: undefined,
+          workPreferences: {
+            employmentTypes: [job.employmentType],
+            placements: [job.placement],
+            industries: [],
+          },
+        },
+      };
+    }
 
     return {
       job: {

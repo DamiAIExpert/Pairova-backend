@@ -16,7 +16,7 @@ import { UpdateSmsSettingsDto } from './dto/update-sms-settings.dto';
  * @description Provides admin endpoints for managing platform settings.
  */
 @ApiTags('Admin')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin/settings')

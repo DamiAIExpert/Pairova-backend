@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupSwagger = setupSwagger;
 const swagger_1 = require("@nestjs/swagger");
 function setupSwagger(app) {
+    const port = process.env.PORT || 3000;
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Pairova API')
         .setDescription(`
@@ -72,7 +73,7 @@ For API support and questions:
         .setLicense('MIT', 'https://opensource.org/licenses/MIT')
         .addServer(process.env.NODE_ENV === 'production'
         ? 'https://server.pairova.com'
-        : 'http://localhost:3000', process.env.NODE_ENV === 'production'
+        : `http://localhost:${port}`, process.env.NODE_ENV === 'production'
         ? 'Production Server'
         : 'Development Server')
         .addBearerAuth({

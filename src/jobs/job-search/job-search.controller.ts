@@ -68,7 +68,7 @@ export class JobSearchController {
    */
   @Get('recommended')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get personalized job recommendations' })
   @ApiResponse({ status: 200, description: 'Recommended jobs retrieved successfully.', type: JobSearchDto })
   getRecommendedJobs(

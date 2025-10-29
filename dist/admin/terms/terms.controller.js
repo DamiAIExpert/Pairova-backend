@@ -51,7 +51,7 @@ __decorate([
     (0, common_1.Put)(':type'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, swagger_1.ApiOperation)({ summary: 'Update a policy document (Admin only)' }),
     (0, swagger_1.ApiParam)({ name: 'type', enum: policy_type_enum_1.PolicyType, description: 'The type of policy to update.' }),
     __param(0, (0, common_1.Param)('type')),

@@ -30,6 +30,7 @@ let Application = class Application {
     resumeUrl;
     matchScore;
     notes;
+    applicationData;
     appliedAt;
     createdAt;
     updatedAt;
@@ -40,7 +41,7 @@ __decorate([
     __metadata("design:type", String)
 ], Application.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'job_id' }),
     __metadata("design:type", String)
 ], Application.prototype, "jobId", void 0);
 __decorate([
@@ -49,7 +50,7 @@ __decorate([
     __metadata("design:type", job_entity_1.Job)
 ], Application.prototype, "job", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'applicant_id' }),
     __metadata("design:type", String)
 ], Application.prototype, "applicantId", void 0);
 __decorate([
@@ -66,11 +67,11 @@ __decorate([
     __metadata("design:type", String)
 ], Application.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)('text', { nullable: true }),
+    (0, typeorm_1.Column)({ type: 'text', nullable: true, name: 'cover_letter' }),
     __metadata("design:type", String)
 ], Application.prototype, "coverLetter", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, name: 'resume_upload_id' }),
     __metadata("design:type", String)
 ], Application.prototype, "resumeUploadId", void 0);
 __decorate([
@@ -79,11 +80,11 @@ __decorate([
     __metadata("design:type", upload_entity_1.Upload)
 ], Application.prototype, "resume", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'text', nullable: true, name: 'resume_url' }),
     __metadata("design:type", String)
 ], Application.prototype, "resumeUrl", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'numeric', precision: 5, scale: 2, nullable: true }),
+    (0, typeorm_1.Column)({ type: 'numeric', precision: 5, scale: 2, nullable: true, name: 'match_score' }),
     __metadata("design:type", Number)
 ], Application.prototype, "matchScore", void 0);
 __decorate([
@@ -91,15 +92,19 @@ __decorate([
     __metadata("design:type", String)
 ], Application.prototype, "notes", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true, name: 'application_data' }),
+    __metadata("design:type", Object)
+], Application.prototype, "applicationData", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'applied_at' }),
     __metadata("design:type", Date)
 ], Application.prototype, "appliedAt", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'created_at' }),
     __metadata("design:type", Date)
 ], Application.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz', name: 'updated_at' }),
     __metadata("design:type", Date)
 ], Application.prototype, "updatedAt", void 0);
 exports.Application = Application = __decorate([

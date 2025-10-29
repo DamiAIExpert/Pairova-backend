@@ -79,6 +79,20 @@ export class UsersService {
   }
 
   /**
+   * Marks the user's onboarding as completed.
+   * This ensures the onboarding flow only shows once after initial signup.
+   */
+  async markOnboardingComplete(userId: string): Promise<void> {
+    const result: UpdateResult = await this.usersRepository.update(
+      { id: userId },
+      { hasCompletedOnboarding: true },
+    );
+    if (!result.affected) {
+      throw new NotFoundException(`User with ID "${userId}" not found.`);
+    }
+  }
+
+  /**
    * Returns all users. (Consider pagination for production use.)
    */
   async all(): Promise<User[]> {
@@ -99,6 +113,36 @@ export class UsersService {
     const result: UpdateResult = await this.usersRepository.update(
       { id: userId },
       { isVerified: true, emailVerificationToken: null },
+    );
+    if (!result.affected) {
+      throw new NotFoundException(`User with ID "${userId}" not found.`);
+    }
+  }
+
+  /**
+   * Finds a user by OAuth provider and OAuth ID.
+   */
+  async findByOAuthProvider(provider: string, oauthId: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({
+      where: { oauthProvider: provider, oauthId },
+    });
+  }
+
+  /**
+   * Links an OAuth account to an existing user.
+   */
+  async linkOAuthAccount(
+    userId: string,
+    oauthData: { oauthProvider: string; oauthId: string; oauthProfile?: any },
+  ): Promise<void> {
+    const result: UpdateResult = await this.usersRepository.update(
+      { id: userId },
+      {
+        oauthProvider: oauthData.oauthProvider,
+        oauthId: oauthData.oauthId,
+        oauthProfile: oauthData.oauthProfile,
+        isVerified: true, // OAuth accounts are pre-verified
+      },
     );
     if (!result.affected) {
       throw new NotFoundException(`User with ID "${userId}" not found.`);

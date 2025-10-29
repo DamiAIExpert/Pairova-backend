@@ -16,10 +16,15 @@ let NonprofitOrg = class NonprofitOrg {
     userId;
     user;
     orgName;
+    firstName;
+    lastName;
     logoUrl;
     website;
     mission;
+    missionStatement;
     values;
+    phone;
+    postalCode;
     sizeLabel;
     orgType;
     industry;
@@ -32,17 +37,23 @@ let NonprofitOrg = class NonprofitOrg {
     addressLine2;
     latitude;
     longitude;
+    bio;
+    position;
+    registrationNumber;
+    requiredSkills;
+    socialMediaLinks;
+    certificateUrl;
     createdAt;
     updatedAt;
 };
 exports.NonprofitOrg = NonprofitOrg;
 __decorate([
-    (0, typeorm_1.PrimaryColumn)({ type: 'uuid' }),
+    (0, typeorm_1.PrimaryColumn)({ name: 'user_id', type: 'uuid' }),
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "userId", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => user_entity_1.User, (user) => user.nonprofitOrg, { onDelete: 'CASCADE' }),
-    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
+    (0, typeorm_1.JoinColumn)({ name: 'user_id', referencedColumnName: 'id' }),
     __metadata("design:type", user_entity_1.User)
 ], NonprofitOrg.prototype, "user", void 0);
 __decorate([
@@ -50,7 +61,15 @@ __decorate([
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "orgName", void 0);
 __decorate([
-    (0, typeorm_1.Column)('text', { name: 'logo_url', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'first_name', length: 100, nullable: true }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "firstName", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'last_name', length: 100, nullable: true }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "lastName", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'logo_url', type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "logoUrl", void 0);
 __decorate([
@@ -62,9 +81,21 @@ __decorate([
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "mission", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'mission_statement', type: 'text', nullable: true, comment: 'The mission statement of the organization (alias for mission field)' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "missionStatement", void 0);
+__decorate([
     (0, typeorm_1.Column)('text', { nullable: true, comment: 'The core values of the organization.' }),
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "values", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'phone', length: 20, nullable: true, comment: 'Organization contact phone number' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "phone", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'postal_code', length: 20, nullable: true, comment: 'Postal/ZIP code for the organization address' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "postalCode", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'size_label', length: 64, nullable: true, comment: 'e.g., "10-50 employees"' }),
     __metadata("design:type", String)
@@ -98,21 +129,45 @@ __decorate([
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "city", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'address_line1', length: 255, nullable: true }),
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "addressLine1", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'address_line2', length: 255, nullable: true }),
     __metadata("design:type", String)
 ], NonprofitOrg.prototype, "addressLine2", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 8, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'latitude', type: 'decimal', precision: 10, scale: 8, nullable: true }),
     __metadata("design:type", Number)
 ], NonprofitOrg.prototype, "latitude", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 11, scale: 8, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'longitude', type: 'decimal', precision: 11, scale: 8, nullable: true }),
     __metadata("design:type", Number)
 ], NonprofitOrg.prototype, "longitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)('text', { nullable: true, comment: 'Organization description/bio (2-3 paragraphs about what they do, who they serve, impact made)' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "bio", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 128, nullable: true, comment: 'Position/role of the contact person in the organization' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "position", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'registration_number', length: 128, nullable: true, comment: 'Official registration/incorporation number' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "registrationNumber", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'required_skills', type: 'jsonb', nullable: true, comment: 'Skills the organization is looking for (can be array or object with softSkills/hardSkills)' }),
+    __metadata("design:type", Object)
+], NonprofitOrg.prototype, "requiredSkills", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'social_media_links', type: 'jsonb', nullable: true, comment: 'Social media profile URLs (LinkedIn, Twitter, Facebook, Instagram, etc.)' }),
+    __metadata("design:type", Object)
+], NonprofitOrg.prototype, "socialMediaLinks", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'certificate_url', type: 'text', nullable: true, comment: 'URL to organization certificate of registration/operation' }),
+    __metadata("design:type", String)
+], NonprofitOrg.prototype, "certificateUrl", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at', type: 'timestamptz' }),
     __metadata("design:type", Date)

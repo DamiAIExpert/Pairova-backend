@@ -102,3 +102,4 @@ If authentication fails:
 - Verify the database connection is working
 - Check PM2 logs: `pm2 logs nestjs-api`
 
+

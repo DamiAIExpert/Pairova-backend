@@ -124,7 +124,7 @@ export class JobSearchService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: jobResults,
+      jobs: jobResults,
       total,
       page,
       limit,
@@ -158,7 +158,7 @@ export class JobSearchService {
 
     if (!applicantProfile) {
       return {
-        data: [],
+        jobs: [],
         total: 0,
         page,
         limit,
@@ -226,7 +226,7 @@ export class JobSearchService {
     jobResults.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
     return {
-      data: jobResults,
+      jobs: jobResults,
       total,
       page,
       limit,
@@ -272,7 +272,7 @@ export class JobSearchService {
     );
 
     return {
-      data: jobResults,
+      jobs: jobResults,
       total,
       page,
       limit,
@@ -411,7 +411,7 @@ export class JobSearchService {
     );
 
     return {
-      data: jobResults,
+      jobs: jobResults,
       total,
       page,
       limit,
@@ -468,7 +468,7 @@ export class JobSearchService {
     );
 
     return {
-      data: jobResults,
+      jobs: jobResults,
       total: filteredJobs.length,
       page,
       limit,
@@ -601,7 +601,7 @@ export class JobSearchService {
     const result = await this.searchJobs({ page, limit }, filters);
     
     return {
-      jobs: result.data,
+      jobs: result.jobs,
       total: result.total,
       page: result.page,
       limit: result.limit,
@@ -619,7 +619,7 @@ export class JobSearchService {
     const result = await this.getRecommendedJobs(user, { page: 1, limit });
     
     return {
-      jobs: result.data,
+      jobs: result.jobs,
       total: result.total,
     };
   }

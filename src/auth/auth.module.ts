@@ -8,8 +8,12 @@ import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { OtpStrategy } from './strategies/otp.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { LinkedInStrategy } from './strategies/linkedin.strategy';
 
 import { UsersModule } from '../users/shared/user.module';
+import { ApplicantModule } from '../users/applicant/applicant.module';
+import { NonprofitModule } from '../users/nonprofit/nonprofit.module';
 import { OtpModule } from './otp/otp.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
@@ -21,10 +25,19 @@ import { NotificationsModule } from '../notifications/notifications.module';
       signOptions: { expiresIn: process.env.JWT_EXPIRES || '1d' },
     }),
     UsersModule,
+    ApplicantModule,
+    NonprofitModule,
     OtpModule,
     NotificationsModule, // <-- this makes EmailService injectable here
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, OtpStrategy],
+  providers: [
+    AuthService, 
+    LocalStrategy, 
+    JwtStrategy, 
+    OtpStrategy,
+    GoogleStrategy,
+    LinkedInStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

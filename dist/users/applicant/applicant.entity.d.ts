@@ -16,6 +16,11 @@ export declare class ApplicantProfile {
     skills: string[];
     experienceLevel: string;
     preferredEmploymentType: string;
+    allowAiTraining: boolean;
+    allowProfileIndexing: boolean;
+    allowDataAnalytics: boolean;
+    allowThirdPartySharing: boolean;
+    privacyUpdatedAt: Date;
     createdAt: Date;
     updatedAt: Date;
 }

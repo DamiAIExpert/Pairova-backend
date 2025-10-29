@@ -17,6 +17,8 @@ class RegisterDto {
     email;
     password;
     role;
+    fullName;
+    orgName;
 }
 exports.RegisterDto = RegisterDto;
 __decorate([
@@ -56,4 +58,24 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'Role is required' }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "role", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'John Doe',
+        description: 'Full name for applicants (will be split into firstName and lastName)',
+        required: false,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ message: 'Full name must be a string' }),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "fullName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'Red Cross',
+        description: 'Organization name for nonprofits',
+        required: false,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ message: 'Organization name must be a string' }),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "orgName", void 0);
 //# sourceMappingURL=register.dto.js.map

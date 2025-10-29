@@ -310,7 +310,7 @@ exports.ChatController = ChatController = __decorate([
     (0, swagger_1.ApiTags)('Messaging'),
     (0, common_1.Controller)('chat'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     __metadata("design:paramtypes", [enhanced_chat_service_1.EnhancedChatService])
 ], ChatController);
 //# sourceMappingURL=chat.controller.js.map

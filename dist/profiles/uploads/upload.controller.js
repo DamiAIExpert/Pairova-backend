@@ -32,7 +32,20 @@ let UploadController = class UploadController {
         (0, cloudinary_storage_1.configureCloudinary)(this.configService);
     }
     async uploadFile(file, user, kind = 'general') {
-        return this.uploadService.processAndRecordUpload(file, user, kind);
+        console.log('🎯 [UploadController] Upload endpoint hit!');
+        console.log('📦 File received:', file ? `${file.originalname} (${file.mimetype}, ${file.size} bytes)` : 'NO FILE');
+        console.log('👤 User:', user?.id);
+        console.log('🏷️  Kind:', kind);
+        try {
+            const result = await this.uploadService.processAndRecordUpload(file, user, kind);
+            console.log('✅ [UploadController] Upload completed successfully');
+            return result;
+        }
+        catch (error) {
+            console.error('❌ [UploadController] Upload failed:', error.message);
+            console.error(error.stack);
+            throw error;
+        }
     }
 };
 exports.UploadController = UploadController;
@@ -65,9 +78,10 @@ __decorate([
         validators: [
             new common_1.MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
             new common_1.FileTypeValidator({
-                fileType: /(image\/jpeg|image\/png|application\/pdf)/,
+                fileType: /(image\/jpeg|image\/jpg|image\/png|image\/svg\+xml|application\/pdf)/,
             }),
         ],
+        fileIsRequired: false,
     }))),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __param(2, (0, common_1.Query)('kind')),
@@ -77,7 +91,7 @@ __decorate([
 ], UploadController.prototype, "uploadFile", null);
 exports.UploadController = UploadController = __decorate([
     (0, swagger_1.ApiTags)('File Uploads'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('profiles/uploads'),
     __metadata("design:paramtypes", [upload_service_1.UploadService,

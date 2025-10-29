@@ -39,13 +39,12 @@ let JobsService = class JobsService {
     async findAllPublished() {
         return this.jobsRepository.find({
             where: { status: job_enum_1.JobStatus.PUBLISHED },
-            relations: ['organization'],
         });
     }
     async findOne(id) {
         const job = await this.jobsRepository.findOne({
             where: { id },
-            relations: ['organization', 'applications'],
+            relations: ['applications'],
         });
         if (!job) {
             throw new common_1.NotFoundException(`Job with ID "${id}" not found.`);
@@ -77,7 +76,6 @@ let JobsService = class JobsService {
     async getFeaturedJobs(limit = 10) {
         return this.jobsRepository.find({
             where: { status: job_enum_1.JobStatus.PUBLISHED },
-            relations: ['organization'],
             order: { createdAt: 'DESC' },
             take: limit,
         });

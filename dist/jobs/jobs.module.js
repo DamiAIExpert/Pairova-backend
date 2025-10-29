@@ -40,7 +40,7 @@ exports.JobsModule = JobsModule = __decorate([
                 applicant_entity_1.ApplicantProfile,
                 nonprofit_entity_1.NonprofitOrg,
             ]),
-            auth_module_1.AuthModule,
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
             user_module_1.UsersModule,
         ],
         controllers: [jobs_controller_1.JobsController, application_controller_1.ApplicationsController, job_search_controller_1.JobSearchController, saved_jobs_controller_1.SavedJobsController],

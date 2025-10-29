@@ -12,6 +12,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const upload_entity_1 = require("./entities/upload.entity");
 const upload_service_1 = require("./upload.service");
 const upload_controller_1 = require("./upload.controller");
+const simple_upload_controller_1 = require("./simple-upload.controller");
 const storage_module_1 = require("../../storage/storage.module");
 let UploadModule = class UploadModule {
 };
@@ -22,7 +23,7 @@ exports.UploadModule = UploadModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([upload_entity_1.Upload]),
             storage_module_1.StorageModule,
         ],
-        controllers: [upload_controller_1.UploadController],
+        controllers: [upload_controller_1.UploadController, simple_upload_controller_1.SimpleUploadController],
         providers: [upload_service_1.UploadService],
         exports: [upload_service_1.UploadService],
     })

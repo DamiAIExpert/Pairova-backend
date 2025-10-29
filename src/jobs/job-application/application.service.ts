@@ -4,11 +4,13 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Application } from '../entities/application.entity';
 import { CreateApplicationDto } from '../dto/create-application.dto';
+import { CreateComprehensiveApplicationDto } from '../dto/create-comprehensive-application.dto';
 import { User } from '../../users/shared/user.entity';
 import { Role } from '../../common/enums/role.enum';
 import { JobsService } from '../jobs.service';
@@ -20,6 +22,8 @@ import { ApplicationStatus } from '../../common/enums/job.enum';
  */
 @Injectable()
 export class ApplicationsService {
+  private readonly logger = new Logger(ApplicationsService.name);
+
   constructor(
     @InjectRepository(Application)
     private readonly applicationRepository: Repository<Application>,
@@ -58,6 +62,60 @@ export class ApplicationsService {
     const application = this.applicationRepository.create({
       ...createApplicationDto,
       applicantId: currentUser.id,
+    });
+
+    return this.applicationRepository.save(application);
+  }
+
+  /**
+   * Creates a new comprehensive job application with detailed data.
+   * @param createComprehensiveDto - The comprehensive application data.
+   * @param currentUser - The user submitting the application.
+   * @returns The newly created application.
+   */
+  async applyComprehensive(
+    createComprehensiveDto: CreateComprehensiveApplicationDto,
+    currentUser: User,
+  ): Promise<Application> {
+    if (currentUser.role !== Role.APPLICANT) {
+      throw new ForbiddenException('Only applicants can apply for jobs.');
+    }
+
+    // Validate job exists (only if it's a valid UUID)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      createComprehensiveDto.jobId,
+    );
+    
+    if (isUUID) {
+      // Real job - validate it exists
+      await this.jobsService.findOne(createComprehensiveDto.jobId);
+    } else {
+      // Demo job ID - log for debugging
+      this.logger.log(`Demo job application for jobId: ${createComprehensiveDto.jobId}`);
+    }
+
+    // Check if user has already applied
+    const existingApplication = await this.applicationRepository.findOne({
+      where: {
+        jobId: createComprehensiveDto.jobId,
+        applicantId: currentUser.id,
+      },
+    });
+
+    if (existingApplication) {
+      throw new ConflictException('You have already applied for this job.');
+    }
+
+    // Extract basic fields and comprehensive data
+    const { jobId, coverLetter, resumeUploadId, ...comprehensiveData } = createComprehensiveDto;
+
+    // Create application with comprehensive data stored in JSON field
+    const application = this.applicationRepository.create({
+      jobId,
+      coverLetter,
+      resumeUploadId,
+      applicantId: currentUser.id,
+      applicationData: comprehensiveData, // Store all additional data as JSON
     });
 
     return this.applicationRepository.save(application);

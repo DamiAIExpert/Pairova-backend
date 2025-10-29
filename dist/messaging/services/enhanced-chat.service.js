@@ -44,7 +44,7 @@ let EnhancedChatService = class EnhancedChatService {
         const { type, title, description, jobId, participantIds, applicationId, interviewId, metadata } = createConversationDto;
         const participants = await this.userRepository.find({
             where: { id: (0, typeorm_2.In)(participantIds) },
-            relations: ['applicantProfile', 'nonprofitProfile'],
+            relations: ['applicantProfile', 'nonprofitOrg'],
         });
         if (participants.length !== participantIds.length) {
             throw new common_1.BadRequestException('One or more participants not found');
@@ -53,7 +53,7 @@ let EnhancedChatService = class EnhancedChatService {
         if (jobId) {
             job = await this.jobRepository.findOne({
                 where: { id: jobId },
-                relations: ['postedBy', 'postedBy.nonprofitProfile'],
+                relations: ['postedBy', 'postedBy.nonprofitOrg'],
             });
             if (!job) {
                 throw new common_1.BadRequestException('Job not found');

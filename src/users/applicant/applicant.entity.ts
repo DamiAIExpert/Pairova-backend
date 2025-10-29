@@ -23,7 +23,7 @@ export class ApplicantProfile {
    * @description The primary key of the applicant profile. It is also a foreign key
    * referencing the `id` of the `users` table, creating a one-to-one relationship.
    */
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', name: 'user_id' })
   userId: string;
 
   /**
@@ -36,10 +36,10 @@ export class ApplicantProfile {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ name: 'first_name', length: 100, nullable: true })
   firstName: string;
 
-  @Column({ length: 100, nullable: true })
+  @Column({ name: 'last_name', length: 100, nullable: true })
   lastName: string;
 
   @Column({
@@ -69,12 +69,14 @@ export class ApplicantProfile {
   city: string;
 
   @Column('text', {
+    name: 'photo_url',
     nullable: true,
-    comment: 'URL to the applicant’s profile photo.',
+    comment: 'URL to the applicant profile photo.',
   })
   photoUrl: string;
 
   @Column('text', {
+    name: 'portfolio_url',
     nullable: true,
     comment: 'URL to an external portfolio (e.g., Behance, GitHub).',
   })
@@ -83,24 +85,79 @@ export class ApplicantProfile {
   @Column({ type: 'text', array: true, nullable: true })
   skills: string[];
 
-  @Column({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true })
+  @Column({ 
+    name: 'experience_level',
+    type: 'enum', 
+    enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], 
+    nullable: true 
+  })
   experienceLevel: string;
 
-  @Column({ type: 'enum', enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'INTERNSHIP'], nullable: true })
+  @Column({ 
+    name: 'preferred_employment_type',
+    type: 'enum', 
+    enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'VOLUNTEER', 'INTERNSHIP'], 
+    nullable: true 
+  })
   preferredEmploymentType: string;
+
+  /**
+   * Privacy Settings
+   * @description Controls how the applicant's data is used across the platform
+   */
+  
+  @Column({ 
+    name: 'allow_ai_training',
+    type: 'boolean', 
+    default: true,
+    comment: 'Whether the applicant allows their data to be used for AI model training'
+  })
+  allowAiTraining: boolean;
+
+  @Column({ 
+    name: 'allow_profile_indexing',
+    type: 'boolean', 
+    default: true,
+    comment: 'Whether the applicant profile can be indexed and shown in search results'
+  })
+  allowProfileIndexing: boolean;
+
+  @Column({ 
+    name: 'allow_data_analytics',
+    type: 'boolean', 
+    default: true,
+    comment: 'Whether the applicant allows their data to be used for analytics and insights'
+  })
+  allowDataAnalytics: boolean;
+
+  @Column({ 
+    name: 'allow_third_party_sharing',
+    type: 'boolean', 
+    default: false,
+    comment: 'Whether the applicant allows their data to be shared with third-party partners'
+  })
+  allowThirdPartySharing: boolean;
+
+  @Column({ 
+    name: 'privacy_updated_at',
+    type: 'timestamptz', 
+    nullable: true,
+    comment: 'Timestamp of the last privacy settings update'
+  })
+  privacyUpdatedAt: Date;
 
   /**
    * @property {Date} createdAt
    * @description A timestamp automatically set to the date and time of profile creation.
    */
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
   /**
    * @property {Date} updatedAt
    * @description A timestamp automatically updated whenever the profile record is modified.
    */
-  @UpdateDateColumn({ type: 'timestamptz' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 }
 

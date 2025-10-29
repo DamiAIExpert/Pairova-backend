@@ -37,6 +37,12 @@ export class NonprofitOrg {
   @Column({ name: 'org_name', length: 255 })
   orgName: string;
 
+  @Column({ name: 'first_name', length: 100, nullable: true })
+  firstName: string;
+
+  @Column({ name: 'last_name', length: 100, nullable: true })
+  lastName: string;
+
   @Column({ name: 'logo_url', type: 'text', nullable: true })
   logoUrl: string;
 
@@ -46,8 +52,17 @@ export class NonprofitOrg {
   @Column('text', { nullable: true, comment: 'The mission statement of the organization.' })
   mission: string;
 
+  @Column({ name: 'mission_statement', type: 'text', nullable: true, comment: 'The mission statement of the organization (alias for mission field)' })
+  missionStatement: string;
+
   @Column('text', { nullable: true, comment: 'The core values of the organization.' })
   values: string;
+
+  @Column({ name: 'phone', length: 20, nullable: true, comment: 'Organization contact phone number' })
+  phone: string;
+
+  @Column({ name: 'postal_code', length: 20, nullable: true, comment: 'Postal/ZIP code for the organization address' })
+  postalCode: string;
 
   @Column({ name: 'size_label', length: 64, nullable: true, comment: 'e.g., "10-50 employees"' })
   sizeLabel: string;
@@ -84,6 +99,29 @@ export class NonprofitOrg {
 
   @Column({ name: 'longitude', type: 'decimal', precision: 11, scale: 8, nullable: true })
   longitude: number;
+
+  @Column('text', { nullable: true, comment: 'Organization description/bio (2-3 paragraphs about what they do, who they serve, impact made)' })
+  bio: string;
+
+  @Column({ length: 128, nullable: true, comment: 'Position/role of the contact person in the organization' })
+  position: string;
+
+  @Column({ name: 'registration_number', length: 128, nullable: true, comment: 'Official registration/incorporation number' })
+  registrationNumber: string;
+
+  @Column({ name: 'required_skills', type: 'jsonb', nullable: true, comment: 'Skills the organization is looking for (can be array or object with softSkills/hardSkills)' })
+  requiredSkills: string[] | { softSkills?: string[]; hardSkills?: string[] };
+
+  @Column({ name: 'social_media_links', type: 'jsonb', nullable: true, comment: 'Social media profile URLs (LinkedIn, Twitter, Facebook, Instagram, etc.)' })
+  socialMediaLinks: {
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+
+  @Column({ name: 'certificate_url', type: 'text', nullable: true, comment: 'URL to organization certificate of registration/operation' })
+  certificateUrl: string;
 
   /**
    * @property {Date} createdAt

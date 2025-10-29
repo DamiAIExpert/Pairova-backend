@@ -80,7 +80,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('recommended'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, swagger_1.ApiOperation)({ summary: 'Get personalized job recommendations' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Recommended jobs retrieved successfully.', type: job_search_dto_1.JobSearchDto }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),

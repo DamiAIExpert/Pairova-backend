@@ -22,7 +22,7 @@ exports.ApplicantModule = ApplicantModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([applicant_entity_1.ApplicantProfile]),
-            jobs_module_1.JobsModule,
+            (0, common_1.forwardRef)(() => jobs_module_1.JobsModule),
             notifications_module_1.NotificationsModule,
         ],
         controllers: [applicant_controller_1.ApplicantController, applicant_jobs_controller_1.ApplicantJobsController],

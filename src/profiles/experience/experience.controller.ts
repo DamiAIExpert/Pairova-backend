@@ -9,7 +9,7 @@ import { User } from '../../users/shared/user.entity';
 import { Experience } from './entities/experience.entity';
 
 @ApiTags('Profile - Experience')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('profiles/experience')
 export class ExperienceController {

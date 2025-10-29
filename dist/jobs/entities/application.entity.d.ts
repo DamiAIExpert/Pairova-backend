@@ -16,6 +16,7 @@ export declare class Application {
     resumeUrl: string | null;
     matchScore: number | null;
     notes: string | null;
+    applicationData: any | null;
     appliedAt: Date;
     createdAt: Date;
     updatedAt: Date;

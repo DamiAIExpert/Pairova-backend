@@ -5,6 +5,8 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -13,10 +15,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { Public } from '../common/decorators/public.decorator';
 import { LocalAuthGuard } from './strategies/guards/local-auth.guard';
+import { GoogleAuthGuard } from './strategies/guards/google-auth.guard';
+import { LinkedInAuthGuard } from './strategies/guards/linkedin-auth.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
@@ -27,11 +33,15 @@ import { JwtAuthGuard } from './strategies/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/shared/user.entity';
 import { Role } from '../common/enums/role.enum';
+import { UrlHelper } from '../common/utils/url.helper';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({ 
     summary: 'User Login',
@@ -134,6 +144,8 @@ if (response.ok) {
       registerDto.email,
       registerDto.password,
       registerDto.role as Role,
+      registerDto.fullName,
+      registerDto.orgName,
     );
   }
 
@@ -164,7 +176,7 @@ if (response.ok) {
     status: 200,
     description: "Returns the authenticated user's profile.",
   })
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@CurrentUser() user: User) {
@@ -177,7 +189,7 @@ if (response.ok) {
     status: 200,
     description: 'User logged out successfully.',
   })
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@CurrentUser() user: User) {
@@ -193,7 +205,7 @@ if (response.ok) {
   @Public()
   @Post('verify-email')
   async verifyEmail(@Body() dto: VerifyEmailDto) {
-    return this.authService.verifyEmail(dto.token);
+    return this.authService.verifyEmail(dto.email, dto.token);
   }
 
   @ApiOperation({ summary: 'Resend Email Verification' })
@@ -218,5 +230,99 @@ if (response.ok) {
   @Post('refresh')
   async refreshToken(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.refreshToken);
+  }
+
+  @ApiOperation({ summary: 'Complete Onboarding' })
+  @ApiResponse({
+    status: 200,
+    description: 'Onboarding marked as complete.',
+  })
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @Post('complete-onboarding')
+  async completeOnboarding(@CurrentUser() user: User) {
+    return this.authService.completeOnboarding(user.id);
+  }
+
+  // ==================== OAuth Routes ====================
+
+  @ApiOperation({ 
+    summary: 'Google OAuth Login',
+    description: 'Initiates Google OAuth authentication flow. Redirects to Google login page.'
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirects to Google OAuth consent screen.',
+  })
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth() {
+    // Guard redirects to Google
+  }
+
+  @ApiOperation({ 
+    summary: 'Google OAuth Callback',
+    description: 'Handles the callback from Google OAuth. Creates or logs in user and redirects to frontend with tokens.'
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirects to frontend with authentication tokens.',
+  })
+  @Public()
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as any;
+    
+    // Generate OAuth callback URL dynamically
+    const redirectUrl = UrlHelper.generateOAuthCallbackUrl(
+      this.configService,
+      user.accessToken,
+      user.refreshToken,
+      user.user?.role === 'admin',
+    );
+    
+    res.redirect(redirectUrl);
+  }
+
+  @ApiOperation({ 
+    summary: 'LinkedIn OAuth Login',
+    description: 'Initiates LinkedIn OAuth authentication flow. Redirects to LinkedIn login page.'
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirects to LinkedIn OAuth consent screen.',
+  })
+  @Public()
+  @Get('linkedin')
+  @UseGuards(LinkedInAuthGuard)
+  async linkedinAuth() {
+    // Guard redirects to LinkedIn
+  }
+
+  @ApiOperation({ 
+    summary: 'LinkedIn OAuth Callback',
+    description: 'Handles the callback from LinkedIn OAuth. Creates or logs in user and redirects to frontend with tokens.'
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirects to frontend with authentication tokens.',
+  })
+  @Public()
+  @Get('linkedin/callback')
+  @UseGuards(LinkedInAuthGuard)
+  async linkedinAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as any;
+    
+    // Generate OAuth callback URL dynamically
+    const redirectUrl = UrlHelper.generateOAuthCallbackUrl(
+      this.configService,
+      user.accessToken,
+      user.refreshToken,
+      user.user?.role === 'admin',
+    );
+    
+    res.redirect(redirectUrl);
   }
 }

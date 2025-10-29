@@ -216,7 +216,7 @@ exports.NgoJobsController = NgoJobsController = __decorate([
     (0, common_1.Controller)('ngos/me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.NONPROFIT),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     __metadata("design:paramtypes", [jobs_service_1.JobsService])
 ], NgoJobsController);
 //# sourceMappingURL=ngo-jobs.controller.js.map

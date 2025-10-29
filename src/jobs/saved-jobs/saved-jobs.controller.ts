@@ -18,7 +18,7 @@ import { User } from '../../users/shared/user.entity';
 @ApiTags('Saved Jobs')
 @Controller('saved-jobs')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class SavedJobsController {
   constructor(private readonly savedJobsService: SavedJobsService) {}
 

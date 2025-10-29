@@ -55,6 +55,12 @@ let UsersService = class UsersService {
             throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
         }
     }
+    async markOnboardingComplete(userId) {
+        const result = await this.usersRepository.update({ id: userId }, { hasCompletedOnboarding: true });
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
+        }
+    }
     async all() {
         return this.usersRepository.find();
     }
@@ -63,6 +69,22 @@ let UsersService = class UsersService {
     }
     async markEmailAsVerified(userId) {
         const result = await this.usersRepository.update({ id: userId }, { isVerified: true, emailVerificationToken: null });
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
+        }
+    }
+    async findByOAuthProvider(provider, oauthId) {
+        return this.usersRepository.findOne({
+            where: { oauthProvider: provider, oauthId },
+        });
+    }
+    async linkOAuthAccount(userId, oauthData) {
+        const result = await this.usersRepository.update({ id: userId }, {
+            oauthProvider: oauthData.oauthProvider,
+            oauthId: oauthData.oauthId,
+            oauthProfile: oauthData.oauthProfile,
+            isVerified: true,
+        });
         if (!result.affected) {
             throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
         }

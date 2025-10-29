@@ -14,7 +14,7 @@ import { Certification } from './entities/certification.entity';
  * All endpoints are protected and require JWT authentication.
  */
 @ApiTags('Profile - Certifications')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('profiles/certifications')
 export class CertificationController {

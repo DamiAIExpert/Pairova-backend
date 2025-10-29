@@ -45,7 +45,7 @@ export class TermsController {
   @Put(':type')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update a policy document (Admin only)' })
   @ApiParam({ name: 'type', enum: PolicyType, description: 'The type of policy to update.' })
   update(@Param('type') type: PolicyType, @Body() dto: UpdatePolicyDto, @CurrentUser() admin: User) {

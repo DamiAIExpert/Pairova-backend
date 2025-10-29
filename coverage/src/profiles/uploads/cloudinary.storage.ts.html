@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">32.14% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>9/28</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>1/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">22.72% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>5/22</span>
             </div>
         
             
@@ -153,28 +153,14 @@
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,9 +175,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,14 +241,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/profiles/uploads/cloudinary.storage.ts
 import { ConfigService } from '@nestjs/config';
-<span class="cstat-no" title="statement not covered" >import { v2 as cloudinary, UploadApiOptions, UploadApiResponse } from 'cloudinary';</span>
-<span class="cstat-no" title="statement not covered" >import { memoryStorage } from 'multer';</span>
+import { v2 as cloudinary, UploadApiOptions, UploadApiResponse } from 'cloudinary';
+import { memoryStorage } from 'multer';
 &nbsp;
 /**
  * Call this once (e.g., in a module constructor or before first upload)
  * to configure the Cloudinary SDK from ConfigService / env.
  */
-export const <span class="cstat-no" title="statement not covered" >configureCloudinary = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>c</span>onfigService: ConfigService): void =&gt; {</span>
+export const configureCloudinary = <span class="fstat-no" title="function not covered" >(c</span>onfigService: ConfigService): void =&gt; {
 <span class="cstat-no" title="statement not covered" >  cloudinary.config({</span>
     cloud_name: configService.get&lt;string&gt;('CLOUDINARY_CLOUD_NAME'),
     api_key: configService.get&lt;string&gt;('CLOUDINARY_API_KEY'),
@@ -263,7 +263,7 @@ export const <span class="cstat-no" title="statement not covered" >configureClou
  * Usage with FileInterceptor:
  *   @UseInterceptors(FileInterceptor('file', getMulterMemoryStorage()))
  */
-export const <span class="cstat-no" title="statement not covered" >getMulterMemoryStorage = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>) =</span>&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const getMulterMemoryStorage = () =&gt; ({
   storage: memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB (tune as needed)
@@ -279,7 +279,7 @@ export const <span class="cstat-no" title="statement not covered" >getMulterMemo
  *                  Defaults to folder 'pairova' and resource_type 'auto'.
  * @returns {Promise&lt;{ url: string; publicId: string; raw: UploadApiResponse }&gt;}
  */
-export const <span class="cstat-no" title="statement not covered" >uploadToCloudinary = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(</span>
+export const uploadToCloudinary = <span class="fstat-no" title="function not covered" >async </span>(
   file: Express.Multer.File,
   options: UploadApiOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
 ): Promise&lt;{ url: string; publicId: string; raw: UploadApiResponse }&gt; =&gt; {
@@ -334,7 +334,7 @@ export const <span class="cstat-no" title="statement not covered" >uploadToCloud
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-21T03:26:31.431Z
+                at 2025-10-19T12:05:55.278Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

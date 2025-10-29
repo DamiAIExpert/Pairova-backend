@@ -55,7 +55,7 @@ __decorate([
 ], ExperienceController.prototype, "findAll", null);
 exports.ExperienceController = ExperienceController = __decorate([
     (0, swagger_1.ApiTags)('Profile - Experience'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('profiles/experience'),
     __metadata("design:paramtypes", [experience_service_1.ExperienceService])

@@ -6,8 +6,8 @@ export declare class JobsController {
     constructor(jobsService: JobsService);
     create(createJobDto: CreateJobDto, user: User): Promise<import("./entities/job.entity").Job>;
     findAll(): Promise<import("./entities/job.entity").Job[]>;
+    getFeaturedJobs(limit?: string): Promise<import("./entities/job.entity").Job[]>;
     findOne(id: string): Promise<import("./entities/job.entity").Job>;
     publish(id: string, user: User): Promise<import("./entities/job.entity").Job>;
     close(id: string, user: User): Promise<import("./entities/job.entity").Job>;
-    getFeaturedJobs(limit?: number): Promise<import("./entities/job.entity").Job[]>;
 }

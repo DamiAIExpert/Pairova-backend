@@ -356,7 +356,7 @@ exports.AdminSmsController = AdminSmsController = __decorate([
     (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('admin/sms'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     __metadata("design:paramtypes", [sms_service_1.SmsService])
 ], AdminSmsController);
 //# sourceMappingURL=admin-sms.controller.js.map

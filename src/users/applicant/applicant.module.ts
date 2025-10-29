@@ -1,5 +1,5 @@
 // src/users/applicant/applicant.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplicantController } from './applicant.controller';
 import { ApplicantService } from './applicant.service';
@@ -15,7 +15,7 @@ import { NotificationsModule } from '../../notifications/notifications.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ApplicantProfile]),
-    JobsModule,
+    forwardRef(() => JobsModule),
     NotificationsModule,
   ],
   controllers: [ApplicantController, ApplicantJobsController],

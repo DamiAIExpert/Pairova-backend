@@ -13,7 +13,7 @@ import { DashboardStatsDto, PerformanceMetricsDto, ActivityFeedDto } from './dto
  * @description Provides general administrative endpoints. Access is restricted to administrators.
  */
 @ApiTags('Admin')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin')

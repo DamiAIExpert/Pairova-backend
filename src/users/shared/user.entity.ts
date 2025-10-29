@@ -70,11 +70,40 @@ export class User {
   isVerified: boolean;
 
   /**
+   * @property {boolean} hasCompletedOnboarding
+   * @description A flag indicating whether the user has completed the onboarding/profile setup process.
+   * This ensures the onboarding flow only shows once after initial signup.
+   */
+  @Column({ name: 'has_completed_onboarding', default: false })
+  hasCompletedOnboarding: boolean;
+
+  /**
    * @property {string} emailVerificationToken
    * @description Token used for email verification.
    */
   @Column({ name: 'email_verification_token', length: 255, nullable: true })
   emailVerificationToken: string;
+
+  /**
+   * @property {string} oauthProvider
+   * @description The OAuth provider used for authentication (google, linkedin, etc.).
+   */
+  @Column({ name: 'oauth_provider', length: 50, nullable: true })
+  oauthProvider: string;
+
+  /**
+   * @property {string} oauthId
+   * @description The unique identifier from the OAuth provider.
+   */
+  @Column({ name: 'oauth_id', length: 255, nullable: true })
+  oauthId: string;
+
+  /**
+   * @property {object} oauthProfile
+   * @description Raw OAuth profile data from the provider.
+   */
+  @Column({ name: 'oauth_profile', type: 'jsonb', nullable: true })
+  oauthProfile: any;
 
   /**
    * @property {Date} lastLoginAt

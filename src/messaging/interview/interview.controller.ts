@@ -18,7 +18,7 @@ import { ScheduleInterviewDto } from './dto/schedule-interview.dto';
 @ApiTags('Messaging')
 @Controller('interviews')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class InterviewController {
   constructor(private readonly interviewService: InterviewService) {}
 

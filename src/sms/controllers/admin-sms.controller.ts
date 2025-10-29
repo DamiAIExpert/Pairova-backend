@@ -28,7 +28,7 @@ import { SmsStatus, SmsType } from '../entities/sms-log.entity';
 @ApiTags('Admin')
 @Controller('admin/sms')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class AdminSmsController {
   constructor(private readonly smsService: SmsService) {}
 

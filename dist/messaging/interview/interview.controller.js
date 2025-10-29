@@ -58,7 +58,7 @@ exports.InterviewController = InterviewController = __decorate([
     (0, swagger_1.ApiTags)('Messaging'),
     (0, common_1.Controller)('interviews'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     __metadata("design:paramtypes", [interview_service_1.InterviewService])
 ], InterviewController);
 //# sourceMappingURL=interview.controller.js.map

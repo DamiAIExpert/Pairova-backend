@@ -11,6 +11,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { setupSwagger } from './common/swagger/swagger.config';
+import { UrlHelper } from './common/utils/url.helper';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -23,21 +24,15 @@ async function bootstrap() {
     app.use(helmet());
     app.use(cookieParser()); // ✅ now callable
 
-    // --- CORS Configuration ---
-    const clientUrl = configService.get<string>('CLIENT_URL', 'http://localhost:3001');
-    const allowedOrigins = [
-      clientUrl,
-      'http://localhost:5173', // Vite dev server (pairova-frontend)
-      'http://localhost:3001', // Next.js dev server (pairova-admin)
-      'https://pairova.com',
-      'https://www.pairova.com',
-      'https://admin.pairova.com',
-    ];
+    // --- CORS Configuration (Dynamic) ---
+    const allowedOrigins = UrlHelper.getAllowedOrigins(configService);
     app.enableCors({
       origin: allowedOrigins,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+      exposedHeaders: ['Authorization'],
+      maxAge: 3600,
     });
     logger.log(`CORS enabled for origins: ${allowedOrigins.join(', ')}`);
 

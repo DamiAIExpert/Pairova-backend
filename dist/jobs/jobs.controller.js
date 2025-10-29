@@ -35,6 +35,10 @@ let JobsController = class JobsController {
     findAll() {
         return this.jobsService.findAllPublished();
     }
+    getFeaturedJobs(limit) {
+        const parsedLimit = limit ? parseInt(limit, 10) : 10;
+        return this.jobsService.getFeaturedJobs(parsedLimit);
+    }
     findOne(id) {
         return this.jobsService.findOne(id);
     }
@@ -43,9 +47,6 @@ let JobsController = class JobsController {
     }
     close(id, user) {
         return this.jobsService.close(id, user);
-    }
-    getFeaturedJobs(limit) {
-        return this.jobsService.getFeaturedJobs(limit ? parseInt(limit.toString()) : 10);
     }
 };
 exports.JobsController = JobsController;
@@ -179,6 +180,16 @@ __decorate([
 ], JobsController.prototype, "findAll", null);
 __decorate([
     (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('featured'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get featured jobs' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Featured jobs retrieved successfully.' }),
+    __param(0, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], JobsController.prototype, "getFeaturedJobs", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get details of a single job' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns the job details.' }),
@@ -218,16 +229,6 @@ __decorate([
     __metadata("design:paramtypes", [String, user_entity_1.User]),
     __metadata("design:returntype", void 0)
 ], JobsController.prototype, "close", null);
-__decorate([
-    (0, public_decorator_1.Public)(),
-    (0, common_1.Get)('featured'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get featured jobs' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Featured jobs retrieved successfully.' }),
-    __param(0, (0, common_1.Query)('limit')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
-], JobsController.prototype, "getFeaturedJobs", null);
 exports.JobsController = JobsController = __decorate([
     (0, swagger_1.ApiTags)('Jobs'),
     (0, common_1.Controller)('jobs'),

@@ -30,7 +30,7 @@ import { MatchInsightsDto } from './dto/match-insights.dto';
 @ApiTags('AI Services')
 @Controller('ai')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 

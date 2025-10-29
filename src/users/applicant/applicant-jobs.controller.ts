@@ -34,7 +34,7 @@ import { ApplicationStatus } from '../../common/enums/job.enum';
 @Controller('applicants/me')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.APPLICANT)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ApplicantJobsController {
   constructor(
     private readonly jobsService: JobsService,

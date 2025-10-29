@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { Role } from '../../common/enums/role.enum';
 
 export class RegisterDto {
@@ -36,4 +36,22 @@ export class RegisterDto {
   @IsEnum(Role, { message: 'Role must be either APPLICANT or NONPROFIT' })
   @IsNotEmpty({ message: 'Role is required' })
   role: Role;
+
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Full name for applicants (will be split into firstName and lastName)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Full name must be a string' })
+  fullName?: string;
+
+  @ApiProperty({
+    example: 'Red Cross',
+    description: 'Organization name for nonprofits',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Organization name must be a string' })
+  orgName?: string;
 }

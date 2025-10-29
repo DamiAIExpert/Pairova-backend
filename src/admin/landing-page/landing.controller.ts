@@ -15,7 +15,7 @@ import { UpsertPageDto } from '../pages/dto/upsert-page.dto';
  * @description Provides a dedicated endpoint for admins to manage the landing page content.
  */
 @ApiTags('Admin')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin/landing')

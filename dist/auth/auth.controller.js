@@ -15,9 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const config_1 = require("@nestjs/config");
 const auth_service_1 = require("./auth.service");
 const public_decorator_1 = require("../common/decorators/public.decorator");
 const local_auth_guard_1 = require("./strategies/guards/local-auth.guard");
+const google_auth_guard_1 = require("./strategies/guards/google-auth.guard");
+const linkedin_auth_guard_1 = require("./strategies/guards/linkedin-auth.guard");
 const register_dto_1 = require("./dto/register.dto");
 const login_dto_1 = require("./dto/login.dto");
 const request_password_reset_dto_1 = require("./dto/request-password-reset.dto");
@@ -27,16 +30,19 @@ const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const jwt_auth_guard_1 = require("./strategies/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const user_entity_1 = require("../users/shared/user.entity");
+const url_helper_1 = require("../common/utils/url.helper");
 let AuthController = class AuthController {
     authService;
-    constructor(authService) {
+    configService;
+    constructor(authService, configService) {
         this.authService = authService;
+        this.configService = configService;
     }
     async login(user, _loginDto) {
         return this.authService.login(user);
     }
     async register(registerDto) {
-        return this.authService.register(registerDto.email, registerDto.password, registerDto.role);
+        return this.authService.register(registerDto.email, registerDto.password, registerDto.role, registerDto.fullName, registerDto.orgName);
     }
     async forgotPassword(dto) {
         await this.authService.requestPasswordReset(dto.email);
@@ -51,13 +57,30 @@ let AuthController = class AuthController {
         return this.authService.logout();
     }
     async verifyEmail(dto) {
-        return this.authService.verifyEmail(dto.token);
+        return this.authService.verifyEmail(dto.email, dto.token);
     }
     async resendVerification(dto) {
         return this.authService.resendVerificationEmail(dto.email);
     }
     async refreshToken(dto) {
         return this.authService.refreshToken(dto.refreshToken);
+    }
+    async completeOnboarding(user) {
+        return this.authService.completeOnboarding(user.id);
+    }
+    async googleAuth() {
+    }
+    async googleAuthCallback(req, res) {
+        const user = req.user;
+        const redirectUrl = url_helper_1.UrlHelper.generateOAuthCallbackUrl(this.configService, user.accessToken, user.refreshToken, user.user?.role === 'admin');
+        res.redirect(redirectUrl);
+    }
+    async linkedinAuth() {
+    }
+    async linkedinAuthCallback(req, res) {
+        const user = req.user;
+        const redirectUrl = url_helper_1.UrlHelper.generateOAuthCallbackUrl(this.configService, user.accessToken, user.refreshToken, user.user?.role === 'admin');
+        res.redirect(redirectUrl);
     }
 };
 exports.AuthController = AuthController;
@@ -197,7 +220,7 @@ __decorate([
         status: 200,
         description: "Returns the authenticated user's profile.",
     }),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('profile'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -211,7 +234,7 @@ __decorate([
         status: 200,
         description: 'User logged out successfully.',
     }),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('logout'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
@@ -261,9 +284,92 @@ __decorate([
     __metadata("design:paramtypes", [refresh_token_dto_1.RefreshTokenDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refreshToken", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Complete Onboarding' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Onboarding marked as complete.',
+    }),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('complete-onboarding'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "completeOnboarding", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({
+        summary: 'Google OAuth Login',
+        description: 'Initiates Google OAuth authentication flow. Redirects to Google login page.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 302,
+        description: 'Redirects to Google OAuth consent screen.',
+    }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('google'),
+    (0, common_1.UseGuards)(google_auth_guard_1.GoogleAuthGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleAuth", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({
+        summary: 'Google OAuth Callback',
+        description: 'Handles the callback from Google OAuth. Creates or logs in user and redirects to frontend with tokens.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 302,
+        description: 'Redirects to frontend with authentication tokens.',
+    }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('google/callback'),
+    (0, common_1.UseGuards)(google_auth_guard_1.GoogleAuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleAuthCallback", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({
+        summary: 'LinkedIn OAuth Login',
+        description: 'Initiates LinkedIn OAuth authentication flow. Redirects to LinkedIn login page.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 302,
+        description: 'Redirects to LinkedIn OAuth consent screen.',
+    }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('linkedin'),
+    (0, common_1.UseGuards)(linkedin_auth_guard_1.LinkedInAuthGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "linkedinAuth", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({
+        summary: 'LinkedIn OAuth Callback',
+        description: 'Handles the callback from LinkedIn OAuth. Creates or logs in user and redirects to frontend with tokens.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 302,
+        description: 'Redirects to frontend with authentication tokens.',
+    }),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('linkedin/callback'),
+    (0, common_1.UseGuards)(linkedin_auth_guard_1.LinkedInAuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "linkedinAuthCallback", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        config_1.ConfigService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

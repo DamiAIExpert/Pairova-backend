@@ -9,7 +9,11 @@ export declare class User {
     passwordHash: string;
     phone: string;
     isVerified: boolean;
+    hasCompletedOnboarding: boolean;
     emailVerificationToken: string;
+    oauthProvider: string;
+    oauthId: string;
+    oauthProfile: any;
     lastLoginAt: Date;
     createdAt: Date;
     updatedAt: Date;

@@ -55,7 +55,7 @@ __decorate([
     __metadata("design:type", String)
 ], Job.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ name: 'org_user_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "orgUserId", void 0);
 __decorate([
@@ -76,55 +76,55 @@ __decorate([
     __metadata("design:type", String)
 ], Job.prototype, "placement", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: job_enum_1.EmploymentType, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'employment_type', type: 'enum', enum: job_enum_1.EmploymentType, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "employmentType", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'experience_min_yrs', type: 'int', nullable: true }),
     __metadata("design:type", Number)
 ], Job.prototype, "experienceMinYrs", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'experience_max_yrs', type: 'int', nullable: true }),
     __metadata("design:type", Number)
 ], Job.prototype, "experienceMaxYrs", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: ['ENTRY', 'MID', 'SENIOR', 'EXECUTIVE'], nullable: true }),
+    (0, typeorm_1.Column)({ name: 'experience_level', type: 'varchar', length: 50, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "experienceLevel", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'text', array: true, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'required_skills', type: 'text', array: true, nullable: true }),
     __metadata("design:type", Array)
 ], Job.prototype, "requiredSkills", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'text', array: true, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'benefits', type: 'text', array: true, nullable: true }),
     __metadata("design:type", Array)
 ], Job.prototype, "benefits", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'deadline', type: 'timestamptz', nullable: true }),
     __metadata("design:type", Date)
 ], Job.prototype, "deadline", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'location_city', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "locationCity", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'location_state', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "locationState", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'location_country', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "locationCountry", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'numeric', precision: 14, scale: 2, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'salary_min', type: 'numeric', precision: 14, scale: 2, nullable: true }),
     __metadata("design:type", Number)
 ], Job.prototype, "salaryMin", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'numeric', precision: 14, scale: 2, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'salary_max', type: 'numeric', precision: 14, scale: 2, nullable: true }),
     __metadata("design:type", Number)
 ], Job.prototype, "salaryMax", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 16, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'currency', length: 16, nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "currency", void 0);
 __decorate([
@@ -132,7 +132,7 @@ __decorate([
     __metadata("design:type", String)
 ], Job.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ name: 'created_by', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "createdBy", void 0);
 __decorate([
@@ -141,7 +141,7 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Job.prototype, "creator", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ name: 'posted_by_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "postedById", void 0);
 __decorate([
@@ -154,15 +154,15 @@ __decorate([
     __metadata("design:type", Array)
 ], Job.prototype, "applications", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.CreateDateColumn)({ name: 'created_at', type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], Job.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at', type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], Job.prototype, "updatedAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'published_at', type: 'timestamptz', nullable: true }),
     __metadata("design:type", Date)
 ], Job.prototype, "publishedAt", void 0);
 exports.Job = Job = __decorate([

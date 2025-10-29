@@ -9,7 +9,7 @@ import { User } from '../../users/shared/user.entity';
 import { Education } from './entities/education.entity';
 
 @ApiTags('Profile - Education')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('profiles/education')
 export class EducationController {

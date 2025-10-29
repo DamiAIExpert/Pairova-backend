@@ -28,7 +28,7 @@ import {
  * @description Provides admin endpoints for managing job applications and pipeline.
  */
 @ApiTags('Admin')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin/applications')

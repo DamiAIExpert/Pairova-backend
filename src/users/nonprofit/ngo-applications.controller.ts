@@ -27,7 +27,7 @@ import { ApplicationsService } from '../../jobs/job-application/application.serv
 @Controller('ngos/me')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.NONPROFIT)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class NgoApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 

@@ -23,6 +23,7 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const role_enum_1 = require("../../common/enums/role.enum");
 const roles_guard_1 = require("../../auth/strategies/guards/roles.guard");
 const update_nonprofit_profile_dto_1 = require("./dto/update-nonprofit-profile.dto");
+const complete_onboarding_dto_1 = require("./dto/complete-onboarding.dto");
 const nonprofit_entity_1 = require("./nonprofit.entity");
 let NonprofitController = class NonprofitController {
     nonprofitService;
@@ -32,8 +33,35 @@ let NonprofitController = class NonprofitController {
     me(user) {
         return this.nonprofitService.getProfile(user);
     }
-    update(user, updateDto) {
-        return this.nonprofitService.updateProfile(user, updateDto);
+    async update(user, updateDto) {
+        console.log('🎯 [NonprofitController] PUT /profiles/nonprofit/me called');
+        console.log('🎯 [NonprofitController] User:', user.id, user.email);
+        console.log('🎯 [NonprofitController] Update DTO:', JSON.stringify(updateDto));
+        try {
+            const result = await this.nonprofitService.updateProfile(user, updateDto);
+            console.log('✅ [NonprofitController] Update successful!');
+            return result;
+        }
+        catch (error) {
+            console.error('❌ [NonprofitController] Update failed:', error.message);
+            console.error('❌ [NonprofitController] Full error:', error);
+            throw error;
+        }
+    }
+    async completeOnboarding(user, onboardingDto) {
+        console.log('🎯 [NonprofitController] POST /profiles/nonprofit/onboarding called');
+        console.log('🎯 [NonprofitController] User:', user.id, user.email);
+        console.log('🎯 [NonprofitController] Onboarding Data:', JSON.stringify(onboardingDto, null, 2));
+        try {
+            const result = await this.nonprofitService.completeOnboarding(user, onboardingDto);
+            console.log('✅ [NonprofitController] Onboarding completed successfully!');
+            return result;
+        }
+        catch (error) {
+            console.error('❌ [NonprofitController] Onboarding failed:', error.message);
+            console.error('❌ [NonprofitController] Full error:', error);
+            throw error;
+        }
     }
 };
 exports.NonprofitController = NonprofitController;
@@ -62,9 +90,27 @@ __decorate([
         update_nonprofit_profile_dto_1.UpdateNonprofitProfileDto]),
     __metadata("design:returntype", Promise)
 ], NonprofitController.prototype, "update", null);
+__decorate([
+    (0, common_1.Post)('onboarding'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.NONPROFIT),
+    (0, swagger_1.ApiOperation)({ summary: 'Complete NGO onboarding with all data from steps 1-7' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Onboarding completed successfully. Profile created/updated with all data.',
+        type: nonprofit_entity_1.NonprofitOrg
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request - Invalid or incomplete data.' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden - User is not a non-profit.' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.User,
+        complete_onboarding_dto_1.CompleteOnboardingDto]),
+    __metadata("design:returntype", Promise)
+], NonprofitController.prototype, "completeOnboarding", null);
 exports.NonprofitController = NonprofitController = __decorate([
     (0, swagger_1.ApiTags)('Users'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('profiles/nonprofit'),
     __metadata("design:paramtypes", [nonprofit_service_1.NonprofitService])

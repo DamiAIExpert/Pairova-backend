@@ -31,7 +31,7 @@ import { CreateJobDto } from '../../jobs/dto/create-job.dto';
 @Controller('ngos/me')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.NONPROFIT)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class NgoJobsController {
   constructor(private readonly jobsService: JobsService) {}
 

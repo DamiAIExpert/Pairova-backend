@@ -30,7 +30,7 @@ import {
  * @description Provides admin endpoints for managing user feedback.
  */
 @ApiTags('Admin')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin/feedback')

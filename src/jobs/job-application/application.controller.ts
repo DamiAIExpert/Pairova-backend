@@ -18,12 +18,13 @@ import { Role } from '../../common/enums/role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../../users/shared/user.entity';
 import { CreateApplicationDto } from '../dto/create-application.dto';
+import { CreateComprehensiveApplicationDto } from '../dto/create-comprehensive-application.dto';
 import { UpdateApplicationStatusDto } from '../dto/update-application-status.dto';
 
 @ApiTags('Applications')
 @Controller('applications')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
@@ -35,6 +36,20 @@ export class ApplicationsController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   apply(@Body() createApplicationDto: CreateApplicationDto, @CurrentUser() user: User) {
     return this.applicationsService.apply(createApplicationDto, user);
+  }
+
+  @Post('comprehensive')
+  @Roles(Role.APPLICANT)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Submit a comprehensive job application with detailed data (Applicant only)' })
+  @ApiResponse({ status: 201, description: 'Comprehensive application submitted successfully.'})
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 409, description: 'Already applied for this job.' })
+  applyComprehensive(
+    @Body() createComprehensiveDto: CreateComprehensiveApplicationDto, 
+    @CurrentUser() user: User
+  ) {
+    return this.applicationsService.applyComprehensive(createComprehensiveDto, user);
   }
 
   @Get()

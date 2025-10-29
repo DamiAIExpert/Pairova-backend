@@ -45,21 +45,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 const bcrypt = __importStar(require("bcryptjs"));
 const user_service_1 = require("../users/shared/user.service");
+const applicant_service_1 = require("../users/applicant/applicant.service");
+const nonprofit_service_1 = require("../users/nonprofit/nonprofit.service");
+const role_enum_1 = require("../common/enums/role.enum");
 const otp_service_1 = require("./otp/otp.service");
 const otp_channel_enum_1 = require("../common/enums/otp-channel.enum");
 const email_service_1 = require("../notifications/email.service");
+const url_helper_1 = require("../common/utils/url.helper");
 let AuthService = class AuthService {
     usersService;
+    applicantService;
+    nonprofitService;
     jwtService;
     otpService;
     emailService;
-    constructor(usersService, jwtService, otpService, emailService) {
+    configService;
+    constructor(usersService, applicantService, nonprofitService, jwtService, otpService, emailService, configService) {
         this.usersService = usersService;
+        this.applicantService = applicantService;
+        this.nonprofitService = nonprofitService;
         this.jwtService = jwtService;
         this.otpService = otpService;
         this.emailService = emailService;
+        this.configService = configService;
     }
     async validateUser(email, pass) {
         const user = await this.usersService.findByEmailWithPassword(email);
@@ -69,16 +80,107 @@ let AuthService = class AuthService {
         }
         return null;
     }
-    login(user) {
+    async login(user) {
         const payload = { sub: user.id, email: user.email, role: user.role };
-        return { accessToken: this.jwtService.sign(payload) };
+        const accessToken = this.jwtService.sign(payload);
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        const userWithProfile = await this.usersService.findOneByIdWithProfile(user.id);
+        const { passwordHash, ...userWithoutPassword } = userWithProfile;
+        let firstName;
+        let lastName;
+        let orgName;
+        if (userWithProfile.applicantProfile) {
+            firstName = userWithProfile.applicantProfile.firstName;
+            lastName = userWithProfile.applicantProfile.lastName;
+        }
+        else if (userWithProfile.nonprofitOrg) {
+            orgName = userWithProfile.nonprofitOrg.orgName;
+        }
+        return {
+            accessToken,
+            refreshToken,
+            user: {
+                ...userWithoutPassword,
+                firstName,
+                lastName,
+                orgName,
+            },
+        };
     }
-    async register(email, password, role) {
+    async register(email, password, role, fullName, orgName) {
         const existing = await this.usersService.findByEmailWithPassword(email);
         if (existing)
             throw new common_1.BadRequestException('Email already in use.');
         const passwordHash = await bcrypt.hash(password, 10);
-        return this.usersService.create({ email, passwordHash, role });
+        const user = await this.usersService.create({ email, passwordHash, role });
+        try {
+            if (role === role_enum_1.Role.APPLICANT && fullName) {
+                const nameParts = fullName.trim().split(/\s+/);
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                await this.applicantService.createProfile(user.id);
+                if (firstName) {
+                    const profile = await this.applicantService.getProfile(user);
+                    profile.firstName = firstName;
+                    profile.lastName = lastName;
+                    await this.applicantService.updateProfile(user, profile);
+                }
+            }
+            else if (role === role_enum_1.Role.NONPROFIT && orgName) {
+                await this.nonprofitService.createProfile(user.id, orgName);
+            }
+            else {
+                if (role === role_enum_1.Role.APPLICANT) {
+                    await this.applicantService.createProfile(user.id);
+                }
+                else if (role === role_enum_1.Role.NONPROFIT) {
+                    const defaultOrgName = email.split('@')[0];
+                    await this.nonprofitService.createProfile(user.id, defaultOrgName);
+                }
+            }
+        }
+        catch (error) {
+            console.error('Failed to create profile:', error);
+        }
+        const payload = { sub: user.id, email: user.email, role: user.role };
+        const accessToken = this.jwtService.sign(payload);
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        this.otpService.generateOtp(user.id, otp_channel_enum_1.OtpChannel.EMAIL)
+            .then(({ code }) => {
+            const displayName = fullName || orgName || email.split('@')[0];
+            const isAdmin = role === role_enum_1.Role.ADMIN;
+            const verificationLink = url_helper_1.UrlHelper.generateVerificationLink(this.configService, email, code, isAdmin);
+            return this.emailService.sendFromTemplate(user.email, 'Verify Your Email', 'email-verification', {
+                code,
+                name: displayName,
+                verificationLink,
+            });
+        })
+            .catch((error) => {
+            console.error('Failed to send verification email:', error);
+        });
+        const userWithProfile = await this.usersService.findOneByIdWithProfile(user.id);
+        const { passwordHash: _, ...userWithoutPassword } = userWithProfile;
+        let firstName;
+        let lastName;
+        let organizationName;
+        if (userWithProfile.applicantProfile) {
+            firstName = userWithProfile.applicantProfile.firstName;
+            lastName = userWithProfile.applicantProfile.lastName;
+        }
+        else if (userWithProfile.nonprofitOrg) {
+            organizationName = userWithProfile.nonprofitOrg.orgName;
+        }
+        return {
+            accessToken,
+            refreshToken,
+            user: {
+                ...userWithoutPassword,
+                firstName,
+                lastName,
+                orgName: organizationName,
+            },
+        };
     }
     async requestPasswordReset(email) {
         const user = await this.usersService.findByEmailWithPassword(email);
@@ -108,12 +210,17 @@ let AuthService = class AuthService {
     async logout() {
         return { message: 'Logged out successfully' };
     }
-    async verifyEmail(token) {
-        const user = await this.usersService.findOneById(token);
+    async verifyEmail(email, token) {
+        const user = await this.usersService.findByEmailWithPassword(email);
         if (!user) {
-            throw new common_1.BadRequestException('Invalid or expired verification token');
+            throw new common_1.BadRequestException('User not found');
+        }
+        const otpRecord = await this.otpService.validateOtp(user.id, token, otp_channel_enum_1.OtpChannel.EMAIL);
+        if (!otpRecord) {
+            throw new common_1.BadRequestException('Invalid or expired verification code');
         }
         await this.usersService.markEmailAsVerified(user.id);
+        await this.otpService.consumeOtp(otpRecord.id);
         return { message: 'Email verified successfully' };
     }
     async resendVerificationEmail(email) {
@@ -125,7 +232,13 @@ let AuthService = class AuthService {
             throw new common_1.BadRequestException('Email is already verified');
         }
         const { code } = await this.otpService.generateOtp(user.id, otp_channel_enum_1.OtpChannel.EMAIL);
-        await this.emailService.sendFromTemplate(user.email, 'Verify Your Email', 'email-verification', { code, name: user.email });
+        const isAdmin = user.role === role_enum_1.Role.ADMIN;
+        const verificationLink = url_helper_1.UrlHelper.generateVerificationLink(this.configService, email, code, isAdmin);
+        await this.emailService.sendFromTemplate(user.email, 'Verify Your Email', 'email-verification', {
+            code,
+            name: user.email,
+            verificationLink,
+        });
         return { message: 'Verification email sent successfully' };
     }
     async refreshToken(refreshToken) {
@@ -141,13 +254,88 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid refresh token');
         }
     }
+    async completeOnboarding(userId) {
+        await this.usersService.markOnboardingComplete(userId);
+        return { message: 'Onboarding completed successfully' };
+    }
+    async findOrCreateOAuthUser(oauthData) {
+        let user = await this.usersService.findByOAuthProvider(oauthData.oauthProvider, oauthData.oauthId);
+        if (!user) {
+            user = await this.usersService.findByEmailWithPassword(oauthData.email);
+            if (user) {
+                await this.usersService.linkOAuthAccount(user.id, {
+                    oauthProvider: oauthData.oauthProvider,
+                    oauthId: oauthData.oauthId,
+                    oauthProfile: oauthData.oauthProfile,
+                });
+            }
+            else {
+                user = await this.usersService.create({
+                    email: oauthData.email,
+                    passwordHash: null,
+                    role: role_enum_1.Role.APPLICANT,
+                    oauthProvider: oauthData.oauthProvider,
+                    oauthId: oauthData.oauthId,
+                    oauthProfile: oauthData.oauthProfile,
+                    isVerified: true,
+                });
+                try {
+                    await this.applicantService.createProfile(user.id);
+                    if (oauthData.firstName || oauthData.lastName) {
+                        const profile = await this.applicantService.getProfile(user);
+                        profile.firstName = oauthData.firstName || '';
+                        profile.lastName = oauthData.lastName || '';
+                        if (oauthData.photoUrl) {
+                            profile.photoUrl = oauthData.photoUrl;
+                        }
+                        await this.applicantService.updateProfile(user, profile);
+                    }
+                }
+                catch (error) {
+                    console.error('Failed to create OAuth user profile:', error);
+                }
+            }
+        }
+        const userWithProfile = await this.usersService.findOneByIdWithProfile(user.id);
+        const payload = {
+            sub: userWithProfile.id,
+            email: userWithProfile.email,
+            role: userWithProfile.role
+        };
+        const accessToken = this.jwtService.sign(payload);
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        const { passwordHash: _, ...userWithoutPassword } = userWithProfile;
+        let firstName;
+        let lastName;
+        let orgName;
+        if (userWithProfile.applicantProfile) {
+            firstName = userWithProfile.applicantProfile.firstName;
+            lastName = userWithProfile.applicantProfile.lastName;
+        }
+        else if (userWithProfile.nonprofitOrg) {
+            orgName = userWithProfile.nonprofitOrg.orgName;
+        }
+        return {
+            accessToken,
+            refreshToken,
+            user: {
+                ...userWithoutPassword,
+                firstName,
+                lastName,
+                orgName,
+            },
+        };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [user_service_1.UsersService,
+        applicant_service_1.ApplicantService,
+        nonprofit_service_1.NonprofitService,
         jwt_1.JwtService,
         otp_service_1.OtpService,
-        email_service_1.EmailService])
+        email_service_1.EmailService,
+        config_1.ConfigService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

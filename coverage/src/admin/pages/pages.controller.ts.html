@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">84.21% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>16/19</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">82.35% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>14/17</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -121,17 +121,17 @@
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -142,19 +142,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -166,10 +154,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,28 +178,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/admin/pages/pages.controller.ts
-<span class="cstat-no" title="statement not covered" >import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';</span>
-<span class="cstat-no" title="statement not covered" >import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';</span>
-<span class="cstat-no" title="statement not covered" >import { PagesService } from './pages.service';</span>
-<span class="cstat-no" title="statement not covered" >import { JwtAuthGuard } from '../../auth/strategies/guards/jwt-auth.guard';</span>
-<span class="cstat-no" title="statement not covered" >import { RolesGuard } from '../../auth/strategies/guards/roles.guard';</span>
-<span class="cstat-no" title="statement not covered" >import { Roles } from '../../common/decorators/roles.decorator';</span>
-<span class="cstat-no" title="statement not covered" >import { Role } from '../../common/enums/role.enum';</span>
-<span class="cstat-no" title="statement not covered" >import { CurrentUser } from '../../common/decorators/current-user.decorator';</span>
-<span class="cstat-no" title="statement not covered" >import { User } from '../../users/shared/user.entity';</span>
-<span class="cstat-no" title="statement not covered" >import { Page } from './entities/page.entity';</span>
-<span class="cstat-no" title="statement not covered" >import { UpsertPageDto } from './dto/upsert-page.dto';</span>
+import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PagesService } from './pages.service';
+import { JwtAuthGuard } from '../../auth/strategies/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/strategies/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '../../common/enums/role.enum';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { User } from '../../users/shared/user.entity';
+import { Page } from './entities/page.entity';
+import { UpsertPageDto } from './dto/upsert-page.dto';
 &nbsp;
 /**
  * @class PagesController
  * @description Provides admin endpoints for managing CMS pages.
  */
-@ApiTags('Admin - CMS')
+@ApiTags('Admin')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('admin/pages')
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >PagesController </span>{</span></span>
+export class PagesController {
 <span class="fstat-no" title="function not covered" >  constructor(private readonly <span class="cstat-no" title="statement not covered" >p</span>agesService: P</span>agesService) {}
 &nbsp;
   /**
@@ -211,7 +211,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
   @Get(':slug')
   @ApiOperation({ summary: 'Get a CMS page by its slug' })
   @ApiResponse({ status: 200, description: 'The page content and metadata.', type: Page })
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  get(</span>@Param('slug') slug: string): Promise&lt;Page&gt; {</span>
+<span class="fstat-no" title="function not covered" >  get(</span>@Param('slug') slug: string): Promise&lt;Page&gt; {
 <span class="cstat-no" title="statement not covered" >    return this.pagesService.findBySlug(slug);</span>
   }
 &nbsp;
@@ -226,7 +226,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
   @Put(':slug')
   @ApiOperation({ summary: 'Create or update a CMS page' })
   @ApiResponse({ status: 200, description: 'The created or updated page.', type: Page })
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  upsert(</span></span>
+<span class="fstat-no" title="function not covered" >  upsert(</span>
     @Param('slug') slug: string,
     @Body() upsertPageDto: UpsertPageDto,
     @CurrentUser() adminUser: User,
@@ -241,7 +241,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-21T03:26:31.431Z
+                at 2025-10-19T12:05:55.278Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

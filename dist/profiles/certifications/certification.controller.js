@@ -80,7 +80,7 @@ __decorate([
 ], CertificationController.prototype, "remove", null);
 exports.CertificationController = CertificationController = __decorate([
     (0, swagger_1.ApiTags)('Profile - Certifications'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('profiles/certifications'),
     __metadata("design:paramtypes", [certification_service_1.CertificationService])

@@ -1,5 +1,5 @@
 // src/jobs/jobs.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
@@ -29,7 +29,7 @@ import { UsersModule } from '../users/shared/user.module';
       ApplicantProfile,
       NonprofitOrg,
     ]),
-    AuthModule,
+    forwardRef(() => AuthModule),
     UsersModule,
   ],
   controllers: [JobsController, ApplicationsController, JobSearchController, SavedJobsController],

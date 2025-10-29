@@ -29,7 +29,7 @@ import { NotificationPreferencesService } from './notification-preferences.servi
 @ApiTags('Notifications')
 @Controller('notifications')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class NotificationsController {
   constructor(
     private readonly emailService: EmailService,

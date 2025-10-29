@@ -9,7 +9,14 @@ export declare class UsersService {
     findByEmail(email: string): Promise<User | undefined>;
     create(userDto: Partial<User>): Promise<User>;
     updatePassword(userId: string, passwordHash: string): Promise<void>;
+    markOnboardingComplete(userId: string): Promise<void>;
     all(): Promise<User[]>;
     findByEmailVerificationToken(token: string): Promise<User | undefined>;
     markEmailAsVerified(userId: string): Promise<void>;
+    findByOAuthProvider(provider: string, oauthId: string): Promise<User | undefined>;
+    linkOAuthAccount(userId: string, oauthData: {
+        oauthProvider: string;
+        oauthId: string;
+        oauthProfile?: any;
+    }): Promise<void>;
 }

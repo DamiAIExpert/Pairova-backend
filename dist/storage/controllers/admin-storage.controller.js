@@ -301,7 +301,7 @@ exports.AdminStorageController = AdminStorageController = __decorate([
     (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('admin/storage'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     __metadata("design:paramtypes", [storage_provider_service_1.StorageProviderService,
         file_storage_service_1.FileStorageService,

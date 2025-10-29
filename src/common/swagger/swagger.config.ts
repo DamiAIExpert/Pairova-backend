@@ -2,6 +2,9 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication) {
+  // Get the port from environment variable, default to 3000
+  const port = process.env.PORT || 3000;
+  
   const config = new DocumentBuilder()
     .setTitle('Pairova API')
     .setDescription(`
@@ -79,7 +82,7 @@ For API support and questions:
     .addServer(
       process.env.NODE_ENV === 'production' 
         ? 'https://server.pairova.com' 
-        : 'http://localhost:3000',
+        : `http://localhost:${port}`,
       process.env.NODE_ENV === 'production' 
         ? 'Production Server' 
         : 'Development Server'

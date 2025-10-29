@@ -42,7 +42,7 @@ __decorate([
 ], LogsController.prototype, "list", null);
 exports.LogsController = LogsController = __decorate([
     (0, swagger_1.ApiTags)('Admin'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN),
     (0, common_1.Controller)('admin/audit'),

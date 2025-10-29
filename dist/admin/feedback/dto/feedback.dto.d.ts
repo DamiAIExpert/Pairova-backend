@@ -28,7 +28,7 @@ export declare class FeedbackListDto {
 export declare class CreateFeedbackDto {
     title: string;
     description: string;
-    category: FeedbackCategory;
+    category?: FeedbackCategory;
     userEmail?: string;
     userName?: string;
     browserInfo?: string;

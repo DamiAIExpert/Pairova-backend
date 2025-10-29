@@ -55,7 +55,7 @@ __decorate([
 ], EducationController.prototype, "findAll", null);
 exports.EducationController = EducationController = __decorate([
     (0, swagger_1.ApiTags)('Profile - Education'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('profiles/education'),
     __metadata("design:paramtypes", [education_service_1.EducationService])

@@ -27,6 +27,9 @@ let UploadService = class UploadService {
         this.fileStorageService = fileStorageService;
     }
     async processAndRecordUpload(file, user, kind = 'general', fileType) {
+        console.log('🔍 [UploadService] Starting upload process...');
+        console.log(`📦 File: ${file?.originalname}, Size: ${file?.size}, Type: ${file?.mimetype}`);
+        console.log(`👤 User: ${user?.id}, Kind: ${kind}`);
         if (!file) {
             throw new common_1.BadRequestException('No file provided');
         }
@@ -34,11 +37,14 @@ let UploadService = class UploadService {
             throw new common_1.BadRequestException('Missing authenticated user');
         }
         const resolvedFileType = fileType || this.mapKindToFileType(kind);
+        console.log(`📁 Resolved file type: ${resolvedFileType}`);
+        console.log('⬆️  Calling fileStorageService.uploadFile...');
         const uploadedFile = await this.fileStorageService.uploadFile(file, user.id, resolvedFileType, {
             folder: `pairova/${kind}`,
             isPublic: false,
             metadata: { kind, originalUpload: true },
         });
+        console.log('✅ File uploaded to storage:', uploadedFile.url);
         const record = this.uploadsRepo.create({
             userId: user.id,
             kind,

@@ -112,7 +112,7 @@ export class JobSearchResultDto {
 
 export class JobSearchDto {
   @ApiProperty({ type: [JobSearchResultDto], description: 'List of jobs' })
-  data: JobSearchResultDto[];
+  jobs: JobSearchResultDto[];
 
   @ApiProperty({ description: 'Total number of jobs found' })
   total: number;

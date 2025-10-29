@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateFeedbackDto = exports.CreateFeedbackDto = exports.FeedbackListDto = exports.FeedbackDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
+const class_validator_1 = require("class-validator");
 const feedback_entity_1 = require("../entities/feedback.entity");
 class FeedbackDto {
     id;
@@ -142,38 +143,56 @@ class CreateFeedbackDto {
 exports.CreateFeedbackDto = CreateFeedbackDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Feedback title' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "title", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Feedback description' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Feedback category', enum: feedback_entity_1.FeedbackCategory }),
+    (0, swagger_1.ApiProperty)({ description: 'Feedback category', enum: feedback_entity_1.FeedbackCategory, default: feedback_entity_1.FeedbackCategory.GENERAL }),
+    (0, class_validator_1.IsEnum)(feedback_entity_1.FeedbackCategory),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "category", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'User email', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "userEmail", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'User name', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "userName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Browser information', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "browserInfo", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Device information', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "deviceInfo", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Page URL where feedback was submitted', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateFeedbackDto.prototype, "pageUrl", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Additional metadata', required: false }),
+    (0, class_validator_1.IsObject)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
 ], CreateFeedbackDto.prototype, "metadata", void 0);
 class UpdateFeedbackDto {

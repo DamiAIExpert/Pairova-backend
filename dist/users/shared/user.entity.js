@@ -23,7 +23,11 @@ let User = class User {
     passwordHash;
     phone;
     isVerified;
+    hasCompletedOnboarding;
     emailVerificationToken;
+    oauthProvider;
+    oauthId;
+    oauthProfile;
     lastLoginAt;
     createdAt;
     updatedAt;
@@ -63,9 +67,25 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isVerified", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'has_completed_onboarding', default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "hasCompletedOnboarding", void 0);
+__decorate([
     (0, typeorm_1.Column)({ name: 'email_verification_token', length: 255, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "emailVerificationToken", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'oauth_provider', length: 50, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "oauthProvider", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'oauth_id', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "oauthId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'oauth_profile', type: 'jsonb', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "oauthProfile", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'last_login_at', type: 'timestamptz', nullable: true }),
     __metadata("design:type", Date)

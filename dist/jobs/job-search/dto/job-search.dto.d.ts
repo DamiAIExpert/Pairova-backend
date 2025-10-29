@@ -42,7 +42,7 @@ export declare class JobSearchResultDto {
     applicationStatus?: string;
 }
 export declare class JobSearchDto {
-    data: JobSearchResultDto[];
+    jobs: JobSearchResultDto[];
     total: number;
     page: number;
     limit: number;
