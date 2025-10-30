@@ -131,4 +131,110 @@ export class JobsService {
       take: limit,
     });
   }
+
+  /**
+   * Gets all jobs posted by a specific organization with pagination and filtering.
+   * @param user - The nonprofit user whose jobs to retrieve.
+   * @param status - Optional status filter.
+   * @param page - Page number (starting from 1).
+   * @param limit - Number of items per page.
+   * @returns Paginated list of jobs with total count.
+   */
+  async getJobsByOrganization(
+    user: User,
+    status?: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ jobs: Job[]; total: number; page: number; limit: number }> {
+    if (user.role !== Role.NONPROFIT) {
+      throw new ForbiddenException('Only nonprofit organizations can access this resource.');
+    }
+
+    const query = this.jobsRepository
+      .createQueryBuilder('job')
+      .leftJoinAndSelect('job.organization', 'organization')
+      .where('job.orgUserId = :userId', { userId: user.id });
+
+    // Apply status filter if provided
+    if (status) {
+      query.andWhere('job.status = :status', { status });
+    }
+
+    // Order by most recent first
+    query.orderBy('job.createdAt', 'DESC');
+
+    // Get total count
+    const total = await query.getCount();
+
+    // Apply pagination
+    const skip = (page - 1) * limit;
+    query.skip(skip).take(limit);
+
+    // Execute query
+    const jobs = await query.getMany();
+
+    return {
+      jobs,
+      total,
+      page,
+      limit,
+    };
+  }
+
+  /**
+   * Gets a single job by ID, ensuring it belongs to the specified organization.
+   * @param id - The job ID.
+   * @param user - The nonprofit user.
+   * @returns The job if found and owned by the user.
+   * @throws {NotFoundException} If job not found.
+   * @throws {ForbiddenException} If job doesn't belong to the user.
+   */
+  async getJobByOrganization(id: string, user: User): Promise<Job> {
+    if (user.role !== Role.NONPROFIT) {
+      throw new ForbiddenException('Only nonprofit organizations can access this resource.');
+    }
+
+    const job = await this.jobsRepository.findOne({
+      where: { id },
+      relations: ['organization', 'applications'],
+    });
+
+    if (!job) {
+      throw new NotFoundException(`Job with ID "${id}" not found.`);
+    }
+
+    if (job.orgUserId !== user.id) {
+      throw new ForbiddenException('This job belongs to another organization.');
+    }
+
+    return job;
+  }
+
+  /**
+   * Deletes a job posted by the organization.
+   * @param id - The job ID.
+   * @param user - The nonprofit user.
+   * @returns Success message.
+   * @throws {NotFoundException} If job not found.
+   * @throws {ForbiddenException} If job doesn't belong to the user.
+   */
+  async deleteJobByOrganization(id: string, user: User): Promise<{ message: string }> {
+    if (user.role !== Role.NONPROFIT) {
+      throw new ForbiddenException('Only nonprofit organizations can delete jobs.');
+    }
+
+    const job = await this.jobsRepository.findOne({ where: { id } });
+
+    if (!job) {
+      throw new NotFoundException(`Job with ID "${id}" not found.`);
+    }
+
+    if (job.orgUserId !== user.id) {
+      throw new ForbiddenException('This job belongs to another organization.');
+    }
+
+    await this.jobsRepository.remove(job);
+
+    return { message: 'Job deleted successfully' };
+  }
 }

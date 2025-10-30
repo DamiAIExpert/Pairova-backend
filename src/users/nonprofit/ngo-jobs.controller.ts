@@ -45,16 +45,20 @@ export class NgoJobsController {
     description: 'Jobs retrieved successfully',
   })
   @ApiQuery({ name: 'status', required: false, type: String, description: 'Filter by job status' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 20 })
   async getMyJobs(
     @CurrentUser() user: User,
     @Query('status') status?: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 20,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
   ): Promise<{ jobs: any[]; total: number; page: number; limit: number }> {
-    // TODO: Implement getJobsByOrganization method in JobsService
-    return { jobs: [], total: 0, page, limit };
+    return this.jobsService.getJobsByOrganization(
+      user,
+      status,
+      page || 1,
+      limit || 20,
+    );
   }
 
   /**
@@ -89,8 +93,7 @@ export class NgoJobsController {
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<any> {
-    // TODO: Implement getJobByOrganization method in JobsService
-    return { message: 'Job details will be implemented' };
+    return this.jobsService.getJobByOrganization(id, user);
   }
 
   /**
@@ -128,8 +131,7 @@ export class NgoJobsController {
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ message: string }> {
-    // TODO: Implement deleteJobByOrganization method in JobsService
-    return { message: 'Job deleted successfully' };
+    return this.jobsService.deleteJobByOrganization(id, user);
   }
 
   /**
