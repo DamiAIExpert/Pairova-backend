@@ -51,8 +51,12 @@ export class NgoApplicationsController {
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 20,
   ): Promise<{ applications: any[]; total: number; page: number; limit: number }> {
-    // TODO: Implement getApplicationsByOrganization method in ApplicationsService
-    return { applications: [], total: 0, page, limit };
+    return this.applicationsService.getApplicationsByOrganization(
+      user,
+      { status, jobId },
+      page,
+      limit,
+    );
   }
 
   /**
@@ -70,8 +74,7 @@ export class NgoApplicationsController {
     @CurrentUser() user: User,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<any> {
-    // TODO: Implement getApplicationByOrganization method in ApplicationsService
-    return { message: 'Application details will be implemented' };
+    return this.applicationsService.getApplicationByOrganization(id, user);
   }
 
   /**
@@ -95,8 +98,7 @@ export class NgoApplicationsController {
       rejectionReason?: string;
     },
   ): Promise<{ message: string }> {
-    // TODO: Implement updateApplicationStatusByOrganization method in ApplicationsService
-    return { message: 'Application status updated successfully' };
+    return this.applicationsService.updateApplicationStatusByOrganization(id, user, updateData);
   }
 
   /**
@@ -110,23 +112,14 @@ export class NgoApplicationsController {
   })
   async getApplicationStatistics(@CurrentUser() user: User): Promise<{
     totalApplications: number;
-    pendingApplications: number;
-    reviewedApplications: number;
-    acceptedApplications: number;
+    appliedApplications: number;
+    underReviewApplications: number;
+    interviewApplications: number;
+    offeredApplications: number;
     rejectedApplications: number;
     applicationsThisMonth: number;
-    averageResponseTime: number;
   }> {
-    // TODO: Implement getApplicationStatisticsByOrganization method in ApplicationsService
-    return {
-      totalApplications: 0,
-      pendingApplications: 0,
-      reviewedApplications: 0,
-      acceptedApplications: 0,
-      rejectedApplications: 0,
-      applicationsThisMonth: 0,
-      averageResponseTime: 0,
-    };
+    return this.applicationsService.getApplicationStatistics(user);
   }
 
   /**
@@ -144,14 +137,33 @@ export class NgoApplicationsController {
       count: number;
       percentage: number;
     }>;
-    recentActivity: any[];
-    topPerformingJobs: any[];
   }> {
-    // TODO: Implement getApplicationPipelineByOrganization method in ApplicationsService
+    const stats = await this.applicationsService.getApplicationStatistics(user);
+    const total = stats.totalApplications || 1; // Avoid division by zero
+    
     return {
-      stages: [],
-      recentActivity: [],
-      topPerformingJobs: [],
+      stages: [
+        {
+          stage: 'Applied',
+          count: stats.appliedApplications,
+          percentage: Math.round((stats.appliedApplications / total) * 100),
+        },
+        {
+          stage: 'Under Review',
+          count: stats.underReviewApplications,
+          percentage: Math.round((stats.underReviewApplications / total) * 100),
+        },
+        {
+          stage: 'Interview',
+          count: stats.interviewApplications,
+          percentage: Math.round((stats.interviewApplications / total) * 100),
+        },
+        {
+          stage: 'Offered',
+          count: stats.offeredApplications,
+          percentage: Math.round((stats.offeredApplications / total) * 100),
+        },
+      ],
     };
   }
 
@@ -172,7 +184,11 @@ export class NgoApplicationsController {
       notes?: string;
     },
   ): Promise<{ message: string; updatedCount: number }> {
-    // TODO: Implement bulkUpdateApplicationStatusByOrganization method in ApplicationsService
-    return { message: 'Application statuses updated successfully', updatedCount: 0 };
+    return this.applicationsService.bulkUpdateApplicationStatusByOrganization(
+      user,
+      updateData.applicationIds,
+      updateData.status,
+      updateData.notes,
+    );
   }
 }
