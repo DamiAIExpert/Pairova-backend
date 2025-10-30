@@ -266,10 +266,11 @@ export class ApplicationsService {
    */
   async getApplicationStatistics(user: User): Promise<{
     totalApplications: number;
-    appliedApplications: number;
-    underReviewApplications: number;
-    interviewApplications: number;
-    offeredApplications: number;
+    pendingApplications: number;
+    reviewedApplications: number;
+    shortlistedApplications: number;
+    interviewedApplications: number;
+    acceptedApplications: number;
     rejectedApplications: number;
     applicationsThisMonth: number;
   }> {
@@ -284,24 +285,29 @@ export class ApplicationsService {
 
     const totalApplications = await baseQuery.getCount();
 
-    const appliedApplications = await baseQuery
+    const pendingApplications = await baseQuery
       .clone()
-      .andWhere('application.status = :status', { status: ApplicationStatus.APPLIED })
+      .andWhere('application.status = :status', { status: ApplicationStatus.PENDING })
       .getCount();
 
-    const underReviewApplications = await baseQuery
+    const reviewedApplications = await baseQuery
       .clone()
-      .andWhere('application.status = :status', { status: ApplicationStatus.UNDER_REVIEW })
+      .andWhere('application.status = :status', { status: ApplicationStatus.REVIEWED })
       .getCount();
 
-    const interviewApplications = await baseQuery
+    const shortlistedApplications = await baseQuery
       .clone()
-      .andWhere('application.status = :status', { status: ApplicationStatus.INTERVIEW })
+      .andWhere('application.status = :status', { status: ApplicationStatus.SHORTLISTED })
       .getCount();
 
-    const offeredApplications = await baseQuery
+    const interviewedApplications = await baseQuery
       .clone()
-      .andWhere('application.status = :status', { status: ApplicationStatus.OFFERED })
+      .andWhere('application.status = :status', { status: ApplicationStatus.INTERVIEWED })
+      .getCount();
+
+    const acceptedApplications = await baseQuery
+      .clone()
+      .andWhere('application.status = :status', { status: ApplicationStatus.ACCEPTED })
       .getCount();
 
     const rejectedApplications = await baseQuery
@@ -321,10 +327,11 @@ export class ApplicationsService {
 
     return {
       totalApplications,
-      appliedApplications,
-      underReviewApplications,
-      interviewApplications,
-      offeredApplications,
+      pendingApplications,
+      reviewedApplications,
+      shortlistedApplications,
+      interviewedApplications,
+      acceptedApplications,
       rejectedApplications,
       applicationsThisMonth,
     };

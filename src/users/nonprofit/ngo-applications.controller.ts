@@ -112,10 +112,11 @@ export class NgoApplicationsController {
   })
   async getApplicationStatistics(@CurrentUser() user: User): Promise<{
     totalApplications: number;
-    appliedApplications: number;
-    underReviewApplications: number;
-    interviewApplications: number;
-    offeredApplications: number;
+    pendingApplications: number;
+    reviewedApplications: number;
+    shortlistedApplications: number;
+    interviewedApplications: number;
+    acceptedApplications: number;
     rejectedApplications: number;
     applicationsThisMonth: number;
   }> {
@@ -144,24 +145,29 @@ export class NgoApplicationsController {
     return {
       stages: [
         {
-          stage: 'Applied',
-          count: stats.appliedApplications,
-          percentage: Math.round((stats.appliedApplications / total) * 100),
+          stage: 'Pending',
+          count: stats.pendingApplications,
+          percentage: Math.round((stats.pendingApplications / total) * 100),
         },
         {
-          stage: 'Under Review',
-          count: stats.underReviewApplications,
-          percentage: Math.round((stats.underReviewApplications / total) * 100),
+          stage: 'Reviewed',
+          count: stats.reviewedApplications,
+          percentage: Math.round((stats.reviewedApplications / total) * 100),
         },
         {
-          stage: 'Interview',
-          count: stats.interviewApplications,
-          percentage: Math.round((stats.interviewApplications / total) * 100),
+          stage: 'Shortlisted',
+          count: stats.shortlistedApplications,
+          percentage: Math.round((stats.shortlistedApplications / total) * 100),
         },
         {
-          stage: 'Offered',
-          count: stats.offeredApplications,
-          percentage: Math.round((stats.offeredApplications / total) * 100),
+          stage: 'Interviewed',
+          count: stats.interviewedApplications,
+          percentage: Math.round((stats.interviewedApplications / total) * 100),
+        },
+        {
+          stage: 'Accepted',
+          count: stats.acceptedApplications,
+          percentage: Math.round((stats.acceptedApplications / total) * 100),
         },
       ],
     };
