@@ -41,6 +41,7 @@ export class JobsService {
       ...createJobDto,
       orgUserId: currentUser.id,
       createdBy: currentUser.id,
+      postedById: currentUser.id,
       status: createJobDto.status || JobStatus.DRAFT,
     });
 
