@@ -47,6 +47,80 @@ export class UpdatePrivacySettingsDto {
   @IsBoolean()
   @IsOptional()
   allowThirdPartySharing?: boolean;
+
+  /**
+   * Granular Privacy Category Settings
+   * @description Controls which specific data categories can be used for AI recommendations
+   */
+  @ApiProperty({ 
+    description: 'Allow personal information (name, email, phone) to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowPersonalInformation?: boolean;
+
+  @ApiProperty({ 
+    description: 'Allow gender data to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowGenderData?: boolean;
+
+  @ApiProperty({ 
+    description: 'Allow location data (country, state, city) to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowLocation?: boolean;
+
+  @ApiProperty({ 
+    description: 'Allow work experience data to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowExperience?: boolean;
+
+  @ApiProperty({ 
+    description: 'Allow skills data to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowSkills?: boolean;
+
+  @ApiProperty({ 
+    description: 'Allow certificates data to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowCertificates?: boolean;
+
+  @ApiProperty({ 
+    description: 'Allow bio/profile description to be used for AI recommendations',
+    example: true,
+    required: false,
+    default: true
+  })
+  @IsBoolean()
+  @IsOptional()
+  allowBio?: boolean;
 }
 
 

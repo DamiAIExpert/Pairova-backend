@@ -28,20 +28,20 @@ let NgoJobsController = class NgoJobsController {
     constructor(jobsService) {
         this.jobsService = jobsService;
     }
-    async getMyJobs(user, status, page = 1, limit = 20) {
-        return { jobs: [], total: 0, page, limit };
+    async getMyJobs(user, status, page, limit) {
+        return this.jobsService.getJobsByOrganization(user, status, page || 1, limit || 20);
     }
     async createJob(user, createJobDto) {
         return await this.jobsService.create(createJobDto, user);
     }
     async getJob(user, id) {
-        return { message: 'Job details will be implemented' };
+        return this.jobsService.getJobByOrganization(id, user);
     }
     async updateJob(user, id, updateJobDto) {
         return { message: 'Job update will be implemented' };
     }
     async deleteJob(user, id) {
-        return { message: 'Job deleted successfully' };
+        return this.jobsService.deleteJobByOrganization(id, user);
     }
     async getJobApplicants(user, jobId, status, page = 1, limit = 20) {
         return { applicants: [], total: 0, page, limit };
@@ -77,12 +77,12 @@ __decorate([
         description: 'Jobs retrieved successfully',
     }),
     (0, swagger_1.ApiQuery)({ name: 'status', required: false, type: String, description: 'Filter by job status' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, description: 'Page number' }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number, description: 'Items per page' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, description: 'Page number', example: 1 }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number, description: 'Items per page', example: 20 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Query)('status')),
-    __param(2, (0, common_1.Query)('page', common_1.ParseIntPipe)),
-    __param(3, (0, common_1.Query)('limit', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Query)('page')),
+    __param(3, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [user_entity_1.User, String, Number, Number]),
     __metadata("design:returntype", Promise)

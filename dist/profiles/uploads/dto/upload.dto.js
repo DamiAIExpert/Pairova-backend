@@ -17,6 +17,7 @@ class UploadDto {
     publicId;
     mimeType;
     sizeBytes;
+    filename;
 }
 exports.UploadDto = UploadDto;
 __decorate([
@@ -39,4 +40,8 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: 'The size of the file in bytes.', example: 102400 }),
     __metadata("design:type", Number)
 ], UploadDto.prototype, "sizeBytes", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'The original filename.', example: 'resume.pdf', required: false }),
+    __metadata("design:type", String)
+], UploadDto.prototype, "filename", void 0);
 //# sourceMappingURL=upload.dto.js.map

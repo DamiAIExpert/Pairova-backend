@@ -26,11 +26,23 @@ let EducationService = class EducationService {
         const education = this.educationRepository.create({
             ...createEducationDto,
             userId: user.id,
+            applicantId: user.id,
         });
         return this.educationRepository.save(education);
     }
     async findByUserId(userId) {
         return this.educationRepository.find({ where: { userId } });
+    }
+    async findOneById(id) {
+        const education = await this.educationRepository.findOne({ where: { id } });
+        if (!education) {
+            throw new common_1.NotFoundException(`Education with ID ${id} not found`);
+        }
+        return education;
+    }
+    async remove(id) {
+        const education = await this.findOneById(id);
+        await this.educationRepository.remove(education);
     }
 };
 exports.EducationService = EducationService;

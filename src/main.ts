@@ -6,6 +6,7 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -23,6 +24,22 @@ async function bootstrap() {
     // --- Security Middleware ---
     app.use(helmet());
     app.use(cookieParser()); // ✅ now callable
+    
+    // --- Session Middleware (Required for LinkedIn OAuth with state parameter) ---
+    const sessionSecret = configService.get<string>('SESSION_SECRET') || configService.get<string>('JWT_SECRET') || 'dev-session-secret';
+    app.use(
+      session({
+        secret: sessionSecret,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: process.env.NODE_ENV === 'production',
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        },
+      }),
+    );
+    logger.log('✅ Session middleware configured');
 
     // --- CORS Configuration (Dynamic) ---
     const allowedOrigins = UrlHelper.getAllowedOrigins(configService);

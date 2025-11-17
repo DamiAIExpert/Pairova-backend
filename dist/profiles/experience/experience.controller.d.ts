@@ -7,4 +7,5 @@ export declare class ExperienceController {
     constructor(experienceService: ExperienceService);
     add(user: User, createExperienceDto: CreateExperienceDto): Promise<Experience>;
     findAll(user: User): Promise<Experience[]>;
+    remove(id: string, user: User): Promise<void>;
 }

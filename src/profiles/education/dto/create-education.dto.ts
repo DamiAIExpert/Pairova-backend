@@ -31,6 +31,17 @@ export class CreateEducationDto {
   @MaxLength(64)
   grade?: string;
 
+  @ApiProperty({ description: 'Major role or specialization during education.', example: 'Software Engineering', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  role?: string;
+
+  @ApiProperty({ description: 'Additional description or achievements during education.', example: 'Graduated with honors...', required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
   @ApiProperty({ description: 'Start date of education.', example: '2016-09-01', required: false })
   @IsOptional()
   @IsDateString()

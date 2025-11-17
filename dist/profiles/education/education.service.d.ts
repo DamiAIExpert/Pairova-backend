@@ -7,4 +7,6 @@ export declare class EducationService {
     constructor(educationRepository: Repository<Education>);
     addEducation(user: User, createEducationDto: CreateEducationDto): Promise<Education>;
     findByUserId(userId: string): Promise<Education[]>;
+    findOneById(id: string): Promise<Education>;
+    remove(id: string): Promise<void>;
 }

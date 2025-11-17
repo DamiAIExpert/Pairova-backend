@@ -7,6 +7,7 @@ import { ApplicantProfile } from './applicant.entity';
 import { ApplicantJobsController } from './applicant-jobs.controller';
 import { JobsModule } from '../../jobs/jobs.module';
 import { NotificationsModule } from '../../notifications/notifications.module';
+import { User } from '../shared/user.entity';
 
 /**
  * @class ApplicantModule
@@ -14,7 +15,7 @@ import { NotificationsModule } from '../../notifications/notifications.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ApplicantProfile]),
+    TypeOrmModule.forFeature([ApplicantProfile, User]),
     forwardRef(() => JobsModule),
     NotificationsModule,
   ],

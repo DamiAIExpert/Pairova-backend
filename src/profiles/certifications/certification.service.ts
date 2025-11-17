@@ -27,6 +27,7 @@ export class CertificationService {
     const newCertification = this.certificationRepository.create({
       ...createCertificationDto,
       userId: user.id,
+      applicantId: user.id,
     });
     return this.certificationRepository.save(newCertification);
   }

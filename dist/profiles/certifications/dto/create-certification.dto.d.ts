@@ -3,4 +3,5 @@ export declare class CreateCertificationDto {
     issuer?: string;
     issueDate?: string;
     credentialUrl?: string;
+    credentialId?: string;
 }

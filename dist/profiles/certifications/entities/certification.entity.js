@@ -22,6 +22,7 @@ let Certification = class Certification {
     issueDate;
     issuedDate;
     credentialUrl;
+    credentialId;
     createdAt;
 };
 exports.Certification = Certification;
@@ -62,6 +63,10 @@ __decorate([
     (0, typeorm_1.Column)('text', { nullable: true }),
     __metadata("design:type", String)
 ], Certification.prototype, "credentialUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 255, nullable: true, comment: 'The unique credential ID or certificate number.' }),
+    __metadata("design:type", String)
+], Certification.prototype, "credentialId", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)

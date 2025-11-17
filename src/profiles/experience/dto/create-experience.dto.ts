@@ -30,6 +30,24 @@ export class CreateExperienceDto {
   @IsString()
   @MaxLength(100)
   locationCity?: string;
+
+  @ApiProperty({ description: 'State or province of employment.', example: 'Lagos State', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  locationState?: string;
+
+  @ApiProperty({ description: 'Country of employment.', example: 'Nigeria', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  locationCountry?: string;
+
+  @ApiProperty({ description: 'Postal or ZIP code of employment location.', example: '100001', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  postalCode?: string;
   
   @ApiProperty({ description: 'Start date of employment.', example: '2021-01-15', required: false })
   @IsOptional()

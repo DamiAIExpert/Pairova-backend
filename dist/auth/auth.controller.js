@@ -50,8 +50,9 @@ let AuthController = class AuthController {
     async resetPassword(dto) {
         await this.authService.resetPassword(dto.email, dto.token, dto.newPassword);
     }
-    getProfile(user) {
-        return user;
+    async getProfile(user) {
+        const userWithProfile = await this.authService.getUserWithProfile(user.id);
+        return userWithProfile;
     }
     async logout(user) {
         return this.authService.logout();
@@ -68,7 +69,13 @@ let AuthController = class AuthController {
     async completeOnboarding(user) {
         return this.authService.completeOnboarding(user.id);
     }
-    async googleAuth() {
+    async deleteAccount(user) {
+        return this.authService.deleteAccount(user.id);
+    }
+    async googleAuth(req) {
+        console.log('🚀 Google OAuth initiated - redirecting to Google...');
+        console.log('🚀 Request URL:', req.url);
+        console.log('🚀 Request host:', req.headers.host);
     }
     async googleAuthCallback(req, res) {
         const user = req.user;
@@ -226,7 +233,7 @@ __decorate([
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [user_entity_1.User]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'User Logout' }),
@@ -299,6 +306,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "completeOnboarding", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Delete User Account' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Account deleted successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Missing or invalid JWT.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found.' }),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Delete)('account'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "deleteAccount", null);
+__decorate([
     (0, swagger_1.ApiOperation)({
         summary: 'Google OAuth Login',
         description: 'Initiates Google OAuth authentication flow. Redirects to Google login page.'
@@ -310,8 +334,9 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)('google'),
     (0, common_1.UseGuards)(google_auth_guard_1.GoogleAuthGuard),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleAuth", null);
 __decorate([

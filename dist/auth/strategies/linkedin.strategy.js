@@ -23,32 +23,68 @@ let LinkedInStrategy = class LinkedInStrategy extends (0, passport_1.PassportStr
             clientID: configService.get('LINKEDIN_CLIENT_ID'),
             clientSecret: configService.get('LINKEDIN_CLIENT_SECRET'),
             callbackURL: configService.get('LINKEDIN_CALLBACK_URL') || 'http://localhost:3007/auth/linkedin/callback',
-            scope: ['r_emailaddress', 'r_liteprofile'],
+            scope: ['openid', 'profile', 'email'],
             state: true,
+            authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
+            tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
+            profileURL: 'https://api.linkedin.com/v2/userinfo',
         });
         this.configService = configService;
         this.authService = authService;
     }
     async validate(accessToken, refreshToken, profile, done) {
         try {
-            const { id, emails, name, photos } = profile;
-            const email = emails && emails.length > 0 ? emails[0].value : null;
+            console.log('🔍 LinkedIn profile data:', JSON.stringify(profile, null, 2));
+            console.log('🔍 LinkedIn profile._json:', JSON.stringify(profile._json, null, 2));
+            let email = null;
+            let firstName = '';
+            let lastName = '';
+            let photoUrl = null;
+            let oauthId = '';
+            if (profile._json) {
+                const json = profile._json;
+                oauthId = json.sub || profile.id || json.id || '';
+                email = json.email || null;
+                firstName = json.given_name || json.givenName || '';
+                lastName = json.family_name || json.familyName || '';
+                photoUrl = json.picture || null;
+            }
+            if (!email && profile.emails && profile.emails.length > 0) {
+                email = profile.emails[0].value || null;
+            }
+            if (!firstName && profile.name?.givenName) {
+                firstName = profile.name.givenName;
+            }
+            if (!lastName && profile.name?.familyName) {
+                lastName = profile.name.familyName;
+            }
+            if (!photoUrl && profile.photos && profile.photos.length > 0) {
+                photoUrl = profile.photos[0].value || null;
+            }
+            if (!oauthId && profile.id) {
+                oauthId = profile.id;
+            }
             if (!email) {
                 return done(new Error('No email found in LinkedIn profile'), null);
             }
+            if (!oauthId) {
+                return done(new Error('No user ID found in LinkedIn profile'), null);
+            }
             const userData = {
                 oauthProvider: 'linkedin',
-                oauthId: id,
+                oauthId: oauthId,
                 email,
-                firstName: name?.givenName || '',
-                lastName: name?.familyName || '',
-                photoUrl: photos && photos.length > 0 ? photos[0].value : null,
-                oauthProfile: profile._json,
+                firstName,
+                lastName,
+                photoUrl,
+                oauthProfile: profile._json || profile,
             };
+            console.log('🔍 Extracted LinkedIn user data:', userData);
             const user = await this.authService.findOrCreateOAuthUser(userData);
             done(null, user);
         }
         catch (error) {
+            console.error('❌ LinkedIn OAuth validation error:', error);
             done(error, null);
         }
     }

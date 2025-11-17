@@ -25,21 +25,30 @@ const nonprofit_entity_1 = require("../users/nonprofit/nonprofit.entity");
 const role_enum_1 = require("../common/enums/role.enum");
 const ai_microservice_service_1 = require("./services/ai-microservice.service");
 const prediction_cache_service_1 = require("./services/prediction-cache.service");
+const experience_entity_1 = require("../profiles/experience/entities/experience.entity");
+const education_entity_1 = require("../profiles/education/entities/education.entity");
+const certification_entity_1 = require("../profiles/certifications/entities/certification.entity");
 let AiService = AiService_1 = class AiService {
     userRepository;
     jobRepository;
     applicationRepository;
     applicantProfileRepository;
     nonprofitOrgRepository;
+    experienceRepository;
+    educationRepository;
+    certificationRepository;
     aiMicroserviceService;
     predictionCacheService;
     logger = new common_1.Logger(AiService_1.name);
-    constructor(userRepository, jobRepository, applicationRepository, applicantProfileRepository, nonprofitOrgRepository, aiMicroserviceService, predictionCacheService) {
+    constructor(userRepository, jobRepository, applicationRepository, applicantProfileRepository, nonprofitOrgRepository, experienceRepository, educationRepository, certificationRepository, aiMicroserviceService, predictionCacheService) {
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
         this.applicationRepository = applicationRepository;
         this.applicantProfileRepository = applicantProfileRepository;
         this.nonprofitOrgRepository = nonprofitOrgRepository;
+        this.experienceRepository = experienceRepository;
+        this.educationRepository = educationRepository;
+        this.certificationRepository = certificationRepository;
         this.aiMicroserviceService = aiMicroserviceService;
         this.predictionCacheService = predictionCacheService;
     }
@@ -245,49 +254,110 @@ let AiService = AiService_1 = class AiService {
         const nonprofitProfile = job.postedBy.nonprofitProfile;
         const allowsAiTraining = applicantProfile?.allowAiTraining ?? true;
         const allowsDataAnalytics = applicantProfile?.allowDataAnalytics ?? true;
+        const allowPersonalInformation = applicantProfile?.allowPersonalInformation ?? true;
+        const allowGenderData = applicantProfile?.allowGenderData ?? true;
+        const allowLocation = applicantProfile?.allowLocation ?? true;
+        const allowExperience = applicantProfile?.allowExperience ?? true;
+        const allowSkills = applicantProfile?.allowSkills ?? true;
+        const allowCertificates = applicantProfile?.allowCertificates ?? true;
+        const allowBio = applicantProfile?.allowBio ?? true;
         if (!allowsAiTraining && !allowsDataAnalytics) {
             this.logger.log(`User ${applicant.id} has disabled AI training and analytics - using minimal data`);
-            return {
-                job: {
-                    id: job.id,
-                    title: job.title,
-                    description: job.description,
-                    requirements: [],
-                    skills: [],
-                    experienceLevel: 'MID_LEVEL',
-                    employmentType: job.employmentType,
-                    placement: job.placement,
-                    salaryRange: undefined,
-                    location: {
-                        country: nonprofitProfile?.country || 'Unknown',
-                        state: nonprofitProfile?.state || 'Unknown',
-                        city: nonprofitProfile?.city || 'Unknown',
-                    },
-                    industry: nonprofitProfile?.industry || 'Unknown',
-                    orgSize: nonprofitProfile?.sizeLabel || 'Unknown',
-                    orgType: nonprofitProfile?.orgType || 'Unknown',
-                },
-                applicant: {
-                    id: applicant.id,
-                    skills: [],
-                    experience: [],
-                    education: [],
-                    certifications: [],
-                    location: {
-                        country: 'Unknown',
-                        state: 'Unknown',
-                        city: 'Unknown',
-                    },
-                    availability: 'IMMEDIATE',
-                    preferredSalaryRange: undefined,
-                    workPreferences: {
-                        employmentTypes: [job.employmentType],
-                        placements: [job.placement],
-                        industries: [],
-                    },
-                },
-            };
+            return this.getMinimalJobApplicantData(job, applicant, nonprofitProfile);
         }
+        const [experiences, educations, certifications] = await Promise.all([
+            allowExperience
+                ? this.experienceRepository.find({ where: { userId: applicant.id } })
+                : Promise.resolve([]),
+            allowExperience
+                ? this.educationRepository.find({ where: { userId: applicant.id } })
+                : Promise.resolve([]),
+            allowCertificates
+                ? this.certificationRepository.find({ where: { userId: applicant.id } })
+                : Promise.resolve([]),
+        ]);
+        const jobData = {
+            id: job.id,
+            title: job.title,
+            description: job.description,
+            requirements: job.requiredSkills || [],
+            skills: job.requiredSkills || [],
+            experienceLevel: this.mapExperienceLevel(job.experienceMinYrs),
+            employmentType: job.employmentType,
+            placement: job.placement,
+            salaryRange: job.salaryMin && job.salaryMax ? {
+                min: job.salaryMin,
+                max: job.salaryMax,
+                currency: job.currency || 'USD',
+            } : undefined,
+            location: {
+                country: nonprofitProfile?.country || 'Unknown',
+                state: nonprofitProfile?.state || 'Unknown',
+                city: nonprofitProfile?.city || 'Unknown',
+            },
+            industry: nonprofitProfile?.industry || 'Unknown',
+            orgSize: nonprofitProfile?.sizeLabel || 'Unknown',
+            orgType: nonprofitProfile?.orgType || 'Unknown',
+        };
+        const applicantData = {
+            id: applicant.id,
+            skills: allowSkills ? (applicantProfile?.skills || []) : [],
+            experience: allowExperience ? experiences.map(exp => {
+                let duration = 0;
+                if (exp.startDate && exp.endDate) {
+                    const start = new Date(exp.startDate);
+                    const end = new Date(exp.endDate);
+                    duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+                }
+                else if (exp.startDate) {
+                    const start = new Date(exp.startDate);
+                    const now = new Date();
+                    duration = Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+                }
+                return {
+                    title: exp.roleTitle,
+                    company: exp.company,
+                    duration,
+                    description: exp.description || '',
+                    skills: [],
+                };
+            }) : [],
+            education: allowExperience ? educations.map(edu => ({
+                degree: edu.degree || '',
+                field: edu.fieldOfStudy || '',
+                institution: edu.school,
+                graduationYear: edu.endDate ? new Date(edu.endDate).getFullYear() : new Date().getFullYear(),
+            })) : [],
+            certifications: allowCertificates ? certifications.map(cert => ({
+                name: cert.name,
+                issuer: cert.issuer || '',
+                date: cert.issueDate?.toISOString() || cert.issuedDate?.toISOString() || new Date().toISOString(),
+            })) : [],
+            location: allowLocation ? {
+                country: applicantProfile?.country || 'Unknown',
+                state: applicantProfile?.state || 'Unknown',
+                city: applicantProfile?.city || 'Unknown',
+            } : {
+                country: 'Unknown',
+                state: 'Unknown',
+                city: 'Unknown',
+            },
+            availability: 'IMMEDIATE',
+            preferredSalaryRange: undefined,
+            workPreferences: {
+                employmentTypes: applicantProfile?.preferredEmploymentType
+                    ? [applicantProfile.preferredEmploymentType]
+                    : [job.employmentType],
+                placements: [job.placement],
+                industries: [nonprofitProfile?.industry || 'Unknown'],
+            },
+        };
+        return {
+            job: jobData,
+            applicant: applicantData,
+        };
+    }
+    getMinimalJobApplicantData(job, applicant, nonprofitProfile) {
         return {
             job: {
                 id: job.id,
@@ -315,19 +385,32 @@ let AiService = AiService_1 = class AiService {
                 education: [],
                 certifications: [],
                 location: {
-                    country: applicantProfile?.country || 'Unknown',
-                    state: applicantProfile?.state || 'Unknown',
-                    city: applicantProfile?.city || 'Unknown',
+                    country: 'Unknown',
+                    state: 'Unknown',
+                    city: 'Unknown',
                 },
                 availability: 'IMMEDIATE',
                 preferredSalaryRange: undefined,
                 workPreferences: {
                     employmentTypes: [job.employmentType],
                     placements: [job.placement],
-                    industries: [nonprofitProfile?.industry || 'Unknown'],
+                    industries: [],
                 },
             },
         };
+    }
+    mapExperienceLevel(minYrs) {
+        if (minYrs == null)
+            return 'MID_LEVEL';
+        if (minYrs === 0)
+            return 'ENTRY_LEVEL';
+        if (minYrs < 3)
+            return 'ENTRY_LEVEL';
+        if (minYrs < 5)
+            return 'MID_LEVEL';
+        if (minYrs < 10)
+            return 'SENIOR_LEVEL';
+        return 'EXECUTIVE_LEVEL';
     }
     async updateApplicationMatchScore(jobId, applicantId, score) {
         await this.applicationRepository.update({ jobId, applicantId }, { matchScore: score });
@@ -369,7 +452,13 @@ exports.AiService = AiService = AiService_1 = __decorate([
     __param(2, (0, typeorm_1.InjectRepository)(application_entity_1.Application)),
     __param(3, (0, typeorm_1.InjectRepository)(applicant_entity_1.ApplicantProfile)),
     __param(4, (0, typeorm_1.InjectRepository)(nonprofit_entity_1.NonprofitOrg)),
+    __param(5, (0, typeorm_1.InjectRepository)(experience_entity_1.Experience)),
+    __param(6, (0, typeorm_1.InjectRepository)(education_entity_1.Education)),
+    __param(7, (0, typeorm_1.InjectRepository)(certification_entity_1.Certification)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,

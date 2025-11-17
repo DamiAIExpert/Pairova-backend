@@ -61,6 +61,18 @@ export class Job {
   @Column({ name: 'required_skills', type: 'text', array: true, nullable: true })
   requiredSkills!: string[];
 
+  @Column({ name: 'hard_soft_skills', type: 'text', array: true, nullable: true })
+  hardSoftSkills!: string[];
+
+  @Column({ name: 'qualifications', type: 'text', nullable: true })
+  qualifications!: string;
+
+  @Column({ name: 'responsibilities', type: 'text', nullable: true })
+  responsibilities!: string;
+
+  @Column({ name: 'mission_statement', type: 'text', nullable: true })
+  missionStatement!: string;
+
   @Column({ name: 'benefits', type: 'text', array: true, nullable: true })
   benefits!: string[];
 

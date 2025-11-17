@@ -18,6 +18,13 @@ class PrivacySettingsResponseDto {
     allowThirdPartySharing;
     privacyUpdatedAt;
     userId;
+    allowPersonalInformation;
+    allowGenderData;
+    allowLocation;
+    allowExperience;
+    allowSkills;
+    allowCertificates;
+    allowBio;
 }
 exports.PrivacySettingsResponseDto = PrivacySettingsResponseDto;
 __decorate([
@@ -63,4 +70,53 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], PrivacySettingsResponseDto.prototype, "userId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow personal information (name, email, phone) to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowPersonalInformation", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow gender data to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowGenderData", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow location data (country, state, city) to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowLocation", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow work experience data to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowExperience", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow skills data to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowSkills", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow certificates data to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowCertificates", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow bio/profile description to be used for AI recommendations',
+        example: true
+    }),
+    __metadata("design:type", Boolean)
+], PrivacySettingsResponseDto.prototype, "allowBio", void 0);
 //# sourceMappingURL=privacy-settings-response.dto.js.map

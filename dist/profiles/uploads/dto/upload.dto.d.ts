@@ -4,4 +4,5 @@ export declare class UploadDto {
     publicId: string;
     mimeType: string;
     sizeBytes: number;
+    filename?: string | null;
 }

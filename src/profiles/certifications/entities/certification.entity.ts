@@ -72,6 +72,13 @@ export class Certification {
   credentialUrl: string;
 
   /**
+   * @property credentialId
+   * @description The unique credential ID or certificate number issued by the organization.
+   */
+  @Column({ length: 255, nullable: true, comment: 'The unique credential ID or certificate number.' })
+  credentialId: string;
+
+  /**
    * @property createdAt
    * @description The timestamp when the certification record was created.
    */

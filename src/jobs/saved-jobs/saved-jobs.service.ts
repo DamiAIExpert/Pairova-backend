@@ -15,13 +15,7 @@ export class SavedJobsService {
   ) {}
 
   async saveJob(userId: string, jobId: string): Promise<SavedJob> {
-    // Check if job exists
-    const job = await this.jobsRepository.findOne({ where: { id: jobId } });
-    if (!job) {
-      throw new NotFoundException('Job not found');
-    }
-
-    // Check if already saved
+    // Check if already saved first (faster check)
     const existingSavedJob = await this.savedJobsRepository.findOne({
       where: { userId, jobId },
     });
@@ -29,6 +23,16 @@ export class SavedJobsService {
       throw new ConflictException('Job already saved');
     }
 
+    // Check if job exists
+    const job = await this.jobsRepository.findOne({ 
+      where: { id: jobId },
+      select: ['id'], // Only select id for faster query
+    });
+    if (!job) {
+      throw new NotFoundException('Job not found');
+    }
+
+    // Create and save
     const savedJob = this.savedJobsRepository.create({
       userId,
       jobId,

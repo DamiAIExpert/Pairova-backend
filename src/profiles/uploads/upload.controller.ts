@@ -2,6 +2,7 @@
 import {
   Controller,
   Post,
+  Get,
   UploadedFile,
   UseInterceptors,
   UseGuards,
@@ -102,5 +103,26 @@ export class UploadController {
       console.error(error.stack);
       throw error;
     }
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all uploads for the current user' })
+  @ApiQuery({
+    name: 'kind',
+    type: 'string',
+    required: false,
+    description: "Filter by upload kind (e.g., 'attachment', 'resume', 'avatar')",
+    example: 'attachment',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of user uploads.',
+    type: [UploadDto],
+  })
+  async getUserUploads(
+    @CurrentUser() user: User,
+    @Query('kind') kind?: string,
+  ): Promise<UploadDto[]> {
+    return this.uploadService.listUserUploads(user.id, kind);
   }
 }

@@ -412,4 +412,19 @@ export class AuthService {
       },
     };
   }
+
+  /**
+   * Get user with profile relations loaded
+   */
+  async getUserWithProfile(userId: string): Promise<User> {
+    return this.usersService.findOneByIdWithProfile(userId);
+  }
+
+  /**
+   * Delete user account and all associated data
+   */
+  async deleteAccount(userId: string): Promise<{ message: string }> {
+    await this.usersService.deleteAccount(userId);
+    return { message: 'Account deleted successfully' };
+  }
 }

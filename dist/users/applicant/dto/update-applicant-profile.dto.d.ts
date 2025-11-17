@@ -8,6 +8,10 @@ export declare class UpdateApplicantProfileDto {
     country?: string;
     state?: string;
     city?: string;
+    postalCode?: string;
+    workPosition?: string;
     photoUrl?: string;
     portfolioUrl?: string;
+    skills?: string[];
+    phone?: string;
 }

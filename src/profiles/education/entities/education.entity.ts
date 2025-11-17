@@ -29,6 +29,12 @@ export class Education {
   @Column({ nullable: true })
   grade?: string;
 
+  @Column({ length: 255, nullable: true, comment: 'Major role or specialization during education.' })
+  role?: string;
+
+  @Column({ type: 'text', nullable: true, comment: 'Additional description or achievements during education.' })
+  description?: string;
+
   @Column({ type: 'date', nullable: true })
   startDate?: Date;
 

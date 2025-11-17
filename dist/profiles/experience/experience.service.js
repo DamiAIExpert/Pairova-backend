@@ -26,11 +26,23 @@ let ExperienceService = class ExperienceService {
         const experience = this.experienceRepository.create({
             ...createExperienceDto,
             userId: user.id,
+            applicantId: user.id,
         });
         return this.experienceRepository.save(experience);
     }
     async findByUserId(userId) {
         return this.experienceRepository.find({ where: { userId } });
+    }
+    async findOneById(id) {
+        const experience = await this.experienceRepository.findOne({ where: { id } });
+        if (!experience) {
+            throw new common_1.NotFoundException(`Experience with ID ${id} not found`);
+        }
+        return experience;
+    }
+    async remove(id) {
+        const experience = await this.findOneById(id);
+        await this.experienceRepository.remove(experience);
     }
 };
 exports.ExperienceService = ExperienceService;

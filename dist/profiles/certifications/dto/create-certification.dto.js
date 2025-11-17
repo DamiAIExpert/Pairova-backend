@@ -17,6 +17,7 @@ class CreateCertificationDto {
     issuer;
     issueDate;
     credentialUrl;
+    credentialId;
 }
 exports.CreateCertificationDto = CreateCertificationDto;
 __decorate([
@@ -43,4 +44,10 @@ __decorate([
     (0, class_validator_1.IsUrl)(),
     __metadata("design:type", String)
 ], CreateCertificationDto.prototype, "credentialUrl", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'The unique credential ID or certificate number issued by the organization.', example: 'CERT-123456' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCertificationDto.prototype, "credentialId", void 0);
 //# sourceMappingURL=create-certification.dto.js.map

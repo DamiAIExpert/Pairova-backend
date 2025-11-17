@@ -6,6 +6,7 @@ import { Transporter } from 'nodemailer';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
+import { UrlHelper } from '../common/utils/url.helper';
 
 /**
  * @class EmailService
@@ -85,7 +86,16 @@ export class EmailService {
       const templatePath = path.join(process.cwd(), 'src', 'notifications', 'templates', `${templateName}.hbs`);
       const templateSource = await fs.readFile(templatePath, 'utf-8');
       const template = handlebars.compile(templateSource);
-      const html = template(context);
+      
+      // Add logo URL and year to context if not already provided
+      const frontendUrl = UrlHelper.getFrontendUrl(this.configService);
+      const enrichedContext = {
+        ...context,
+        logoUrl: context.logoUrl || `${frontendUrl}/Images/logo.AVIF`,
+        year: context.year || new Date().getFullYear(),
+      };
+      
+      const html = template(enrichedContext);
       return this.send(to, subject, html);
     } catch (error) {
       this.logger.error(`Error processing email template '${templateName}'`, error.stack);

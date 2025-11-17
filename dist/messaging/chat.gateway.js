@@ -98,7 +98,43 @@ __decorate([
 ], ChatGateway.prototype, "handleJoinConversation", null);
 exports.ChatGateway = ChatGateway = ChatGateway_1 = __decorate([
     (0, common_1.UseGuards)(ws_jwt_guard_1.WsJwtGuard),
-    (0, websockets_1.WebSocketGateway)({ namespace: '/chat', cors: { origin: '*' } }),
+    (0, websockets_1.WebSocketGateway)({
+        namespace: '/chat',
+        cors: {
+            origin: (origin, callback) => {
+                const nodeEnv = process.env.NODE_ENV || 'development';
+                let allowedOrigins = [];
+                if (nodeEnv === 'development' || nodeEnv === 'dev') {
+                    allowedOrigins = [
+                        'http://localhost:5173',
+                        'http://localhost:3000',
+                        'http://localhost:3001',
+                        'http://127.0.0.1:5173',
+                    ];
+                }
+                else {
+                    const clientUrl = process.env.CLIENT_URL;
+                    if (clientUrl) {
+                        allowedOrigins.push(...clientUrl.split(',').map(url => url.trim()));
+                    }
+                    const adminUrl = process.env.ADMIN_URL;
+                    if (adminUrl) {
+                        allowedOrigins.push(...adminUrl.split(',').map(url => url.trim()));
+                    }
+                    if (allowedOrigins.length === 0) {
+                        allowedOrigins = ['https://pairova.com', 'https://admin.pairova.com'];
+                    }
+                }
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true);
+                }
+                else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
+            credentials: true
+        }
+    }),
     __metadata("design:paramtypes", [chat_service_1.ChatService])
 ], ChatGateway);
 //# sourceMappingURL=chat.gateway.js.map

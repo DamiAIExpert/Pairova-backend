@@ -9,5 +9,6 @@ export declare class Certification {
     issueDate: Date;
     issuedDate: Date;
     credentialUrl: string;
+    credentialId: string;
     createdAt: Date;
 }

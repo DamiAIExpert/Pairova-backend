@@ -24,6 +24,7 @@ let Experience = class Experience {
     locationCity;
     locationState;
     locationCountry;
+    postalCode;
     startDate;
     endDate;
     description;
@@ -71,6 +72,10 @@ __decorate([
     (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Experience.prototype, "locationCountry", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'postal_code', length: 20, nullable: true, comment: 'Postal or ZIP code of employment location.' }),
+    __metadata("design:type", String)
+], Experience.prototype, "postalCode", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Date)

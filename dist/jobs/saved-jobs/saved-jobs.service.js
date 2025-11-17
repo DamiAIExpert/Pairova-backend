@@ -26,15 +26,18 @@ let SavedJobsService = class SavedJobsService {
         this.jobsRepository = jobsRepository;
     }
     async saveJob(userId, jobId) {
-        const job = await this.jobsRepository.findOne({ where: { id: jobId } });
-        if (!job) {
-            throw new common_1.NotFoundException('Job not found');
-        }
         const existingSavedJob = await this.savedJobsRepository.findOne({
             where: { userId, jobId },
         });
         if (existingSavedJob) {
             throw new common_1.ConflictException('Job already saved');
+        }
+        const job = await this.jobsRepository.findOne({
+            where: { id: jobId },
+            select: ['id'],
+        });
+        if (!job) {
+            throw new common_1.NotFoundException('Job not found');
         }
         const savedJob = this.savedJobsRepository.create({
             userId,

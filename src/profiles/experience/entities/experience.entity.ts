@@ -47,6 +47,9 @@ export class Experience {
   @Column({ length: 100, nullable: true })
   locationCountry: string;
 
+  @Column({ name: 'postal_code', length: 20, nullable: true, comment: 'Postal or ZIP code of employment location.' })
+  postalCode: string;
+
   @Column({ type: 'date', nullable: true })
   startDate: Date;
 

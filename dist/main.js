@@ -10,6 +10,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const helmet_1 = __importDefault(require("helmet"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const express_session_1 = __importDefault(require("express-session"));
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const logging_interceptor_1 = require("./common/interceptors/logging.interceptor");
 const transform_interceptor_1 = require("./common/interceptors/transform.interceptor");
@@ -23,6 +24,18 @@ async function bootstrap() {
         const configService = app.get(config_1.ConfigService);
         app.use((0, helmet_1.default)());
         app.use((0, cookie_parser_1.default)());
+        const sessionSecret = configService.get('SESSION_SECRET') || configService.get('JWT_SECRET') || 'dev-session-secret';
+        app.use((0, express_session_1.default)({
+            secret: sessionSecret,
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000,
+            },
+        }));
+        logger.log('✅ Session middleware configured');
         const allowedOrigins = url_helper_1.UrlHelper.getAllowedOrigins(configService);
         app.enableCors({
             origin: allowedOrigins,

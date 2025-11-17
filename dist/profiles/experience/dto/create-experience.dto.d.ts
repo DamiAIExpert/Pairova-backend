@@ -4,6 +4,9 @@ export declare class CreateExperienceDto {
     roleTitle: string;
     employmentType?: EmploymentType;
     locationCity?: string;
+    locationState?: string;
+    locationCountry?: string;
+    postalCode?: string;
     startDate?: Date;
     endDate?: Date;
     description?: string;

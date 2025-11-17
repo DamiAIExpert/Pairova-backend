@@ -22,10 +22,11 @@ export declare class NgoApplicationsController {
         totalApplications: number;
         pendingApplications: number;
         reviewedApplications: number;
+        shortlistedApplications: number;
+        interviewedApplications: number;
         acceptedApplications: number;
         rejectedApplications: number;
         applicationsThisMonth: number;
-        averageResponseTime: number;
     }>;
     getApplicationPipeline(user: User): Promise<{
         stages: Array<{
@@ -33,8 +34,6 @@ export declare class NgoApplicationsController {
             count: number;
             percentage: number;
         }>;
-        recentActivity: any[];
-        topPerformingJobs: any[];
     }>;
     bulkUpdateApplicationStatus(user: User, updateData: {
         applicationIds: string[];

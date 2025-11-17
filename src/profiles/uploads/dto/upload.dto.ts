@@ -20,4 +20,7 @@ export class UploadDto {
 
   @ApiProperty({ description: 'The size of the file in bytes.', example: 102400 })
   sizeBytes: number;
+
+  @ApiProperty({ description: 'The original filename.', example: 'resume.pdf', required: false })
+  filename?: string | null;
 }

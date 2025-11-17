@@ -32,6 +32,13 @@ let ExperienceController = class ExperienceController {
     findAll(user) {
         return this.experienceService.findByUserId(user.id);
     }
+    async remove(id, user) {
+        const experience = await this.experienceService.findOneById(id);
+        if (experience.userId !== user.id) {
+            throw new common_1.ForbiddenException('You are not authorized to delete this experience entry.');
+        }
+        return this.experienceService.remove(id);
+    }
 };
 exports.ExperienceController = ExperienceController;
 __decorate([
@@ -53,6 +60,20 @@ __decorate([
     __metadata("design:paramtypes", [user_entity_1.User]),
     __metadata("design:returntype", Promise)
 ], ExperienceController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete an experience entry from the current user\'s profile' }),
+    (0, swagger_1.ApiResponse)({ status: 204, description: 'The experience entry has been successfully deleted.' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Missing or invalid JWT.' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden - User does not own this resource.' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Not Found - The experience entry with the given ID does not exist.' }),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, user_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], ExperienceController.prototype, "remove", null);
 exports.ExperienceController = ExperienceController = __decorate([
     (0, swagger_1.ApiTags)('Profile - Experience'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

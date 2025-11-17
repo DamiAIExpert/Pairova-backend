@@ -17,6 +17,8 @@ class CreateEducationDto {
     degree;
     fieldOfStudy;
     grade;
+    role;
+    description;
     startDate;
     endDate;
 }
@@ -49,6 +51,19 @@ __decorate([
     (0, class_validator_1.MaxLength)(64),
     __metadata("design:type", String)
 ], CreateEducationDto.prototype, "grade", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Major role or specialization during education.', example: 'Software Engineering', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(255),
+    __metadata("design:type", String)
+], CreateEducationDto.prototype, "role", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Additional description or achievements during education.', example: 'Graduated with honors...', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateEducationDto.prototype, "description", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Start date of education.', example: '2016-09-01', required: false }),
     (0, class_validator_1.IsOptional)(),

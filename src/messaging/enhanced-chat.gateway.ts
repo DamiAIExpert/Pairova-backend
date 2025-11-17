@@ -25,7 +25,42 @@ import { MessageType } from './entities/message.entity';
 @WebSocketGateway({ 
   namespace: '/chat', 
   cors: { 
-    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
+    origin: (origin, callback) => {
+      // Use the same logic as main.ts CORS configuration
+      const nodeEnv = process.env.NODE_ENV || 'development';
+      let allowedOrigins: string[] = [];
+      
+      if (nodeEnv === 'development' || nodeEnv === 'dev') {
+        allowedOrigins = [
+          'http://localhost:5173',
+          'http://localhost:3000',
+          'http://localhost:3001',
+          'http://127.0.0.1:5173',
+        ];
+      } else {
+        // Production: Get from environment variables
+        const clientUrl = process.env.CLIENT_URL;
+        if (clientUrl) {
+          allowedOrigins.push(...clientUrl.split(',').map(url => url.trim()));
+        }
+        
+        const adminUrl = process.env.ADMIN_URL;
+        if (adminUrl) {
+          allowedOrigins.push(...adminUrl.split(',').map(url => url.trim()));
+        }
+        
+        // Fallback
+        if (allowedOrigins.length === 0) {
+          allowedOrigins = ['https://pairova.com', 'https://admin.pairova.com'];
+        }
+      }
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true 
   } 
 })

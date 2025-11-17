@@ -16,4 +16,36 @@ export declare class ApplicationsService {
     findOne(id: string, user: User): Promise<Application>;
     updateStatus(id: string, status: ApplicationStatus, notes: string | undefined, user: User): Promise<Application>;
     remove(id: string): Promise<void>;
+    getApplicationsByOrganization(user: User, filters?: {
+        status?: string;
+        jobId?: string;
+    }, page?: number, limit?: number): Promise<{
+        applications: Application[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
+    getApplicationStatistics(user: User): Promise<{
+        totalApplications: number;
+        pendingApplications: number;
+        reviewedApplications: number;
+        shortlistedApplications: number;
+        interviewedApplications: number;
+        acceptedApplications: number;
+        rejectedApplications: number;
+        applicationsThisMonth: number;
+    }>;
+    getApplicationByOrganization(applicationId: string, user: User): Promise<Application>;
+    updateApplicationStatusByOrganization(applicationId: string, user: User, updateData: {
+        status: string;
+        notes?: string;
+        interviewDate?: Date;
+        rejectionReason?: string;
+    }): Promise<{
+        message: string;
+    }>;
+    bulkUpdateApplicationStatusByOrganization(user: User, applicationIds: string[], status: string, notes?: string): Promise<{
+        message: string;
+        updatedCount: number;
+    }>;
 }

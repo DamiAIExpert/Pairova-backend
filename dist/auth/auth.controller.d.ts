@@ -63,7 +63,7 @@ export declare class AuthController {
     }>;
     forgotPassword(dto: RequestPasswordResetDto): Promise<void>;
     resetPassword(dto: ResetPasswordDto): Promise<void>;
-    getProfile(user: User): User;
+    getProfile(user: User): Promise<User>;
     logout(user: User): Promise<{
         message: string;
     }>;
@@ -79,7 +79,10 @@ export declare class AuthController {
     completeOnboarding(user: User): Promise<{
         message: string;
     }>;
-    googleAuth(): Promise<void>;
+    deleteAccount(user: User): Promise<{
+        message: string;
+    }>;
+    googleAuth(req: Request): Promise<void>;
     googleAuthCallback(req: Request, res: Response): Promise<void>;
     linkedinAuth(): Promise<void>;
     linkedinAuthCallback(req: Request, res: Response): Promise<void>;

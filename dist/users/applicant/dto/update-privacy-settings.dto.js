@@ -17,6 +17,13 @@ class UpdatePrivacySettingsDto {
     allowProfileIndexing;
     allowDataAnalytics;
     allowThirdPartySharing;
+    allowPersonalInformation;
+    allowGenderData;
+    allowLocation;
+    allowExperience;
+    allowSkills;
+    allowCertificates;
+    allowBio;
 }
 exports.UpdatePrivacySettingsDto = UpdatePrivacySettingsDto;
 __decorate([
@@ -63,4 +70,81 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], UpdatePrivacySettingsDto.prototype, "allowThirdPartySharing", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow personal information (name, email, phone) to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowPersonalInformation", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow gender data to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowGenderData", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow location data (country, state, city) to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowLocation", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow work experience data to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowExperience", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow skills data to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowSkills", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow certificates data to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowCertificates", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Allow bio/profile description to be used for AI recommendations',
+        example: true,
+        required: false,
+        default: true
+    }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdatePrivacySettingsDto.prototype, "allowBio", void 0);
 //# sourceMappingURL=update-privacy-settings.dto.js.map

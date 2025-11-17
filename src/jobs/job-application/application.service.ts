@@ -131,7 +131,14 @@ export class ApplicationsService {
     if (user.role === Role.APPLICANT) {
       return this.applicationRepository.find({
         where: { applicantId: user.id },
-        relations: ['job'],
+        relations: [
+          'job',
+          'job.postedBy',
+          'job.postedBy.nonprofitProfile',
+          'applicant',
+          'applicant.applicantProfile'
+        ],
+        order: { appliedAt: 'DESC' },
       });
     }
     // For NONPROFIT, we might want to list all applications for their jobs.

@@ -7,4 +7,5 @@ export declare class UploadController {
     private readonly configService;
     constructor(uploadService: UploadService, configService: ConfigService);
     uploadFile(file: Express.Multer.File, user: User, kind?: string): Promise<UploadDto>;
+    getUserUploads(user: User, kind?: string): Promise<UploadDto[]>;
 }

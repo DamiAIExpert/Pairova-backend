@@ -7,4 +7,6 @@ export declare class ExperienceService {
     constructor(experienceRepository: Repository<Experience>);
     addExperience(user: User, createExperienceDto: CreateExperienceDto): Promise<Experience>;
     findByUserId(userId: string): Promise<Experience[]>;
+    findOneById(id: string): Promise<Experience>;
+    remove(id: string): Promise<void>;
 }

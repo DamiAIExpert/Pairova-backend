@@ -50,6 +50,7 @@ const nodemailer = __importStar(require("nodemailer"));
 const fs = __importStar(require("fs/promises"));
 const path = __importStar(require("path"));
 const handlebars = __importStar(require("handlebars"));
+const url_helper_1 = require("../common/utils/url.helper");
 let EmailService = EmailService_1 = class EmailService {
     configService;
     logger = new common_1.Logger(EmailService_1.name);
@@ -98,7 +99,13 @@ let EmailService = EmailService_1 = class EmailService {
             const templatePath = path.join(process.cwd(), 'src', 'notifications', 'templates', `${templateName}.hbs`);
             const templateSource = await fs.readFile(templatePath, 'utf-8');
             const template = handlebars.compile(templateSource);
-            const html = template(context);
+            const frontendUrl = url_helper_1.UrlHelper.getFrontendUrl(this.configService);
+            const enrichedContext = {
+                ...context,
+                logoUrl: context.logoUrl || `${frontendUrl}/Images/logo.AVIF`,
+                year: context.year || new Date().getFullYear(),
+            };
+            const html = template(enrichedContext);
             return this.send(to, subject, html);
         }
         catch (error) {

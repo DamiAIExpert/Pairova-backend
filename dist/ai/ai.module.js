@@ -20,6 +20,9 @@ const user_entity_1 = require("../users/shared/user.entity");
 const applicant_entity_1 = require("../users/applicant/applicant.entity");
 const nonprofit_entity_1 = require("../users/nonprofit/nonprofit.entity");
 const recommendation_score_entity_1 = require("./entities/recommendation-score.entity");
+const experience_entity_1 = require("../profiles/experience/entities/experience.entity");
+const education_entity_1 = require("../profiles/education/entities/education.entity");
+const certification_entity_1 = require("../profiles/certifications/entities/certification.entity");
 let AiModule = class AiModule {
 };
 exports.AiModule = AiModule;
@@ -33,6 +36,9 @@ exports.AiModule = AiModule = __decorate([
                 applicant_entity_1.ApplicantProfile,
                 nonprofit_entity_1.NonprofitOrg,
                 recommendation_score_entity_1.RecommendationScore,
+                experience_entity_1.Experience,
+                education_entity_1.Education,
+                certification_entity_1.Certification,
             ]),
             axios_1.HttpModule.register({
                 timeout: 30000,

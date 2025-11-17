@@ -6,8 +6,9 @@ import { PrivacySettingsResponseDto } from './dto/privacy-settings-response.dto'
 import { User } from '../shared/user.entity';
 export declare class ApplicantService {
     private readonly applicantProfileRepository;
+    private readonly userRepository;
     private readonly logger;
-    constructor(applicantProfileRepository: Repository<ApplicantProfile>);
+    constructor(applicantProfileRepository: Repository<ApplicantProfile>, userRepository: Repository<User>);
     createProfile(userId: string): Promise<ApplicantProfile>;
     getProfile(user: User): Promise<ApplicantProfile>;
     updateProfile(user: User, updateDto: UpdateApplicantProfileDto): Promise<ApplicantProfile>;

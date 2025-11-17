@@ -19,9 +19,19 @@ class CreateJobDto {
     placement;
     employmentType;
     experienceMinYrs;
+    experienceMaxYrs;
+    experienceLevel;
+    requiredSkills;
+    hardSoftSkills;
+    qualifications;
+    responsibilities;
+    missionStatement;
+    benefits;
+    deadline;
     locationCity;
     locationState;
     locationCountry;
+    postalCode;
     salaryMin;
     salaryMax;
     currency;
@@ -81,6 +91,101 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateJobDto.prototype, "experienceMinYrs", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Maximum years of experience required.',
+        required: false,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], CreateJobDto.prototype, "experienceMaxYrs", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Experience level (e.g., "1-3 years", "Entry Level", "Senior").',
+        required: false,
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateJobDto.prototype, "experienceLevel", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'List of required skills for the job.',
+        type: [String],
+        required: false,
+        example: ['JavaScript', 'React', 'Node.js'],
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateJobDto.prototype, "requiredSkills", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'List of hard and soft skills required for the job.',
+        type: [String],
+        required: false,
+        example: ['Communication', 'Problem-Solving', 'Leadership'],
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateJobDto.prototype, "hardSoftSkills", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Qualifications required for the job (multiline text).',
+        required: false,
+        example: 'At least 1-3 years of experience in administration...\nA degree or diploma in Business Administration...',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateJobDto.prototype, "qualifications", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Responsibilities for the job role (multiline text).',
+        required: false,
+        example: 'Maintain accurate records and documentation...\nAssist with fundraising activities...',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateJobDto.prototype, "responsibilities", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Mission statement for the job or organization.',
+        required: false,
+        example: 'Our mission is to empower communities and drive positive change...',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateJobDto.prototype, "missionStatement", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'List of benefits offered with the job.',
+        type: [String],
+        required: false,
+        example: ['Health Insurance', 'Remote Work', 'Flexible Hours'],
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateJobDto.prototype, "benefits", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Application deadline for the job posting.',
+        required: false,
+        example: '2024-12-31T23:59:59Z',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateJobDto.prototype, "deadline", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: "The job's location city.", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
@@ -98,6 +203,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateJobDto.prototype, "locationCountry", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "The job's postal/zip code.", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateJobDto.prototype, "postalCode", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'The minimum salary for the role.', required: false }),
     (0, class_validator_1.IsOptional)(),

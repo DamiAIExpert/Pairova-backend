@@ -45,3 +45,14 @@ SELECT
 FROM storage_providers
 WHERE type = 'cloudinary';
 
+
+
+
+
+
+
+
+
+
+
+

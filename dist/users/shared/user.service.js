@@ -64,6 +64,12 @@ let UsersService = class UsersService {
     async all() {
         return this.usersRepository.find();
     }
+    async deleteAccount(userId) {
+        const result = await this.usersRepository.delete({ id: userId });
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
+        }
+    }
     async findByEmailVerificationToken(token) {
         return this.usersRepository.findOne({ where: { emailVerificationToken: token } });
     }

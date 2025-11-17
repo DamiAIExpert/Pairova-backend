@@ -115,4 +115,8 @@ export declare class AuthService {
             nonprofitOrg: import("../users/nonprofit/nonprofit.entity").NonprofitOrg;
         };
     }>;
+    getUserWithProfile(userId: string): Promise<User>;
+    deleteAccount(userId: string): Promise<{
+        message: string;
+    }>;
 }

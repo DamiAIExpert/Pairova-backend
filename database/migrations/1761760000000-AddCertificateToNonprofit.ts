@@ -26,3 +26,14 @@ export class AddCertificateToNonprofit1761760000000 implements MigrationInterfac
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+

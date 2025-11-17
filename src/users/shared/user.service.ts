@@ -100,6 +100,19 @@ export class UsersService {
   }
 
   /**
+   * Deletes a user account and all associated data.
+   * Due to CASCADE relationships, this will also delete:
+   * - ApplicantProfile or NonprofitOrg
+   * - All related data (education, experience, certifications, etc.)
+   */
+  async deleteAccount(userId: string): Promise<void> {
+    const result = await this.usersRepository.delete({ id: userId });
+    if (!result.affected) {
+      throw new NotFoundException(`User with ID "${userId}" not found.`);
+    }
+  }
+
+  /**
    * Finds a user by email verification token.
    */
   async findByEmailVerificationToken(token: string): Promise<User | undefined> {

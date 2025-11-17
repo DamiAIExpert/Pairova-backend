@@ -11,6 +11,7 @@ export declare class Experience {
     locationCity: string;
     locationState: string;
     locationCountry: string;
+    postalCode: string;
     startDate: Date;
     endDate: Date;
     description: string;

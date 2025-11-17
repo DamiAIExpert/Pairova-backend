@@ -21,7 +21,7 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
       padding: 40px 30px;
       text-align: center;
     }
@@ -32,9 +32,11 @@
       margin: 0;
       letter-spacing: -0.5px;
     }
-    .logo-icon {
-      font-size: 36px;
-      margin-right: 8px;
+    .logo-img {
+      max-width: 180px;
+      height: auto;
+      margin: 0 auto 10px;
+      display: block;
     }
     .content {
       padding: 40px 30px;
@@ -52,8 +54,8 @@
       line-height: 1.6;
     }
     .otp-container {
-      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-      border: 2px solid #667eea;
+      background: linear-gradient(135deg, #3B82F615 0%, #2563EB15 100%);
+      border: 2px solid #3B82F6;
       border-radius: 12px;
       padding: 30px;
       text-align: center;
@@ -70,7 +72,7 @@
     .otp-code {
       font-size: 42px;
       font-weight: bold;
-      color: #667eea;
+      color: #3B82F6;
       letter-spacing: 12px;
       margin: 10px 0;
       font-family: 'Courier New', monospace;
@@ -82,7 +84,7 @@
     }
     .verify-button {
       display: inline-block;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
       color: #ffffff;
       text-decoration: none;
       padding: 16px 40px;
@@ -91,11 +93,11 @@
       font-weight: 600;
       margin: 20px 0;
       transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
     .verify-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
     }
     .or-divider {
       text-align: center;
@@ -143,7 +145,7 @@
       margin: 5px 0;
     }
     .footer-link {
-      color: #667eea;
+      color: #3B82F6;
       text-decoration: none;
     }
     .footer-link:hover {
@@ -159,10 +161,8 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1 class="logo">
-        <span class="logo-icon">🤝</span>
-        Pairova
-      </h1>
+      <img src="{{logoUrl}}" alt="Pairova Logo" class="logo-img" />
+      <h1 class="logo">Pairova</h1>
     </div>
     
     <div class="content">

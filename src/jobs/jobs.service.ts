@@ -43,6 +43,8 @@ export class JobsService {
       createdBy: currentUser.id,
       postedById: currentUser.id,
       status: createJobDto.status || JobStatus.DRAFT,
+      // Convert deadline string to Date if provided
+      deadline: createJobDto.deadline ? new Date(createJobDto.deadline) : undefined,
     });
 
     return this.jobsRepository.save(job);
@@ -55,7 +57,8 @@ export class JobsService {
   async findAllPublished(): Promise<Job[]> {
     return this.jobsRepository.find({
       where: { status: JobStatus.PUBLISHED },
-      // relations: ['organization'], // Temporarily disabled to test
+      relations: ['organization', 'postedBy', 'postedBy.nonprofitOrg'],
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -68,7 +71,7 @@ export class JobsService {
   async findOne(id: string): Promise<Job> {
     const job = await this.jobsRepository.findOne({
       where: { id },
-      relations: ['applications'],
+      relations: ['applications', 'organization'],
     });
     if (!job) {
       throw new NotFoundException(`Job with ID "${id}" not found.`);

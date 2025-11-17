@@ -20,6 +20,7 @@ const typeorm_2 = require("typeorm");
 const application_entity_1 = require("../entities/application.entity");
 const role_enum_1 = require("../../common/enums/role.enum");
 const jobs_service_1 = require("../jobs.service");
+const job_enum_1 = require("../../common/enums/job.enum");
 let ApplicationsService = ApplicationsService_1 = class ApplicationsService {
     applicationRepository;
     jobsService;
@@ -82,7 +83,14 @@ let ApplicationsService = ApplicationsService_1 = class ApplicationsService {
         if (user.role === role_enum_1.Role.APPLICANT) {
             return this.applicationRepository.find({
                 where: { applicantId: user.id },
-                relations: ['job'],
+                relations: [
+                    'job',
+                    'job.postedBy',
+                    'job.postedBy.nonprofitProfile',
+                    'applicant',
+                    'applicant.applicantProfile'
+                ],
+                order: { appliedAt: 'DESC' },
             });
         }
         return [];
@@ -122,6 +130,145 @@ let ApplicationsService = ApplicationsService_1 = class ApplicationsService {
         if (!result.affected) {
             throw new common_1.NotFoundException(`Application with ID "${id}" not found.`);
         }
+    }
+    async getApplicationsByOrganization(user, filters = {}, page = 1, limit = 20) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can access this resource.');
+        }
+        const queryBuilder = this.applicationRepository
+            .createQueryBuilder('application')
+            .leftJoinAndSelect('application.applicant', 'applicant')
+            .leftJoinAndSelect('applicant.applicantProfile', 'applicantProfile')
+            .leftJoinAndSelect('application.job', 'job')
+            .leftJoinAndSelect('application.resume', 'resume')
+            .where('job.orgUserId = :userId', { userId: user.id })
+            .orderBy('application.appliedAt', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+        if (filters.status) {
+            queryBuilder.andWhere('application.status = :status', { status: filters.status });
+        }
+        if (filters.jobId) {
+            queryBuilder.andWhere('application.jobId = :jobId', { jobId: filters.jobId });
+        }
+        const [applications, total] = await queryBuilder.getManyAndCount();
+        return {
+            applications,
+            total,
+            page,
+            limit,
+        };
+    }
+    async getApplicationStatistics(user) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can access this resource.');
+        }
+        const baseQuery = this.applicationRepository
+            .createQueryBuilder('application')
+            .leftJoin('application.job', 'job')
+            .where('job.orgUserId = :userId', { userId: user.id });
+        const totalApplications = await baseQuery.getCount();
+        const pendingApplications = await baseQuery
+            .clone()
+            .andWhere('application.status = :status', { status: job_enum_1.ApplicationStatus.PENDING })
+            .getCount();
+        const reviewedApplications = await baseQuery
+            .clone()
+            .andWhere('application.status = :status', { status: job_enum_1.ApplicationStatus.REVIEWED })
+            .getCount();
+        const shortlistedApplications = await baseQuery
+            .clone()
+            .andWhere('application.status = :status', { status: job_enum_1.ApplicationStatus.SHORTLISTED })
+            .getCount();
+        const interviewedApplications = await baseQuery
+            .clone()
+            .andWhere('application.status = :status', { status: job_enum_1.ApplicationStatus.INTERVIEWED })
+            .getCount();
+        const acceptedApplications = await baseQuery
+            .clone()
+            .andWhere('application.status = :status', { status: job_enum_1.ApplicationStatus.ACCEPTED })
+            .getCount();
+        const rejectedApplications = await baseQuery
+            .clone()
+            .andWhere('application.status = :status', { status: job_enum_1.ApplicationStatus.REJECTED })
+            .getCount();
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+        const applicationsThisMonth = await baseQuery
+            .clone()
+            .andWhere('application.appliedAt >= :startOfMonth', { startOfMonth })
+            .getCount();
+        return {
+            totalApplications,
+            pendingApplications,
+            reviewedApplications,
+            shortlistedApplications,
+            interviewedApplications,
+            acceptedApplications,
+            rejectedApplications,
+            applicationsThisMonth,
+        };
+    }
+    async getApplicationByOrganization(applicationId, user) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can access this resource.');
+        }
+        const application = await this.applicationRepository.findOne({
+            where: { id: applicationId },
+            relations: ['applicant', 'applicant.applicantProfile', 'job', 'resume'],
+        });
+        if (!application) {
+            throw new common_1.NotFoundException(`Application with ID "${applicationId}" not found.`);
+        }
+        if (application.job.orgUserId !== user.id) {
+            throw new common_1.ForbiddenException('You are not authorized to view this application.');
+        }
+        return application;
+    }
+    async updateApplicationStatusByOrganization(applicationId, user, updateData) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can update applications.');
+        }
+        const application = await this.getApplicationByOrganization(applicationId, user);
+        application.status = updateData.status;
+        if (updateData.notes) {
+            application.notes = updateData.notes;
+        }
+        if (updateData.interviewDate || updateData.rejectionReason) {
+            application.applicationData = {
+                ...application.applicationData,
+                interviewDate: updateData.interviewDate,
+                rejectionReason: updateData.rejectionReason,
+            };
+        }
+        await this.applicationRepository.save(application);
+        return { message: 'Application status updated successfully' };
+    }
+    async bulkUpdateApplicationStatusByOrganization(user, applicationIds, status, notes) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can update applications.');
+        }
+        const applications = await this.applicationRepository
+            .createQueryBuilder('application')
+            .leftJoin('application.job', 'job')
+            .where('application.id IN (:...ids)', { ids: applicationIds })
+            .andWhere('job.orgUserId = :userId', { userId: user.id })
+            .getMany();
+        if (applications.length !== applicationIds.length) {
+            throw new common_1.ForbiddenException('Some applications do not belong to your organization.');
+        }
+        for (const application of applications) {
+            application.status = status;
+            if (notes) {
+                application.notes = notes;
+            }
+        }
+        await this.applicationRepository.save(applications);
+        return {
+            message: 'Application statuses updated successfully',
+            updatedCount: applications.length,
+        };
     }
 };
 exports.ApplicationsService = ApplicationsService;

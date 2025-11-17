@@ -8,6 +8,8 @@ export declare class Education {
     degree?: string;
     fieldOfStudy?: string;
     grade?: string;
+    role?: string;
+    description?: string;
     startDate?: Date;
     endDate?: Date;
     createdAt: Date;

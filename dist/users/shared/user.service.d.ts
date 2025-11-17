@@ -11,6 +11,7 @@ export declare class UsersService {
     updatePassword(userId: string, passwordHash: string): Promise<void>;
     markOnboardingComplete(userId: string): Promise<void>;
     all(): Promise<User[]>;
+    deleteAccount(userId: string): Promise<void>;
     findByEmailVerificationToken(token: string): Promise<User | undefined>;
     markEmailAsVerified(userId: string): Promise<void>;
     findByOAuthProvider(provider: string, oauthId: string): Promise<User | undefined>;

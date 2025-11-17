@@ -68,6 +68,12 @@ export class ApplicantProfile {
   @Column({ length: 100, nullable: true })
   city: string;
 
+  @Column({ name: 'postal_code', length: 20, nullable: true, comment: 'Postal or ZIP code.' })
+  postalCode: string;
+
+  @Column({ name: 'work_position', length: 100, nullable: true, comment: 'Current work position or job title.' })
+  workPosition: string;
+
   @Column('text', {
     name: 'photo_url',
     nullable: true,
@@ -145,6 +151,66 @@ export class ApplicantProfile {
     comment: 'Timestamp of the last privacy settings update'
   })
   privacyUpdatedAt: Date;
+
+  /**
+   * Granular Privacy Category Settings
+   * @description Controls which specific data categories can be used for AI recommendations
+   */
+  @Column({ 
+    name: 'allow_personal_information',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow personal information (name, email, phone) to be used for AI recommendations'
+  })
+  allowPersonalInformation: boolean;
+
+  @Column({ 
+    name: 'allow_gender_data',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow gender data to be used for AI recommendations'
+  })
+  allowGenderData: boolean;
+
+  @Column({ 
+    name: 'allow_location',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow location data (country, state, city) to be used for AI recommendations'
+  })
+  allowLocation: boolean;
+
+  @Column({ 
+    name: 'allow_experience',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow work experience data to be used for AI recommendations'
+  })
+  allowExperience: boolean;
+
+  @Column({ 
+    name: 'allow_skills',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow skills data to be used for AI recommendations'
+  })
+  allowSkills: boolean;
+
+  @Column({ 
+    name: 'allow_certificates',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow certificates data to be used for AI recommendations'
+  })
+  allowCertificates: boolean;
+
+  @Column({ 
+    name: 'allow_bio',
+    type: 'boolean', 
+    default: true,
+    comment: 'Allow bio/profile description to be used for AI recommendations'
+  })
+  allowBio: boolean;
 
   /**
    * @property {Date} createdAt

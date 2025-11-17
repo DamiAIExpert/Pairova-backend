@@ -11,6 +11,9 @@ import { User } from '../users/shared/user.entity';
 import { ApplicantProfile } from '../users/applicant/applicant.entity';
 import { NonprofitOrg } from '../users/nonprofit/nonprofit.entity';
 import { RecommendationScore } from './entities/recommendation-score.entity';
+import { Experience } from '../profiles/experience/entities/experience.entity';
+import { Education } from '../profiles/education/entities/education.entity';
+import { Certification } from '../profiles/certifications/entities/certification.entity';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { RecommendationScore } from './entities/recommendation-score.entity';
       ApplicantProfile,
       NonprofitOrg,
       RecommendationScore,
+      Experience,
+      Education,
+      Certification,
     ]),
     HttpModule.register({
       timeout: 30000,

@@ -18,6 +18,9 @@ class CreateExperienceDto {
     roleTitle;
     employmentType;
     locationCity;
+    locationState;
+    locationCountry;
+    postalCode;
     startDate;
     endDate;
     description;
@@ -50,6 +53,27 @@ __decorate([
     (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
 ], CreateExperienceDto.prototype, "locationCity", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'State or province of employment.', example: 'Lagos State', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
+    __metadata("design:type", String)
+], CreateExperienceDto.prototype, "locationState", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Country of employment.', example: 'Nigeria', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(100),
+    __metadata("design:type", String)
+], CreateExperienceDto.prototype, "locationCountry", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Postal or ZIP code of employment location.', example: '100001', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(20),
+    __metadata("design:type", String)
+], CreateExperienceDto.prototype, "postalCode", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Start date of employment.', example: '2021-01-15', required: false }),
     (0, class_validator_1.IsOptional)(),

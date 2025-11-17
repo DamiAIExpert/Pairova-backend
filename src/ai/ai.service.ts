@@ -14,6 +14,9 @@ import { JobRecommendationDto } from './dto/job-recommendation.dto';
 import { MatchInsightsDto } from './dto/match-insights.dto';
 import { AiMicroserviceService, JobApplicantData } from './services/ai-microservice.service';
 import { PredictionCacheService } from './services/prediction-cache.service';
+import { Experience } from '../profiles/experience/entities/experience.entity';
+import { Education } from '../profiles/education/entities/education.entity';
+import { Certification } from '../profiles/certifications/entities/certification.entity';
 
 /**
  * @class AiService
@@ -35,6 +38,12 @@ export class AiService {
     private readonly applicantProfileRepository: Repository<ApplicantProfile>,
     @InjectRepository(NonprofitOrg)
     private readonly nonprofitOrgRepository: Repository<NonprofitOrg>,
+    @InjectRepository(Experience)
+    private readonly experienceRepository: Repository<Experience>,
+    @InjectRepository(Education)
+    private readonly educationRepository: Repository<Education>,
+    @InjectRepository(Certification)
+    private readonly certificationRepository: Repository<Certification>,
     private readonly aiMicroserviceService: AiMicroserviceService,
     private readonly predictionCacheService: PredictionCacheService,
   ) {}
@@ -303,72 +312,154 @@ export class AiService {
 
   /**
    * Prepare job and applicant data for AI microservice
-   * Respects applicant privacy settings
+   * Respects applicant privacy settings (both main flags and granular categories)
    */
   private async prepareJobApplicantData(job: Job, applicant: User): Promise<JobApplicantData> {
     const applicantProfile = applicant.applicantProfile;
     const nonprofitProfile = job.postedBy.nonprofitProfile;
 
-    // Check if applicant allows AI training/analytics
+    // Check main privacy flags
     const allowsAiTraining = applicantProfile?.allowAiTraining ?? true;
     const allowsDataAnalytics = applicantProfile?.allowDataAnalytics ?? true;
+
+    // Check granular privacy category settings
+    const allowPersonalInformation = applicantProfile?.allowPersonalInformation ?? true;
+    const allowGenderData = applicantProfile?.allowGenderData ?? true;
+    const allowLocation = applicantProfile?.allowLocation ?? true;
+    const allowExperience = applicantProfile?.allowExperience ?? true;
+    const allowSkills = applicantProfile?.allowSkills ?? true;
+    const allowCertificates = applicantProfile?.allowCertificates ?? true;
+    const allowBio = applicantProfile?.allowBio ?? true;
 
     // If user doesn't allow AI training or analytics, return minimal data
     if (!allowsAiTraining && !allowsDataAnalytics) {
       this.logger.log(`User ${applicant.id} has disabled AI training and analytics - using minimal data`);
-      return {
-        job: {
-          id: job.id,
-          title: job.title,
-          description: job.description,
-          requirements: [],
-          skills: [],
-          experienceLevel: 'MID_LEVEL',
-          employmentType: job.employmentType,
-          placement: job.placement,
-          salaryRange: undefined,
-          location: {
-            country: nonprofitProfile?.country || 'Unknown',
-            state: nonprofitProfile?.state || 'Unknown',
-            city: nonprofitProfile?.city || 'Unknown',
-          },
-          industry: nonprofitProfile?.industry || 'Unknown',
-          orgSize: nonprofitProfile?.sizeLabel || 'Unknown',
-          orgType: nonprofitProfile?.orgType || 'Unknown',
-        },
-        applicant: {
-          id: applicant.id,
-          skills: [],
-          experience: [],
-          education: [],
-          certifications: [],
-          location: {
-            country: 'Unknown',
-            state: 'Unknown',
-            city: 'Unknown',
-          },
-          availability: 'IMMEDIATE',
-          preferredSalaryRange: undefined,
-          workPreferences: {
-            employmentTypes: [job.employmentType],
-            placements: [job.placement],
-            industries: [],
-          },
-        },
-      };
+      return this.getMinimalJobApplicantData(job, applicant, nonprofitProfile);
     }
 
+    // Fetch related data based on privacy settings
+    const [experiences, educations, certifications] = await Promise.all([
+      allowExperience 
+        ? this.experienceRepository.find({ where: { userId: applicant.id } })
+        : Promise.resolve([]),
+      allowExperience // Education is part of experience for matching
+        ? this.educationRepository.find({ where: { userId: applicant.id } })
+        : Promise.resolve([]),
+      allowCertificates
+        ? this.certificationRepository.find({ where: { userId: applicant.id } })
+        : Promise.resolve([]),
+    ]);
+
+    // Prepare job data
+    const jobData = {
+      id: job.id,
+      title: job.title,
+      description: job.description,
+      requirements: job.requiredSkills || [],
+      skills: job.requiredSkills || [],
+      experienceLevel: this.mapExperienceLevel(job.experienceMinYrs),
+      employmentType: job.employmentType,
+      placement: job.placement,
+      salaryRange: job.salaryMin && job.salaryMax ? {
+        min: job.salaryMin,
+        max: job.salaryMax,
+        currency: job.currency || 'USD',
+      } : undefined,
+      location: {
+        country: nonprofitProfile?.country || 'Unknown',
+        state: nonprofitProfile?.state || 'Unknown',
+        city: nonprofitProfile?.city || 'Unknown',
+      },
+      industry: nonprofitProfile?.industry || 'Unknown',
+      orgSize: nonprofitProfile?.sizeLabel || 'Unknown',
+      orgType: nonprofitProfile?.orgType || 'Unknown',
+    };
+
+    // Prepare applicant data respecting granular privacy categories
+    const applicantData = {
+      id: applicant.id,
+      // Skills - only include if allowed
+      skills: allowSkills ? (applicantProfile?.skills || []) : [],
+      // Experience - only include if allowed
+      experience: allowExperience ? experiences.map(exp => {
+        // Calculate duration in months
+        let duration = 0;
+        if (exp.startDate && exp.endDate) {
+          const start = new Date(exp.startDate);
+          const end = new Date(exp.endDate);
+          duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+        } else if (exp.startDate) {
+          // If currently working, calculate from start to now
+          const start = new Date(exp.startDate);
+          const now = new Date();
+          duration = Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+        }
+        return {
+          title: exp.roleTitle,
+          company: exp.company,
+          duration,
+          description: exp.description || '',
+          skills: [], // Extract skills from description if needed
+        };
+      }) : [],
+      // Education - only include if experience is allowed (education is part of background)
+      education: allowExperience ? educations.map(edu => ({
+        degree: edu.degree || '',
+        field: edu.fieldOfStudy || '',
+        institution: edu.school,
+        graduationYear: edu.endDate ? new Date(edu.endDate).getFullYear() : new Date().getFullYear(),
+      })) : [],
+      // Certifications - only include if allowed
+      certifications: allowCertificates ? certifications.map(cert => ({
+        name: cert.name,
+        issuer: cert.issuer || '',
+        date: cert.issueDate?.toISOString() || cert.issuedDate?.toISOString() || new Date().toISOString(),
+      })) : [],
+      // Location - only include if allowed
+      location: allowLocation ? {
+        country: applicantProfile?.country || 'Unknown',
+        state: applicantProfile?.state || 'Unknown',
+        city: applicantProfile?.city || 'Unknown',
+      } : {
+        country: 'Unknown',
+        state: 'Unknown',
+        city: 'Unknown',
+      },
+      // Note: personalInfo, gender, and bio are not in the JobApplicantData interface
+      // but we can include them as additional fields if the AI microservice supports them
+      // For now, we'll keep the interface-compliant structure
+      availability: 'IMMEDIATE', // TODO: Add availability to applicant profile
+      preferredSalaryRange: undefined, // TODO: Add salary preferences to applicant profile
+      workPreferences: {
+        employmentTypes: applicantProfile?.preferredEmploymentType 
+          ? [applicantProfile.preferredEmploymentType]
+          : [job.employmentType],
+        placements: [job.placement],
+        industries: [nonprofitProfile?.industry || 'Unknown'],
+      },
+    };
+
+    return {
+      job: jobData,
+      applicant: applicantData,
+    };
+  }
+
+  /**
+   * Get minimal job-applicant data when privacy settings are restrictive
+   */
+  private getMinimalJobApplicantData(job: Job, applicant: User, nonprofitProfile: any): JobApplicantData {
     return {
       job: {
         id: job.id,
         title: job.title,
         description: job.description,
-        requirements: [], // TODO: Extract from job description
-        skills: [], // TODO: Extract from job description
-        experienceLevel: 'MID_LEVEL', // TODO: Extract from job description
+        requirements: [],
+        skills: [],
+        experienceLevel: 'MID_LEVEL',
         employmentType: job.employmentType,
         placement: job.placement,
-        salaryRange: undefined, // TODO: Add salary range to job entity
+        salaryRange: undefined,
         location: {
           country: nonprofitProfile?.country || 'Unknown',
           state: nonprofitProfile?.state || 'Unknown',
@@ -380,24 +471,36 @@ export class AiService {
       },
       applicant: {
         id: applicant.id,
-        skills: [], // TODO: Extract from applicant profile
-        experience: [], // TODO: Extract from applicant profile
-        education: [], // TODO: Extract from applicant profile
-        certifications: [], // TODO: Extract from applicant profile
+        skills: [],
+        experience: [],
+        education: [],
+        certifications: [],
         location: {
-          country: applicantProfile?.country || 'Unknown',
-          state: applicantProfile?.state || 'Unknown',
-          city: applicantProfile?.city || 'Unknown',
+          country: 'Unknown',
+          state: 'Unknown',
+          city: 'Unknown',
         },
-        availability: 'IMMEDIATE', // TODO: Add availability to applicant profile
-        preferredSalaryRange: undefined, // TODO: Add salary preferences to applicant profile
+        availability: 'IMMEDIATE',
+        preferredSalaryRange: undefined,
         workPreferences: {
           employmentTypes: [job.employmentType],
           placements: [job.placement],
-          industries: [nonprofitProfile?.industry || 'Unknown'],
+          industries: [],
         },
       },
     };
+  }
+
+  /**
+   * Map experience years to experience level
+   */
+  private mapExperienceLevel(minYrs?: number | null): string {
+    if (minYrs == null) return 'MID_LEVEL';
+    if (minYrs === 0) return 'ENTRY_LEVEL';
+    if (minYrs < 3) return 'ENTRY_LEVEL';
+    if (minYrs < 5) return 'MID_LEVEL';
+    if (minYrs < 10) return 'SENIOR_LEVEL';
+    return 'EXECUTIVE_LEVEL';
   }
 
   /**

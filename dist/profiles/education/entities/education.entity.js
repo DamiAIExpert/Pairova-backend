@@ -21,6 +21,8 @@ let Education = class Education {
     degree;
     fieldOfStudy;
     grade;
+    role;
+    description;
     startDate;
     endDate;
     createdAt;
@@ -59,6 +61,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Education.prototype, "grade", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 255, nullable: true, comment: 'Major role or specialization during education.' }),
+    __metadata("design:type", String)
+], Education.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true, comment: 'Additional description or achievements during education.' }),
+    __metadata("design:type", String)
+], Education.prototype, "description", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Date)

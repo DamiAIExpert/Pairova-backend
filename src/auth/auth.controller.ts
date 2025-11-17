@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -179,9 +180,11 @@ if (response.ok) {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@CurrentUser() user: User) {
+  async getProfile(@CurrentUser() user: User) {
+    // Fetch user with profile relations to include firstName, lastName, orgName, etc.
+    const userWithProfile = await this.authService.getUserWithProfile(user.id);
     // passwordHash should already be excluded at the entity layer
-    return user;
+    return userWithProfile;
   }
 
   @ApiOperation({ summary: 'User Logout' })
@@ -244,6 +247,21 @@ if (response.ok) {
     return this.authService.completeOnboarding(user.id);
   }
 
+  @ApiOperation({ summary: 'Delete User Account' })
+  @ApiResponse({
+    status: 200,
+    description: 'Account deleted successfully.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Missing or invalid JWT.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @Delete('account')
+  @HttpCode(HttpStatus.OK)
+  async deleteAccount(@CurrentUser() user: User) {
+    return this.authService.deleteAccount(user.id);
+  }
+
   // ==================== OAuth Routes ====================
 
   @ApiOperation({ 
@@ -257,7 +275,10 @@ if (response.ok) {
   @Public()
   @Get('google')
   @UseGuards(GoogleAuthGuard)
-  async googleAuth() {
+  async googleAuth(@Req() req: Request) {
+    console.log('🚀 Google OAuth initiated - redirecting to Google...');
+    console.log('🚀 Request URL:', req.url);
+    console.log('🚀 Request host:', req.headers.host);
     // Guard redirects to Google
   }
 

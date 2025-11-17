@@ -11,4 +11,14 @@ export declare class JobsService {
     publish(id: string, currentUser: User): Promise<Job>;
     close(id: string, currentUser: User): Promise<Job>;
     getFeaturedJobs(limit?: number): Promise<Job[]>;
+    getJobsByOrganization(user: User, status?: string, page?: number, limit?: number): Promise<{
+        jobs: Job[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
+    getJobByOrganization(id: string, user: User): Promise<Job>;
+    deleteJobByOrganization(id: string, user: User): Promise<{
+        message: string;
+    }>;
 }

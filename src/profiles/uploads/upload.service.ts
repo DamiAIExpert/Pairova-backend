@@ -65,6 +65,7 @@ export class UploadService {
       publicId: uploadedFile.publicId || uploadedFile.id,
       mimeType: file.mimetype,
       sizeBytes: file.size ?? 0,
+      filename: file.originalname,
     });
     const saved = await this.uploadsRepo.save(record);
 
@@ -75,6 +76,7 @@ export class UploadService {
       publicId: saved.publicId,
       mimeType: saved.mimeType,
       sizeBytes: saved.sizeBytes,
+      filename: saved.filename || file.originalname,
     };
 
     return dto;
@@ -92,6 +94,7 @@ export class UploadService {
       publicId: u.publicId,
       mimeType: u.mimeType,
       sizeBytes: u.sizeBytes,
+      filename: u.filename || null,
     }));
   }
 

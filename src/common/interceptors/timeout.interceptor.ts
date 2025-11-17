@@ -29,12 +29,34 @@ export class TimeoutInterceptor implements NestInterceptor {
    * @throws {RequestTimeoutException} If the request processing time exceeds the configured duration.
    */
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const request = context.switchToHttp().getRequest();
+    const url = request.url || '';
+    const method = request.method || '';
+    
+    // Use longer timeout for file uploads (Cloudinary can be slow)
+    const isUpload = url.includes('/upload');
+    // Use longer timeout for job creation (can be slow with many fields and database operations)
+    const isJobCreation = url.includes('/ngos/me/jobs') && method === 'POST';
+    // Use longer timeout for registration and saved-jobs (database operations can be slow)
+    const isRegistration = url.includes('/register');
+    const isSavedJobs = url.includes('/saved-jobs');
+    const isNonprofitJobs = url.includes('/ngos/me/jobs');
+    
+    let timeoutDuration = this.timeoutDuration;
+    if (isUpload) {
+      timeoutDuration = 60000; // 60 seconds for uploads
+    } else if (isJobCreation) {
+      timeoutDuration = 45000; // 45 seconds for job creation
+    } else if (isRegistration || isSavedJobs || isNonprofitJobs) {
+      timeoutDuration = 30000; // 30 seconds for other database operations
+    }
+    
     return next.handle().pipe(
-      timeout(this.timeoutDuration),
+      timeout(timeoutDuration),
       catchError((err) => {
         if (err instanceof TimeoutError) {
           throw new RequestTimeoutException(
-            `Request timed out after ${this.timeoutDuration}ms`,
+            `Request timed out after ${timeoutDuration}ms`,
           );
         }
         throw err;

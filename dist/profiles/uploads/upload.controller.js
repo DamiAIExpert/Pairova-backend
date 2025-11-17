@@ -47,6 +47,9 @@ let UploadController = class UploadController {
             throw error;
         }
     }
+    async getUserUploads(user, kind) {
+        return this.uploadService.listUserUploads(user.id, kind);
+    }
 };
 exports.UploadController = UploadController;
 __decorate([
@@ -89,6 +92,27 @@ __decorate([
     __metadata("design:paramtypes", [Object, user_entity_1.User, String]),
     __metadata("design:returntype", Promise)
 ], UploadController.prototype, "uploadFile", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all uploads for the current user' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: "Filter by upload kind (e.g., 'attachment', 'resume', 'avatar')",
+        example: 'attachment',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of user uploads.',
+        type: [upload_dto_1.UploadDto],
+    }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)('kind')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.User, String]),
+    __metadata("design:returntype", Promise)
+], UploadController.prototype, "getUserUploads", null);
 exports.UploadController = UploadController = __decorate([
     (0, swagger_1.ApiTags)('File Uploads'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

@@ -24,6 +24,8 @@ let ApplicantProfile = class ApplicantProfile {
     country;
     state;
     city;
+    postalCode;
+    workPosition;
     photoUrl;
     portfolioUrl;
     skills;
@@ -34,6 +36,13 @@ let ApplicantProfile = class ApplicantProfile {
     allowDataAnalytics;
     allowThirdPartySharing;
     privacyUpdatedAt;
+    allowPersonalInformation;
+    allowGenderData;
+    allowLocation;
+    allowExperience;
+    allowSkills;
+    allowCertificates;
+    allowBio;
     createdAt;
     updatedAt;
 };
@@ -87,6 +96,14 @@ __decorate([
     (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
 ], ApplicantProfile.prototype, "city", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'postal_code', length: 20, nullable: true, comment: 'Postal or ZIP code.' }),
+    __metadata("design:type", String)
+], ApplicantProfile.prototype, "postalCode", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'work_position', length: 100, nullable: true, comment: 'Current work position or job title.' }),
+    __metadata("design:type", String)
+], ApplicantProfile.prototype, "workPosition", void 0);
 __decorate([
     (0, typeorm_1.Column)('text', {
         name: 'photo_url',
@@ -170,6 +187,69 @@ __decorate([
     }),
     __metadata("design:type", Date)
 ], ApplicantProfile.prototype, "privacyUpdatedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_personal_information',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow personal information (name, email, phone) to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowPersonalInformation", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_gender_data',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow gender data to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowGenderData", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_location',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow location data (country, state, city) to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowLocation", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_experience',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow work experience data to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowExperience", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_skills',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow skills data to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowSkills", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_certificates',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow certificates data to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowCertificates", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: 'allow_bio',
+        type: 'boolean',
+        default: true,
+        comment: 'Allow bio/profile description to be used for AI recommendations'
+    }),
+    __metadata("design:type", Boolean)
+], ApplicantProfile.prototype, "allowBio", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at', type: 'timestamptz' }),
     __metadata("design:type", Date)

@@ -1,5 +1,5 @@
 // src/profiles/education/education.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Education } from './entities/education.entity';
@@ -27,6 +27,7 @@ export class EducationService {
     const education = this.educationRepository.create({
       ...createEducationDto,
       userId: user.id,
+      applicantId: user.id,
     });
     return this.educationRepository.save(education);
   }
@@ -38,5 +39,30 @@ export class EducationService {
    */
   async findByUserId(userId: string): Promise<Education[]> {
     return this.educationRepository.find({ where: { userId } });
+  }
+
+  /**
+   * Finds a single education entry by its ID.
+   * @param id - The UUID of the education entry.
+   * @returns {Promise<Education>} The education entity.
+   * @throws {NotFoundException} If the education entry is not found.
+   */
+  async findOneById(id: string): Promise<Education> {
+    const education = await this.educationRepository.findOne({ where: { id } });
+    if (!education) {
+      throw new NotFoundException(`Education with ID ${id} not found`);
+    }
+    return education;
+  }
+
+  /**
+   * Deletes an education entry by its ID.
+   * @param id - The UUID of the education entry to delete.
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} If the education entry to delete is not found.
+   */
+  async remove(id: string): Promise<void> {
+    const education = await this.findOneById(id);
+    await this.educationRepository.remove(education);
   }
 }

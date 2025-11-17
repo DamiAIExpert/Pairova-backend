@@ -326,6 +326,13 @@ let AuthService = class AuthService {
             },
         };
     }
+    async getUserWithProfile(userId) {
+        return this.usersService.findOneByIdWithProfile(userId);
+    }
+    async deleteAccount(userId) {
+        await this.usersService.deleteAccount(userId);
+        return { message: 'Account deleted successfully' };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

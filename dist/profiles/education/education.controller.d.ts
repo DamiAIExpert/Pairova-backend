@@ -7,4 +7,5 @@ export declare class EducationController {
     constructor(educationService: EducationService);
     add(user: User, createEducationDto: CreateEducationDto): Promise<Education>;
     findAll(user: User): Promise<Education[]>;
+    remove(id: string, user: User): Promise<void>;
 }

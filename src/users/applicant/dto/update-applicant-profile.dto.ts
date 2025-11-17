@@ -1,6 +1,6 @@
 // src/users/applicant/dto/update-applicant-profile.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsDateString, IsUrl, Length } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsDateString, IsUrl, Length, IsArray } from 'class-validator';
 import { Gender } from '../../../common/enums/gender.enum';
 
 /**
@@ -30,7 +30,6 @@ export class UpdateApplicantProfileDto {
 
   @ApiProperty({ description: 'A short professional biography', example: 'Experienced NestJS developer...', required: false })
   @IsString()
-  @Length(10, 500)
   @IsOptional()
   bio?: string;
 
@@ -49,6 +48,16 @@ export class UpdateApplicantProfileDto {
   @IsOptional()
   city?: string;
 
+  @ApiProperty({ description: 'Postal or ZIP code', example: '100001', required: false })
+  @IsString()
+  @IsOptional()
+  postalCode?: string;
+
+  @ApiProperty({ description: 'Current work position or job title', example: 'Software Engineer', required: false })
+  @IsString()
+  @IsOptional()
+  workPosition?: string;
+
   @ApiProperty({ description: 'URL to profile photo', example: 'https://cdn.pairova.com/photo.jpg', required: false })
   @IsUrl()
   @IsOptional()
@@ -58,4 +67,20 @@ export class UpdateApplicantProfileDto {
   @IsUrl()
   @IsOptional()
   portfolioUrl?: string;
+
+  @ApiProperty({ 
+    description: 'Array of skills (hard/soft skills and technical skills)', 
+    example: ['JavaScript', 'React', 'Communication', 'Leadership'], 
+    type: [String],
+    required: false 
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  skills?: string[];
+
+  @ApiProperty({ description: 'Phone number', example: '+1234567890', required: false })
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

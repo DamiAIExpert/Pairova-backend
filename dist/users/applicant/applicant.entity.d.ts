@@ -11,6 +11,8 @@ export declare class ApplicantProfile {
     country: string;
     state: string;
     city: string;
+    postalCode: string;
+    workPosition: string;
     photoUrl: string;
     portfolioUrl: string;
     skills: string[];
@@ -21,6 +23,13 @@ export declare class ApplicantProfile {
     allowDataAnalytics: boolean;
     allowThirdPartySharing: boolean;
     privacyUpdatedAt: Date;
+    allowPersonalInformation: boolean;
+    allowGenderData: boolean;
+    allowLocation: boolean;
+    allowExperience: boolean;
+    allowSkills: boolean;
+    allowCertificates: boolean;
+    allowBio: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

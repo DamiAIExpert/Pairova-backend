@@ -31,6 +31,10 @@ let Job = class Job {
     experienceMaxYrs;
     experienceLevel;
     requiredSkills;
+    hardSoftSkills;
+    qualifications;
+    responsibilities;
+    missionStatement;
     benefits;
     deadline;
     locationCity;
@@ -95,6 +99,22 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'required_skills', type: 'text', array: true, nullable: true }),
     __metadata("design:type", Array)
 ], Job.prototype, "requiredSkills", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'hard_soft_skills', type: 'text', array: true, nullable: true }),
+    __metadata("design:type", Array)
+], Job.prototype, "hardSoftSkills", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'qualifications', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "qualifications", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'responsibilities', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "responsibilities", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'mission_statement', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "missionStatement", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'benefits', type: 'text', array: true, nullable: true }),
     __metadata("design:type", Array)

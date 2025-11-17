@@ -15,13 +15,14 @@ const applicant_entity_1 = require("./applicant.entity");
 const applicant_jobs_controller_1 = require("./applicant-jobs.controller");
 const jobs_module_1 = require("../../jobs/jobs.module");
 const notifications_module_1 = require("../../notifications/notifications.module");
+const user_entity_1 = require("../shared/user.entity");
 let ApplicantModule = class ApplicantModule {
 };
 exports.ApplicantModule = ApplicantModule;
 exports.ApplicantModule = ApplicantModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([applicant_entity_1.ApplicantProfile]),
+            typeorm_1.TypeOrmModule.forFeature([applicant_entity_1.ApplicantProfile, user_entity_1.User]),
             (0, common_1.forwardRef)(() => jobs_module_1.JobsModule),
             notifications_module_1.NotificationsModule,
         ],

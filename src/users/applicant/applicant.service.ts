@@ -19,6 +19,8 @@ export class ApplicantService {
   constructor(
     @InjectRepository(ApplicantProfile)
     private readonly applicantProfileRepository: Repository<ApplicantProfile>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   /**
@@ -34,6 +36,14 @@ export class ApplicantService {
       allowProfileIndexing: true,
       allowDataAnalytics: true,
       allowThirdPartySharing: false,
+      // Set default granular category settings (all enabled by default)
+      allowPersonalInformation: true,
+      allowGenderData: true,
+      allowLocation: true,
+      allowExperience: true,
+      allowSkills: true,
+      allowCertificates: true,
+      allowBio: true,
     });
     return this.applicantProfileRepository.save(profile);
   }
@@ -62,8 +72,21 @@ export class ApplicantService {
    */
   async updateProfile(user: User, updateDto: UpdateApplicantProfileDto): Promise<ApplicantProfile> {
     const profile = await this.getProfile(user);
+    
+    // Extract phone from DTO if present (it belongs to User entity, not profile)
+    const { phone, ...profileData } = updateDto;
+    
+    // Update user phone if provided
+    if (phone !== undefined) {
+      const userEntity = await this.userRepository.findOne({ where: { id: user.id } });
+      if (userEntity) {
+        userEntity.phone = phone;
+        await this.userRepository.save(userEntity);
+      }
+    }
+    
     // Merge the existing profile with the new data from the DTO
-    this.applicantProfileRepository.merge(profile, updateDto);
+    this.applicantProfileRepository.merge(profile, profileData);
     return this.applicantProfileRepository.save(profile);
   }
 
@@ -82,6 +105,14 @@ export class ApplicantService {
       allowDataAnalytics: profile.allowDataAnalytics ?? true,
       allowThirdPartySharing: profile.allowThirdPartySharing ?? false,
       privacyUpdatedAt: profile.privacyUpdatedAt || null,
+      // Granular category settings
+      allowPersonalInformation: profile.allowPersonalInformation ?? true,
+      allowGenderData: profile.allowGenderData ?? true,
+      allowLocation: profile.allowLocation ?? true,
+      allowExperience: profile.allowExperience ?? true,
+      allowSkills: profile.allowSkills ?? true,
+      allowCertificates: profile.allowCertificates ?? true,
+      allowBio: profile.allowBio ?? true,
     };
   }
 
@@ -104,7 +135,7 @@ export class ApplicantService {
       timestamp: new Date().toISOString(),
     });
 
-    // Update privacy settings
+    // Update main privacy settings flags
     if (updateDto.allowAiTraining !== undefined) {
       profile.allowAiTraining = updateDto.allowAiTraining;
     }
@@ -116,6 +147,64 @@ export class ApplicantService {
     }
     if (updateDto.allowThirdPartySharing !== undefined) {
       profile.allowThirdPartySharing = updateDto.allowThirdPartySharing;
+    }
+
+    // Update granular category settings
+    if (updateDto.allowPersonalInformation !== undefined) {
+      profile.allowPersonalInformation = updateDto.allowPersonalInformation;
+    }
+    if (updateDto.allowGenderData !== undefined) {
+      profile.allowGenderData = updateDto.allowGenderData;
+    }
+    if (updateDto.allowLocation !== undefined) {
+      profile.allowLocation = updateDto.allowLocation;
+    }
+    if (updateDto.allowExperience !== undefined) {
+      profile.allowExperience = updateDto.allowExperience;
+    }
+    if (updateDto.allowSkills !== undefined) {
+      profile.allowSkills = updateDto.allowSkills;
+    }
+    if (updateDto.allowCertificates !== undefined) {
+      profile.allowCertificates = updateDto.allowCertificates;
+    }
+    if (updateDto.allowBio !== undefined) {
+      profile.allowBio = updateDto.allowBio;
+    }
+
+    // If granular categories are provided, automatically update allowAiTraining based on whether any category is enabled
+    // This ensures backward compatibility and logical consistency
+    const hasGranularCategories = 
+      updateDto.allowPersonalInformation !== undefined ||
+      updateDto.allowGenderData !== undefined ||
+      updateDto.allowLocation !== undefined ||
+      updateDto.allowExperience !== undefined ||
+      updateDto.allowSkills !== undefined ||
+      updateDto.allowCertificates !== undefined ||
+      updateDto.allowBio !== undefined;
+
+    if (hasGranularCategories) {
+      // Check if any category is enabled (use updated values or current profile values)
+      const anyCategoryEnabled = 
+        (updateDto.allowPersonalInformation ?? profile.allowPersonalInformation ?? true) ||
+        (updateDto.allowGenderData ?? profile.allowGenderData ?? true) ||
+        (updateDto.allowLocation ?? profile.allowLocation ?? true) ||
+        (updateDto.allowExperience ?? profile.allowExperience ?? true) ||
+        (updateDto.allowSkills ?? profile.allowSkills ?? true) ||
+        (updateDto.allowCertificates ?? profile.allowCertificates ?? true) ||
+        (updateDto.allowBio ?? profile.allowBio ?? true);
+
+      // Only update allowAiTraining if it wasn't explicitly set in the DTO
+      if (updateDto.allowAiTraining === undefined) {
+        profile.allowAiTraining = anyCategoryEnabled;
+      }
+      // Also update indexing and analytics if not explicitly set
+      if (updateDto.allowProfileIndexing === undefined) {
+        profile.allowProfileIndexing = anyCategoryEnabled;
+      }
+      if (updateDto.allowDataAnalytics === undefined) {
+        profile.allowDataAnalytics = anyCategoryEnabled;
+      }
     }
 
     // Update timestamp
@@ -130,6 +219,14 @@ export class ApplicantService {
       allowDataAnalytics: profile.allowDataAnalytics,
       allowThirdPartySharing: profile.allowThirdPartySharing,
       privacyUpdatedAt: profile.privacyUpdatedAt,
+      // Return granular category settings
+      allowPersonalInformation: profile.allowPersonalInformation ?? true,
+      allowGenderData: profile.allowGenderData ?? true,
+      allowLocation: profile.allowLocation ?? true,
+      allowExperience: profile.allowExperience ?? true,
+      allowSkills: profile.allowSkills ?? true,
+      allowCertificates: profile.allowCertificates ?? true,
+      allowBio: profile.allowBio ?? true,
     };
   }
 

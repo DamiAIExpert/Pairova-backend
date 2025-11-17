@@ -32,19 +32,23 @@ let JobsService = class JobsService {
             ...createJobDto,
             orgUserId: currentUser.id,
             createdBy: currentUser.id,
+            postedById: currentUser.id,
             status: createJobDto.status || job_enum_1.JobStatus.DRAFT,
+            deadline: createJobDto.deadline ? new Date(createJobDto.deadline) : undefined,
         });
         return this.jobsRepository.save(job);
     }
     async findAllPublished() {
         return this.jobsRepository.find({
             where: { status: job_enum_1.JobStatus.PUBLISHED },
+            relations: ['organization', 'postedBy', 'postedBy.nonprofitOrg'],
+            order: { createdAt: 'DESC' },
         });
     }
     async findOne(id) {
         const job = await this.jobsRepository.findOne({
             where: { id },
-            relations: ['applications'],
+            relations: ['applications', 'organization'],
         });
         if (!job) {
             throw new common_1.NotFoundException(`Job with ID "${id}" not found.`);
@@ -79,6 +83,59 @@ let JobsService = class JobsService {
             order: { createdAt: 'DESC' },
             take: limit,
         });
+    }
+    async getJobsByOrganization(user, status, page = 1, limit = 20) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can access this resource.');
+        }
+        const query = this.jobsRepository
+            .createQueryBuilder('job')
+            .leftJoinAndSelect('job.organization', 'organization')
+            .where('job.orgUserId = :userId', { userId: user.id });
+        if (status) {
+            query.andWhere('job.status = :status', { status });
+        }
+        query.orderBy('job.createdAt', 'DESC');
+        const total = await query.getCount();
+        const skip = (page - 1) * limit;
+        query.skip(skip).take(limit);
+        const jobs = await query.getMany();
+        return {
+            jobs,
+            total,
+            page,
+            limit,
+        };
+    }
+    async getJobByOrganization(id, user) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can access this resource.');
+        }
+        const job = await this.jobsRepository.findOne({
+            where: { id },
+            relations: ['organization', 'applications'],
+        });
+        if (!job) {
+            throw new common_1.NotFoundException(`Job with ID "${id}" not found.`);
+        }
+        if (job.orgUserId !== user.id) {
+            throw new common_1.ForbiddenException('This job belongs to another organization.');
+        }
+        return job;
+    }
+    async deleteJobByOrganization(id, user) {
+        if (user.role !== role_enum_1.Role.NONPROFIT) {
+            throw new common_1.ForbiddenException('Only nonprofit organizations can delete jobs.');
+        }
+        const job = await this.jobsRepository.findOne({ where: { id } });
+        if (!job) {
+            throw new common_1.NotFoundException(`Job with ID "${id}" not found.`);
+        }
+        if (job.orgUserId !== user.id) {
+            throw new common_1.ForbiddenException('This job belongs to another organization.');
+        }
+        await this.jobsRepository.remove(job);
+        return { message: 'Job deleted successfully' };
     }
 };
 exports.JobsService = JobsService;

@@ -26,5 +26,10 @@ export class CreateCertificationDto {
   @IsOptional()
   @IsUrl()
   credentialUrl?: string;
+
+  @ApiPropertyOptional({ description: 'The unique credential ID or certificate number issued by the organization.', example: 'CERT-123456' })
+  @IsOptional()
+  @IsString()
+  credentialId?: string;
 }
 

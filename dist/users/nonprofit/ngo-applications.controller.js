@@ -28,34 +28,52 @@ let NgoApplicationsController = class NgoApplicationsController {
         this.applicationsService = applicationsService;
     }
     async getMyApplications(user, status, jobId, page = 1, limit = 20) {
-        return { applications: [], total: 0, page, limit };
+        return this.applicationsService.getApplicationsByOrganization(user, { status, jobId }, page, limit);
     }
     async getApplication(user, id) {
-        return { message: 'Application details will be implemented' };
+        return this.applicationsService.getApplicationByOrganization(id, user);
     }
     async updateApplicationStatus(user, id, updateData) {
-        return { message: 'Application status updated successfully' };
+        return this.applicationsService.updateApplicationStatusByOrganization(id, user, updateData);
     }
     async getApplicationStatistics(user) {
-        return {
-            totalApplications: 0,
-            pendingApplications: 0,
-            reviewedApplications: 0,
-            acceptedApplications: 0,
-            rejectedApplications: 0,
-            applicationsThisMonth: 0,
-            averageResponseTime: 0,
-        };
+        return this.applicationsService.getApplicationStatistics(user);
     }
     async getApplicationPipeline(user) {
+        const stats = await this.applicationsService.getApplicationStatistics(user);
+        const total = stats.totalApplications || 1;
         return {
-            stages: [],
-            recentActivity: [],
-            topPerformingJobs: [],
+            stages: [
+                {
+                    stage: 'Pending',
+                    count: stats.pendingApplications,
+                    percentage: Math.round((stats.pendingApplications / total) * 100),
+                },
+                {
+                    stage: 'Reviewed',
+                    count: stats.reviewedApplications,
+                    percentage: Math.round((stats.reviewedApplications / total) * 100),
+                },
+                {
+                    stage: 'Shortlisted',
+                    count: stats.shortlistedApplications,
+                    percentage: Math.round((stats.shortlistedApplications / total) * 100),
+                },
+                {
+                    stage: 'Interviewed',
+                    count: stats.interviewedApplications,
+                    percentage: Math.round((stats.interviewedApplications / total) * 100),
+                },
+                {
+                    stage: 'Accepted',
+                    count: stats.acceptedApplications,
+                    percentage: Math.round((stats.acceptedApplications / total) * 100),
+                },
+            ],
         };
     }
     async bulkUpdateApplicationStatus(user, updateData) {
-        return { message: 'Application statuses updated successfully', updatedCount: 0 };
+        return this.applicationsService.bulkUpdateApplicationStatusByOrganization(user, updateData.applicationIds, updateData.status, updateData.notes);
     }
 };
 exports.NgoApplicationsController = NgoApplicationsController;

@@ -5,4 +5,11 @@ export declare class PrivacySettingsResponseDto {
     allowThirdPartySharing: boolean;
     privacyUpdatedAt: Date | null;
     userId: string;
+    allowPersonalInformation: boolean;
+    allowGenderData: boolean;
+    allowLocation: boolean;
+    allowExperience: boolean;
+    allowSkills: boolean;
+    allowCertificates: boolean;
+    allowBio: boolean;
 }

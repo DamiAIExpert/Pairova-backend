@@ -15,6 +15,10 @@ export declare class Job {
     experienceMaxYrs: number;
     experienceLevel: string;
     requiredSkills: string[];
+    hardSoftSkills: string[];
+    qualifications: string;
+    responsibilities: string;
+    missionStatement: string;
     benefits: string[];
     deadline: Date;
     locationCity: string;

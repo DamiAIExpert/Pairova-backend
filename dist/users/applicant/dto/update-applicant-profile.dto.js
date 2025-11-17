@@ -22,8 +22,12 @@ class UpdateApplicantProfileDto {
     country;
     state;
     city;
+    postalCode;
+    workPosition;
     photoUrl;
     portfolioUrl;
+    skills;
+    phone;
 }
 exports.UpdateApplicantProfileDto = UpdateApplicantProfileDto;
 __decorate([
@@ -53,7 +57,6 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'A short professional biography', example: 'Experienced NestJS developer...', required: false }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Length)(10, 500),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateApplicantProfileDto.prototype, "bio", void 0);
@@ -76,6 +79,18 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateApplicantProfileDto.prototype, "city", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Postal or ZIP code', example: '100001', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateApplicantProfileDto.prototype, "postalCode", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Current work position or job title', example: 'Software Engineer', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateApplicantProfileDto.prototype, "workPosition", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: 'URL to profile photo', example: 'https://cdn.pairova.com/photo.jpg', required: false }),
     (0, class_validator_1.IsUrl)(),
     (0, class_validator_1.IsOptional)(),
@@ -87,4 +102,22 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateApplicantProfileDto.prototype, "portfolioUrl", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Array of skills (hard/soft skills and technical skills)',
+        example: ['JavaScript', 'React', 'Communication', 'Leadership'],
+        type: [String],
+        required: false
+    }),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], UpdateApplicantProfileDto.prototype, "skills", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Phone number', example: '+1234567890', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateApplicantProfileDto.prototype, "phone", void 0);
 //# sourceMappingURL=update-applicant-profile.dto.js.map

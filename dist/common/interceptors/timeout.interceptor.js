@@ -19,9 +19,27 @@ let TimeoutInterceptor = class TimeoutInterceptor {
         this.timeoutDuration = timeoutDuration;
     }
     intercept(context, next) {
-        return next.handle().pipe((0, operators_1.timeout)(this.timeoutDuration), (0, operators_1.catchError)((err) => {
+        const request = context.switchToHttp().getRequest();
+        const url = request.url || '';
+        const method = request.method || '';
+        const isUpload = url.includes('/upload');
+        const isJobCreation = url.includes('/ngos/me/jobs') && method === 'POST';
+        const isRegistration = url.includes('/register');
+        const isSavedJobs = url.includes('/saved-jobs');
+        const isNonprofitJobs = url.includes('/ngos/me/jobs');
+        let timeoutDuration = this.timeoutDuration;
+        if (isUpload) {
+            timeoutDuration = 60000;
+        }
+        else if (isJobCreation) {
+            timeoutDuration = 45000;
+        }
+        else if (isRegistration || isSavedJobs || isNonprofitJobs) {
+            timeoutDuration = 30000;
+        }
+        return next.handle().pipe((0, operators_1.timeout)(timeoutDuration), (0, operators_1.catchError)((err) => {
             if (err instanceof rxjs_1.TimeoutError) {
-                throw new common_1.RequestTimeoutException(`Request timed out after ${this.timeoutDuration}ms`);
+                throw new common_1.RequestTimeoutException(`Request timed out after ${timeoutDuration}ms`);
             }
             throw err;
         }));

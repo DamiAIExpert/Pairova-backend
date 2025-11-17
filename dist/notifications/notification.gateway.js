@@ -73,8 +73,39 @@ exports.NotificationGateway = NotificationGateway = NotificationGateway_1 = __de
     (0, websockets_1.WebSocketGateway)({
         namespace: '/notify',
         cors: {
-            origin: '*',
+            origin: (origin, callback) => {
+                const nodeEnv = process.env.NODE_ENV || 'development';
+                let allowedOrigins = [];
+                if (nodeEnv === 'development' || nodeEnv === 'dev') {
+                    allowedOrigins = [
+                        'http://localhost:5173',
+                        'http://localhost:3000',
+                        'http://localhost:3001',
+                        'http://127.0.0.1:5173',
+                    ];
+                }
+                else {
+                    const clientUrl = process.env.CLIENT_URL;
+                    if (clientUrl) {
+                        allowedOrigins.push(...clientUrl.split(',').map(url => url.trim()));
+                    }
+                    const adminUrl = process.env.ADMIN_URL;
+                    if (adminUrl) {
+                        allowedOrigins.push(...adminUrl.split(',').map(url => url.trim()));
+                    }
+                    if (allowedOrigins.length === 0) {
+                        allowedOrigins = ['https://pairova.com', 'https://admin.pairova.com'];
+                    }
+                }
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true);
+                }
+                else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
             methods: ['GET', 'POST'],
+            credentials: true,
         },
     }),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
