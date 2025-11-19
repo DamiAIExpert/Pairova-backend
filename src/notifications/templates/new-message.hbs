@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Message - Pairova</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .logo {
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    .logo-img {
+      max-width: 180px;
+      height: auto;
+      margin: 0 auto 10px;
+      display: block;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .greeting {
+      font-size: 24px;
+      color: #333333;
+      margin: 0 0 20px;
+      font-weight: 600;
+    }
+    .message {
+      color: #666666;
+      font-size: 16px;
+      margin: 0 0 30px;
+      line-height: 1.6;
+    }
+    .message-preview {
+      background-color: #f8f9fa;
+      border-left: 4px solid #3B82F6;
+      padding: 20px;
+      margin: 30px 0;
+      border-radius: 8px;
+    }
+    .message-preview-text {
+      color: #333333;
+      font-size: 16px;
+      font-style: italic;
+      margin: 0;
+    }
+    .sender-info {
+      color: #666666;
+      font-size: 14px;
+      margin: 10px 0 0;
+    }
+    .view-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 20px 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .view-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+    }
+    .footer-text {
+      color: #999999;
+      font-size: 13px;
+      margin: 5px 0;
+    }
+    .footer-link {
+      color: #3B82F6;
+      text-decoration: none;
+    }
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e9ecef, transparent);
+      margin: 30px 0;
+    }
+    .timestamp {
+      color: #999999;
+      font-size: 12px;
+      margin: 10px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="{{logoUrl}}" alt="Pairova Logo" class="logo-img" />
+      <h1 class="logo">Pairova</h1>
+    </div>
+    
+    <div class="content">
+      <h2 class="greeting">Hi {{recipientName}},</h2>
+      
+      <p class="message">
+        You have a new message from <strong>{{senderName}}</strong> in your conversation: <strong>{{conversationTitle}}</strong>
+      </p>
+      
+      <div class="message-preview">
+        <p class="message-preview-text">"{{messagePreview}}"</p>
+        <p class="sender-info">— {{senderName}}</p>
+        <p class="timestamp">{{timestamp}}</p>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="{{messageUrl}}" class="view-button">
+          View Message
+        </a>
+      </div>
+      
+      <p class="message">
+        Click the button above to view the full conversation and reply to {{senderName}}.
+      </p>
+      
+      <div class="divider"></div>
+      
+      <p class="message" style="margin-top: 30px; font-size: 14px; color: #999999;">
+        You're receiving this email because you're not currently online. 
+        When you're online, you'll receive messages in real-time.
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p class="footer-text">
+        <strong>Pairova</strong> - Connecting Talent with Opportunities
+      </p>
+      <p class="footer-text">
+        &copy; {{year}} Pairova. All rights reserved.
+      </p>
+      <p class="footer-text">
+        This is an automated message, please do not reply to this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+

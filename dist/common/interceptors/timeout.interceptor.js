@@ -27,6 +27,7 @@ let TimeoutInterceptor = class TimeoutInterceptor {
         const isRegistration = url.includes('/register');
         const isSavedJobs = url.includes('/saved-jobs');
         const isNonprofitJobs = url.includes('/ngos/me/jobs');
+        const isChat = url.includes('/chat');
         let timeoutDuration = this.timeoutDuration;
         if (isUpload) {
             timeoutDuration = 60000;
@@ -34,7 +35,7 @@ let TimeoutInterceptor = class TimeoutInterceptor {
         else if (isJobCreation) {
             timeoutDuration = 45000;
         }
-        else if (isRegistration || isSavedJobs || isNonprofitJobs) {
+        else if (isRegistration || isSavedJobs || isNonprofitJobs || isChat) {
             timeoutDuration = 30000;
         }
         return next.handle().pipe((0, operators_1.timeout)(timeoutDuration), (0, operators_1.catchError)((err) => {

@@ -78,3 +78,8 @@ export class AddJobDetailsFields1763000000000 implements MigrationInterface {
   }
 }
 
+
+
+
+
+

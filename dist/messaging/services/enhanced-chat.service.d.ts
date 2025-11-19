@@ -15,6 +15,7 @@ export declare class EnhancedChatService {
     private readonly userRepository;
     private readonly jobRepository;
     private readonly uploadRepository;
+    private readonly logger;
     constructor(messageRepository: Repository<Message>, conversationRepository: Repository<Conversation>, participantRepository: Repository<ConversationParticipant>, messageStatusRepository: Repository<MessageStatus>, userRepository: Repository<User>, jobRepository: Repository<Job>, uploadRepository: Repository<Upload>);
     createConversation(createConversationDto: CreateConversationDto, creator: User): Promise<ConversationResponseDto>;
     getUserConversations(userId: string, searchDto?: ConversationSearchDto): Promise<{
@@ -32,6 +33,7 @@ export declare class EnhancedChatService {
     removeParticipant(conversationId: string, userId: string, removedBy: User): Promise<void>;
     archiveConversation(conversationId: string, userId: string, isArchived: boolean): Promise<void>;
     getConversation(conversationId: string, userId: string): Promise<ConversationResponseDto>;
+    getConversationEntity(conversationId: string): Promise<Conversation>;
     private isUserInConversation;
     private generateConversationTitle;
     private formatConversationResponse;

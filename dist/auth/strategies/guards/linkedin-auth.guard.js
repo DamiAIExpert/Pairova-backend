@@ -10,6 +10,18 @@ exports.LinkedInAuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 let LinkedInAuthGuard = class LinkedInAuthGuard extends (0, passport_1.AuthGuard)('linkedin') {
+    async canActivate(context) {
+        const request = context.switchToHttp().getRequest();
+        const roleParam = request.query?.role;
+        if (roleParam && (roleParam === 'applicant' || roleParam === 'nonprofit')) {
+            if (!request.session) {
+                request.session = {};
+            }
+            request.session.oauthRole = roleParam;
+            console.log('📝 Stored OAuth role in session for LinkedIn:', roleParam);
+        }
+        return super.canActivate(context);
+    }
 };
 exports.LinkedInAuthGuard = LinkedInAuthGuard;
 exports.LinkedInAuthGuard = LinkedInAuthGuard = __decorate([

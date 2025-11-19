@@ -270,25 +270,32 @@ let AuthService = class AuthService {
                 });
             }
             else {
+                const userRole = oauthData.role || role_enum_1.Role.APPLICANT;
                 user = await this.usersService.create({
                     email: oauthData.email,
                     passwordHash: null,
-                    role: role_enum_1.Role.APPLICANT,
+                    role: userRole,
                     oauthProvider: oauthData.oauthProvider,
                     oauthId: oauthData.oauthId,
                     oauthProfile: oauthData.oauthProfile,
                     isVerified: true,
                 });
                 try {
-                    await this.applicantService.createProfile(user.id);
-                    if (oauthData.firstName || oauthData.lastName) {
-                        const profile = await this.applicantService.getProfile(user);
-                        profile.firstName = oauthData.firstName || '';
-                        profile.lastName = oauthData.lastName || '';
-                        if (oauthData.photoUrl) {
-                            profile.photoUrl = oauthData.photoUrl;
+                    if (userRole === role_enum_1.Role.NONPROFIT) {
+                        const defaultOrgName = oauthData.email?.split('@')[0] || 'Organization';
+                        await this.nonprofitService.createProfile(user.id, defaultOrgName);
+                    }
+                    else {
+                        await this.applicantService.createProfile(user.id);
+                        if (oauthData.firstName || oauthData.lastName) {
+                            const profile = await this.applicantService.getProfile(user);
+                            profile.firstName = oauthData.firstName || '';
+                            profile.lastName = oauthData.lastName || '';
+                            if (oauthData.photoUrl) {
+                                profile.photoUrl = oauthData.photoUrl;
+                            }
+                            await this.applicantService.updateProfile(user, profile);
                         }
-                        await this.applicantService.updateProfile(user, profile);
                     }
                 }
                 catch (error) {

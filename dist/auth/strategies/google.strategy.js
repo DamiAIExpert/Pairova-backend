@@ -15,6 +15,7 @@ const passport_1 = require("@nestjs/passport");
 const passport_google_oauth20_1 = require("passport-google-oauth20");
 const config_1 = require("@nestjs/config");
 const auth_service_1 = require("../auth.service");
+const role_enum_1 = require("../../common/enums/role.enum");
 let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrategy)(passport_google_oauth20_1.Strategy, 'google') {
     configService;
     authService;
@@ -27,16 +28,28 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
             clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
             callbackURL: callbackURL,
             scope: ['email', 'profile'],
+            passReqToCallback: true,
         });
         this.configService = configService;
         this.authService = authService;
     }
-    async validate(accessToken, refreshToken, profile, done) {
+    async validate(req, accessToken, refreshToken, profile, done) {
         try {
             const { id, emails, name, photos } = profile;
             const email = emails && emails.length > 0 ? emails[0].value : null;
             if (!email) {
                 return done(new Error('No email found in Google profile'), null);
+            }
+            let role;
+            if (req && req.session) {
+                const oauthRole = req.session.oauthRole;
+                if (oauthRole === 'nonprofit') {
+                    role = role_enum_1.Role.NONPROFIT;
+                }
+                else if (oauthRole === 'applicant') {
+                    role = role_enum_1.Role.APPLICANT;
+                }
+                console.log('🔍 Retrieved role from session in strategy:', oauthRole, '->', role);
             }
             const userData = {
                 oauthProvider: 'google',
@@ -46,6 +59,7 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
                 lastName: name?.familyName || '',
                 photoUrl: photos && photos.length > 0 ? photos[0].value : null,
                 oauthProfile: profile._json,
+                role: role,
             };
             const user = await this.authService.findOrCreateOAuthUser(userData);
             done(null, user);

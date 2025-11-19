@@ -11,6 +11,7 @@ import { User } from '../users/shared/user.entity';
 import { Job } from '../jobs/entities/job.entity';
 import { Upload } from '../profiles/uploads/entities/upload.entity';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from '../auth/auth.module';
       Upload,
     ]),
     AuthModule,
+    NotificationsModule,
   ],
   controllers: [ChatController],
   providers: [EnhancedChatGateway, EnhancedChatService],

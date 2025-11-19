@@ -95,9 +95,9 @@ export class UpdateNonprofitProfileDto {
   addressLine2?: string;
 
   @ApiProperty({ description: 'Organization description/bio', example: 'We are a nonprofit dedicated to...', required: false })
-  @IsString()
-  @Length(50, 2000)
   @IsOptional()
+  @IsString()
+  @Length(50, 2000, { message: 'Bio must be between 50 and 2000 characters' })
   bio?: string;
 
   @ApiProperty({ description: 'Position/role of contact person', example: 'Executive Director', required: false })

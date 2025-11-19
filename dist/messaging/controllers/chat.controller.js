@@ -54,7 +54,9 @@ let ChatController = class ChatController {
     async sendMessage(sendMessageDto, req) {
         return await this.chatService.sendMessage(sendMessageDto, req.user);
     }
-    async getConversationMessages(conversationId, page = 1, limit = 50, req) {
+    async getConversationMessages(conversationId, req, pageParam, limitParam) {
+        const page = pageParam ? parseInt(pageParam, 10) || 1 : 1;
+        const limit = limitParam ? parseInt(limitParam, 10) || 50 : 50;
         return await this.chatService.getConversationMessages(conversationId, req.user.id, page, limit);
     }
     async markMessagesAsRead(messageIds, req) {
@@ -232,11 +234,11 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, description: 'Page number' }),
     (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number, description: 'Items per page' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
-    __param(1, (0, common_1.Query)('page', common_1.ParseIntPipe)),
-    __param(2, (0, common_1.Query)('limit', common_1.ParseIntPipe)),
-    __param(3, (0, common_1.Request)()),
+    __param(1, (0, common_1.Request)()),
+    __param(2, (0, common_1.Query)('page')),
+    __param(3, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, Number, Object]),
+    __metadata("design:paramtypes", [String, Object, String, String]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "getConversationMessages", null);
 __decorate([

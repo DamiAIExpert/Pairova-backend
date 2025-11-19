@@ -36,7 +36,7 @@ __decorate([
     __metadata("design:type", String)
 ], MessageStatus.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'message_id' }),
     __metadata("design:type", String)
 ], MessageStatus.prototype, "messageId", void 0);
 __decorate([
@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", message_entity_1.Message)
 ], MessageStatus.prototype, "message", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'user_id' }),
     __metadata("design:type", String)
 ], MessageStatus.prototype, "userId", void 0);
 __decorate([
@@ -62,11 +62,11 @@ __decorate([
     __metadata("design:type", String)
 ], MessageStatus.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'created_at' }),
     __metadata("design:type", Date)
 ], MessageStatus.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true, name: 'updated_at' }),
     __metadata("design:type", Date)
 ], MessageStatus.prototype, "updatedAt", void 0);
 exports.MessageStatus = MessageStatus = __decorate([

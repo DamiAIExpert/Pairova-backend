@@ -144,9 +144,9 @@ __decorate([
 ], UpdateNonprofitProfileDto.prototype, "addressLine2", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Organization description/bio', example: 'We are a nonprofit dedicated to...', required: false }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Length)(50, 2000),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Length)(50, 2000, { message: 'Bio must be between 50 and 2000 characters' }),
     __metadata("design:type", String)
 ], UpdateNonprofitProfileDto.prototype, "bio", void 0);
 __decorate([

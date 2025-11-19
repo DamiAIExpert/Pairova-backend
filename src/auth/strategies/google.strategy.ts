@@ -3,6 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
+import { Role } from '../../common/enums/role.enum';
+import { oauthRoleStore } from '../strategies/guards/google-auth.guard';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -18,10 +20,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
       callbackURL: callbackURL,
       scope: ['email', 'profile'],
+      passReqToCallback: true, // Enable passing request to validate method
     });
   }
 
   async validate(
+    req: any,
     accessToken: string,
     refreshToken: string,
     profile: any,
@@ -35,6 +39,18 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         return done(new Error('No email found in Google profile'), null);
       }
 
+      // Get role from session if available
+      let role: Role | undefined;
+      if (req && req.session) {
+        const oauthRole = (req.session as any).oauthRole;
+        if (oauthRole === 'nonprofit') {
+          role = Role.NONPROFIT;
+        } else if (oauthRole === 'applicant') {
+          role = Role.APPLICANT;
+        }
+        console.log('🔍 Retrieved role from session in strategy:', oauthRole, '->', role);
+      }
+
       // Extract user data from Google profile
       const userData = {
         oauthProvider: 'google',
@@ -44,9 +60,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         lastName: name?.familyName || '',
         photoUrl: photos && photos.length > 0 ? photos[0].value : null,
         oauthProfile: profile._json,
+        role: role, // Pass role to create user with correct role from start
       };
 
-      // Find or create user
+      // Find or create user with role
       const user = await this.authService.findOrCreateOAuthUser(userData);
 
       done(null, user);

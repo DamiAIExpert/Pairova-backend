@@ -14,22 +14,28 @@ const typeorm_1 = require("typeorm");
 const conversation_entity_1 = require("./conversation.entity");
 const user_entity_1 = require("../../users/shared/user.entity");
 let ConversationParticipant = class ConversationParticipant {
+    id;
     conversationId;
     userId;
     conversation;
     user;
-    lastReadAt;
     lastSeenAt;
     role;
     joinedAt;
+    createdAt;
+    updatedAt;
 };
 exports.ConversationParticipant = ConversationParticipant;
 __decorate([
-    (0, typeorm_1.PrimaryColumn)({ type: 'uuid' }),
+    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    __metadata("design:type", String)
+], ConversationParticipant.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'conversation_id' }),
     __metadata("design:type", String)
 ], ConversationParticipant.prototype, "conversationId", void 0);
 __decorate([
-    (0, typeorm_1.PrimaryColumn)({ type: 'uuid' }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'user_id' }),
     __metadata("design:type", String)
 ], ConversationParticipant.prototype, "userId", void 0);
 __decorate([
@@ -43,21 +49,25 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], ConversationParticipant.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
-    __metadata("design:type", Date)
-], ConversationParticipant.prototype, "lastReadAt", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true, name: 'last_seen_at' }),
     __metadata("design:type", Date)
 ], ConversationParticipant.prototype, "lastSeenAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: ['ADMIN', 'MEMBER'], default: 'MEMBER' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'PARTICIPANT' }),
     __metadata("design:type", String)
 ], ConversationParticipant.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'joined_at' }),
     __metadata("design:type", Date)
 ], ConversationParticipant.prototype, "joinedAt", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'created_at' }),
+    __metadata("design:type", Date)
+], ConversationParticipant.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz', name: 'updated_at' }),
+    __metadata("design:type", Date)
+], ConversationParticipant.prototype, "updatedAt", void 0);
 exports.ConversationParticipant = ConversationParticipant = __decorate([
     (0, typeorm_1.Entity)('conversation_participants')
 ], ConversationParticipant);

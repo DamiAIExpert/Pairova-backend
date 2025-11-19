@@ -69,16 +69,18 @@ export class Message {
 
   /**
    * Foreign key: Optional file attachment.
+   * Note: attachment_id column doesn't exist in database migration, so we mark it as select: false and insert: false
    */
-  @Column({ type: 'uuid', nullable: true, name: 'attachment_id' })
+  @Column({ type: 'uuid', nullable: true, name: 'attachment_id', select: false, insert: false, update: false })
   attachmentId: string | null;
 
   /**
    * Attachment relationship.
+   * Note: attachment_id column doesn't exist in database, so this relation is disabled
    */
-  @ManyToOne(() => Upload, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'attachment_id' })
-  attachment?: Upload | null;
+  // @ManyToOne(() => Upload, { nullable: true, onDelete: 'SET NULL' })
+  // @JoinColumn({ name: 'attachment_id' })
+  // attachment?: Upload | null;
 
   /**
    * Timestamp when the message was sent.
@@ -88,11 +90,12 @@ export class Message {
 
   /**
    * Whether the message is marked as deleted.
+   * Note: isDeleted column doesn't exist in database, so this property is excluded from all operations
    */
-  @Column({ type: 'boolean', default: false })
-  isDeleted: boolean;
+  // @Column({ type: 'boolean', default: false, select: false, insert: false, update: false })
+  // isDeleted: boolean;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, name: 'reply_to_id' })
   replyToId: string | null;
 
   @ManyToOne(() => Message, { nullable: true, onDelete: 'SET NULL' })

@@ -57,7 +57,7 @@ let SavedJobsService = class SavedJobsService {
     async getSavedJobs(userId, page = 1, limit = 20) {
         const [savedJobs, total] = await this.savedJobsRepository.findAndCount({
             where: { userId },
-            relations: ['job'],
+            relations: ['job', 'job.organization'],
             skip: (page - 1) * limit,
             take: limit,
             order: { createdAt: 'DESC' },

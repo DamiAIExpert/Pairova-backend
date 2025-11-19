@@ -37,17 +37,18 @@ export class TimeoutInterceptor implements NestInterceptor {
     const isUpload = url.includes('/upload');
     // Use longer timeout for job creation (can be slow with many fields and database operations)
     const isJobCreation = url.includes('/ngos/me/jobs') && method === 'POST';
-    // Use longer timeout for registration and saved-jobs (database operations can be slow)
+    // Use longer timeout for registration, saved-jobs, and chat endpoints (database operations can be slow)
     const isRegistration = url.includes('/register');
     const isSavedJobs = url.includes('/saved-jobs');
     const isNonprofitJobs = url.includes('/ngos/me/jobs');
+    const isChat = url.includes('/chat');
     
     let timeoutDuration = this.timeoutDuration;
     if (isUpload) {
       timeoutDuration = 60000; // 60 seconds for uploads
     } else if (isJobCreation) {
       timeoutDuration = 45000; // 45 seconds for job creation
-    } else if (isRegistration || isSavedJobs || isNonprofitJobs) {
+    } else if (isRegistration || isSavedJobs || isNonprofitJobs || isChat) {
       timeoutDuration = 30000; // 30 seconds for other database operations
     }
     

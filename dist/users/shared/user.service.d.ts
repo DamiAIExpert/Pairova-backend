@@ -20,4 +20,5 @@ export declare class UsersService {
         oauthId: string;
         oauthProfile?: any;
     }): Promise<void>;
+    update(userId: string, updateData: Partial<User>): Promise<void>;
 }

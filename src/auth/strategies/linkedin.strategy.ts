@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-linkedin-oauth2';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
+import { Role } from '../../common/enums/role.enum';
 
 @Injectable()
 export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
@@ -16,6 +17,7 @@ export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
       callbackURL: configService.get<string>('LINKEDIN_CALLBACK_URL') || 'http://localhost:3007/auth/linkedin/callback',
       scope: ['openid', 'profile', 'email'], // Updated to use OpenID Connect scopes (r_emailaddress and r_liteprofile are deprecated)
       state: true,
+      passReqToCallback: true, // Enable passing request to validate method
       // Use OpenID Connect endpoints
       authorizationURL: 'https://www.linkedin.com/oauth/v2/authorization',
       tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
@@ -24,6 +26,7 @@ export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
   }
 
   async validate(
+    req: any,
     accessToken: string,
     refreshToken: string,
     profile: any,
@@ -77,6 +80,18 @@ export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
         return done(new Error('No user ID found in LinkedIn profile'), null);
       }
 
+      // Get role from session if available
+      let role: Role | undefined;
+      if (req && req.session) {
+        const oauthRole = (req.session as any).oauthRole;
+        if (oauthRole === 'nonprofit') {
+          role = Role.NONPROFIT;
+        } else if (oauthRole === 'applicant') {
+          role = Role.APPLICANT;
+        }
+        console.log('🔍 Retrieved role from session in LinkedIn strategy:', oauthRole, '->', role);
+      }
+
       // Extract user data from LinkedIn profile
       const userData = {
         oauthProvider: 'linkedin',
@@ -86,11 +101,12 @@ export class LinkedInStrategy extends PassportStrategy(Strategy, 'linkedin') {
         lastName,
         photoUrl,
         oauthProfile: profile._json || profile,
+        role: role, // Pass role to create user with correct role from start
       };
 
       console.log('🔍 Extracted LinkedIn user data:', userData);
 
-      // Find or create user
+      // Find or create user with role
       const user = await this.authService.findOrCreateOAuthUser(userData);
 
       done(null, user);

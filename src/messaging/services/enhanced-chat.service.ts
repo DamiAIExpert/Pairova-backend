@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Message, MessageType } from '../entities/message.entity';
@@ -23,6 +23,8 @@ import {
  */
 @Injectable()
 export class EnhancedChatService {
+  private readonly logger = new Logger(EnhancedChatService.name);
+
   constructor(
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
@@ -59,6 +61,38 @@ export class EnhancedChatService {
       throw new BadRequestException('One or more participants not found');
     }
 
+    // Check if a conversation already exists between creator and participant(s)
+    // For DIRECT conversations, check if there's already a conversation with the same participants
+    if (type === ConversationType.DIRECT && participantIds.length === 1) {
+      const existingConversation = await this.conversationRepository
+        .createQueryBuilder('conversation')
+        .innerJoin('conversation.participants', 'p1', 'p1.user_id = :creatorId', { creatorId: creator.id })
+        .innerJoin('conversation.participants', 'p2', 'p2.user_id = :participantId', { participantId: participantIds[0] })
+        .where('conversation.type = :type', { type: ConversationType.DIRECT })
+        .andWhere('conversation.is_archived = :isArchived', { isArchived: false })
+        .getOne();
+
+      if (existingConversation) {
+        this.logger.log(`Found existing conversation ${existingConversation.id} between ${creator.id} and ${participantIds[0]}`);
+        // Reload with all relations
+        const conversationWithRelations = await this.conversationRepository.findOne({
+          where: { id: existingConversation.id },
+          relations: [
+            'participants',
+            'participants.user',
+            'participants.user.applicantProfile',
+            'participants.user.nonprofitOrg',
+            'job',
+            'job.organization',
+          ],
+        });
+
+        if (conversationWithRelations) {
+          return await this.formatConversationResponse(conversationWithRelations, creator.id);
+        }
+      }
+    }
+
     // Validate job if provided
     let job = null;
     if (jobId) {
@@ -87,8 +121,11 @@ export class EnhancedChatService {
 
     const savedConversation = await this.conversationRepository.save(conversation);
 
-    // Add participants
-    const participantEntities = participantIds.map((userId, index) =>
+    // Ensure creator is included in participants
+    const allParticipantIds = [...new Set([creator.id, ...participantIds])];
+
+    // Add participants (creator + others)
+    const participantEntities = allParticipantIds.map((userId) =>
       this.participantRepository.create({
         conversationId: savedConversation.id,
         userId,
@@ -99,7 +136,24 @@ export class EnhancedChatService {
 
     await this.participantRepository.save(participantEntities);
 
-    return this.formatConversationResponse(savedConversation, creator.id);
+    // Reload conversation with all relations for formatting
+    const conversationWithRelations = await this.conversationRepository.findOne({
+      where: { id: savedConversation.id },
+      relations: [
+        'participants',
+        'participants.user',
+        'participants.user.applicantProfile',
+        'participants.user.nonprofitOrg',
+        'job',
+        'job.organization',
+      ],
+    });
+
+    if (!conversationWithRelations) {
+      throw new NotFoundException('Conversation not found after creation');
+    }
+
+    return await this.formatConversationResponse(conversationWithRelations, creator.id);
   }
 
   /**
@@ -111,19 +165,21 @@ export class EnhancedChatService {
   ): Promise<{ conversations: ConversationResponseDto[]; total: number }> {
     const { query, type, jobId, participantId, includeArchived = false, page = 1, limit = 20 } = searchDto;
 
+    this.logger.log(`Getting conversations for user ${userId} with filters:`, searchDto);
+
+    // Use innerJoin for filtering by participant, then leftJoinAndSelect for loading relations
     const queryBuilder = this.conversationRepository
       .createQueryBuilder('conversation')
-      .leftJoinAndSelect('conversation.participants', 'participant')
-      .leftJoinAndSelect('participant.user', 'user')
+      .innerJoin('conversation.participants', 'participant', 'participant.user_id = :userId', { userId })
+      .leftJoinAndSelect('conversation.participants', 'participants')
+      .leftJoinAndSelect('participants.user', 'user')
       .leftJoinAndSelect('user.applicantProfile', 'applicantProfile')
-      .leftJoinAndSelect('user.nonprofitProfile', 'nonprofitProfile')
+      .leftJoinAndSelect('user.nonprofitOrg', 'nonprofitOrg')
       .leftJoinAndSelect('conversation.job', 'job')
-      .leftJoinAndSelect('job.postedBy', 'jobPostedBy')
-      .leftJoinAndSelect('jobPostedBy.nonprofitProfile', 'jobOrgProfile')
-      .where('participant.userId = :userId', { userId });
+      .leftJoinAndSelect('job.organization', 'jobOrganization');
 
     if (!includeArchived) {
-      queryBuilder.andWhere('conversation.isArchived = :isArchived', { isArchived: false });
+      queryBuilder.andWhere('conversation.is_archived = :isArchived', { isArchived: false });
     }
 
     if (type) {
@@ -131,7 +187,7 @@ export class EnhancedChatService {
     }
 
     if (jobId) {
-      queryBuilder.andWhere('conversation.jobId = :jobId', { jobId });
+      queryBuilder.andWhere('conversation.job_id = :jobId', { jobId });
     }
 
     if (query) {
@@ -148,6 +204,9 @@ export class EnhancedChatService {
       );
     }
 
+    // Order by lastMessageAt DESC (NULLS LAST), then by createdAt DESC
+    // This ensures conversations with recent messages appear first
+    // Use raw SQL to handle NULL values properly - conversations without messages will sort by createdAt
     queryBuilder
       .orderBy('conversation.lastMessageAt', 'DESC')
       .addOrderBy('conversation.createdAt', 'DESC')
@@ -156,9 +215,13 @@ export class EnhancedChatService {
 
     const [conversations, total] = await queryBuilder.getManyAndCount();
 
+    this.logger.log(`Found ${conversations.length} conversations (total: ${total}) for user ${userId}`);
+
     const formattedConversations = await Promise.all(
       conversations.map(conv => this.formatConversationResponse(conv, userId))
     );
+
+    this.logger.log(`Formatted ${formattedConversations.length} conversations for user ${userId}`);
 
     return {
       conversations: formattedConversations,
@@ -185,9 +248,44 @@ export class EnhancedChatService {
       throw new NotFoundException('Conversation not found');
     }
 
-    const isParticipant = conversation.participants.some(p => p.userId === sender.id);
+    // Check if user is a participant
+    // If participants array is empty, try to reload or check directly in database
+    let isParticipant = conversation.participants?.some(p => p.userId === sender.id);
+    
     if (!isParticipant) {
-      throw new UnauthorizedException('You are not a participant in this conversation');
+      // Double-check by querying participant directly (handles race conditions)
+      const participant = await this.participantRepository.findOne({
+        where: {
+          conversationId: conversationId,
+          userId: sender.id,
+        },
+      });
+      
+      if (!participant) {
+        this.logger.warn(
+          `User ${sender.id} (${sender.email}) attempted to send message in conversation ${conversationId} but is not a participant. ` +
+          `Participants in conversation: ${conversation.participants?.map(p => p.userId).join(', ') || 'none'}`
+        );
+        throw new UnauthorizedException('You are not a participant in this conversation');
+      }
+      
+      // If participant exists but wasn't loaded, reload conversation with participants
+      // This handles race conditions where participant was just added
+      const reloadedConversation = await this.conversationRepository.findOne({
+        where: { id: conversationId },
+        relations: ['participants'],
+      });
+      
+      if (reloadedConversation) {
+        isParticipant = reloadedConversation.participants?.some(p => p.userId === sender.id) || false;
+      }
+      
+      if (!isParticipant) {
+        this.logger.error(
+          `Participant record exists but user ${sender.id} still not found in conversation ${conversationId} participants`
+        );
+        throw new UnauthorizedException('You are not a participant in this conversation');
+      }
     }
 
     // Validate attachment if provided
@@ -204,22 +302,28 @@ export class EnhancedChatService {
     // Validate reply-to message if provided
     let replyTo = null;
     if (replyToId) {
-      replyTo = await this.messageRepository.findOne({
-        where: { id: replyToId, conversationId },
-        relations: ['sender', 'sender.applicantProfile', 'sender.nonprofitProfile'],
-      });
+      // Use query builder - TypeORM will handle column mapping automatically
+      replyTo = await this.messageRepository
+        .createQueryBuilder('message')
+        .leftJoinAndSelect('message.sender', 'sender')
+        .leftJoinAndSelect('sender.applicantProfile', 'applicantProfile')
+        .leftJoinAndSelect('sender.nonprofitOrg', 'nonprofitOrg')
+        .where('message.id = :replyToId', { replyToId })
+        .andWhere('message.conversation_id = :conversationId', { conversationId })
+        .getOne();
       if (!replyTo) {
         throw new BadRequestException('Reply-to message not found');
       }
     }
 
     // Create message
+    // Note: attachmentId column doesn't exist in database, so we don't save it
     const message = this.messageRepository.create({
       conversationId: conversationId,
       senderId: sender.id,
       type: type as MessageType,
       content,
-      attachmentId,
+      // attachmentId, // Column doesn't exist in database
       replyToId,
       metadata,
     });
@@ -255,7 +359,25 @@ export class EnhancedChatService {
 
     await this.messageStatusRepository.save(senderStatus);
 
-    return this.formatMessageResponse(savedMessage, sender.id);
+    // Reload message with all relations needed for formatting
+    const messageWithRelations = await this.messageRepository.findOne({
+      where: { id: savedMessage.id },
+      relations: [
+        'sender',
+        'sender.applicantProfile',
+        'sender.nonprofitOrg',
+        'replyTo',
+        'replyTo.sender',
+        'replyTo.sender.applicantProfile',
+        'replyTo.sender.nonprofitOrg',
+      ],
+    });
+
+    if (!messageWithRelations) {
+      throw new NotFoundException('Message not found after creation');
+    }
+
+    return await this.formatMessageResponse(messageWithRelations, sender.id);
   }
 
   /**
@@ -273,17 +395,17 @@ export class EnhancedChatService {
       throw new UnauthorizedException('You are not authorized to view these messages');
     }
 
+    // Get messages using find with relations to avoid TypeORM query builder metadata issues
     const [messages, total] = await this.messageRepository.findAndCount({
-      where: { conversationId, isDeleted: false },
+      where: { conversationId },
       relations: [
         'sender',
         'sender.applicantProfile',
-        'sender.nonprofitProfile',
-        'attachment',
+        'sender.nonprofitOrg',
         'replyTo',
         'replyTo.sender',
         'replyTo.sender.applicantProfile',
-        'replyTo.sender.nonprofitProfile',
+        'replyTo.sender.nonprofitOrg',
       ],
       order: { sentAt: 'DESC' },
       skip: (page - 1) * limit,
@@ -440,10 +562,9 @@ export class EnhancedChatService {
         'participants',
         'participants.user',
         'participants.user.applicantProfile',
-        'participants.user.nonprofitProfile',
+        'participants.user.nonprofitOrg',
         'job',
-        'job.postedBy',
-        'job.postedBy.nonprofitProfile',
+        'job.organization',
       ],
     });
 
@@ -451,7 +572,28 @@ export class EnhancedChatService {
       throw new NotFoundException('Conversation not found');
     }
 
-    return this.formatConversationResponse(conversation, userId);
+    return await this.formatConversationResponse(conversation, userId);
+  }
+
+  /**
+   * Get conversation entity (for internal use, e.g., checking participants)
+   */
+  async getConversationEntity(conversationId: string): Promise<Conversation> {
+    const conversation = await this.conversationRepository.findOne({
+      where: { id: conversationId },
+      relations: [
+        'participants',
+        'participants.user',
+        'participants.user.applicantProfile',
+        'participants.user.nonprofitOrg',
+      ],
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    return conversation;
   }
 
   /**
@@ -489,8 +631,8 @@ export class EnhancedChatService {
       if (p.applicantProfile) {
         return `${p.applicantProfile.firstName} ${p.applicantProfile.lastName}`;
       }
-      if (p.nonprofitProfile) {
-        return p.nonprofitProfile.orgName;
+      if (p.nonprofitOrg) {
+        return p.nonprofitOrg.orgName;
       }
       return p.email;
     });
@@ -506,29 +648,30 @@ export class EnhancedChatService {
     userId: string,
   ): Promise<ConversationResponseDto> {
     // Get unread count
-    const unreadCount = await this.messageStatusRepository.count({
-      where: {
-        userId,
-        status: MessageStatusType.SENT,
-        message: {
-          conversationId: conversation.id,
-          isDeleted: false,
-        },
-      },
-      relations: ['message'],
-    });
+    // Use query builder with explicit database column names (snake_case)
+    // Note: isDeleted column doesn't exist in the database migration, so we skip that check
+    const unreadCount = await this.messageStatusRepository
+      .createQueryBuilder('ms')
+      .innerJoin('ms.message', 'message')
+      .where('ms.user_id = :userId', { userId })
+      .andWhere('ms.status = :status', { status: MessageStatusType.SENT })
+      .andWhere('message.conversation_id = :conversationId', { conversationId: conversation.id })
+      .getCount();
 
     // Get last message
+    // Note: isDeleted and attachment_id columns don't exist in the database migration
+    // Use find with relations for better reliability
     const lastMessage = await this.messageRepository.findOne({
-      where: { conversationId: conversation.id, isDeleted: false },
+      where: { conversationId: conversation.id },
       relations: [
         'sender',
         'sender.applicantProfile',
-        'sender.nonprofitProfile',
-        'attachment',
+        'sender.nonprofitOrg',
       ],
       order: { sentAt: 'DESC' },
     });
+
+    this.logger.debug(`Last message for conversation ${conversation.id}: ${lastMessage ? lastMessage.id : 'none'}`);
 
     return {
       id: conversation.id,
@@ -539,7 +682,7 @@ export class EnhancedChatService {
       job: conversation.job ? {
         id: conversation.job.id,
         title: conversation.job.title,
-        orgName: conversation.job.postedBy.nonprofitProfile?.orgName || 'Unknown',
+        orgName: conversation.job.organization?.orgName || 'Unknown',
       } : undefined,
       participants: conversation.participants.map(p => ({
         id: p.user.id,
@@ -550,11 +693,11 @@ export class EnhancedChatService {
         profile: {
           firstName: p.user.applicantProfile?.firstName,
           lastName: p.user.applicantProfile?.lastName,
-          orgName: p.user.nonprofitProfile?.orgName,
-          photoUrl: p.user.applicantProfile?.photoUrl || p.user.nonprofitProfile?.logoUrl,
+          orgName: p.user.nonprofitOrg?.orgName,
+          photoUrl: p.user.applicantProfile?.photoUrl || p.user.nonprofitOrg?.logoUrl,
         },
       })),
-      lastMessage: lastMessage ? await this.formatMessageResponse(lastMessage, userId) : undefined,
+      lastMessage: lastMessage ? await this.formatMessageResponse(lastMessage, userId) : null,
       lastMessageAt: conversation.lastMessageAt,
       unreadCount,
       createdAt: conversation.createdAt,
@@ -585,30 +728,26 @@ export class EnhancedChatService {
         profile: {
           firstName: message.sender.applicantProfile?.firstName,
           lastName: message.sender.applicantProfile?.lastName,
-          orgName: message.sender.nonprofitProfile?.orgName,
+          orgName: message.sender.nonprofitOrg?.orgName, // Use nonprofitOrg, not nonprofitProfile
         },
       },
       type: message.type,
       content: message.content,
-      attachment: message.attachment ? {
-        id: message.attachment.id,
-        filename: message.attachment.filename,
-        url: message.attachment.url,
-        size: message.attachment.size,
-        mimeType: message.attachment.mimeType,
-      } : undefined,
+      // attachment: message.attachment ? { ... } : undefined, // attachment_id column doesn't exist
+      attachment: undefined, // attachment_id column doesn't exist in database
       replyTo: message.replyTo ? {
         id: message.replyTo.id,
         content: message.replyTo.content,
         sender: {
           firstName: message.replyTo.sender.applicantProfile?.firstName,
           lastName: message.replyTo.sender.applicantProfile?.lastName,
-          orgName: message.replyTo.sender.nonprofitProfile?.orgName,
+          orgName: message.replyTo.sender.nonprofitOrg?.orgName, // Use nonprofitOrg, not nonprofitProfile
         },
       } : undefined,
       status: status?.status || MessageStatusType.SENT,
       sentAt: message.sentAt,
-      isDeleted: message.isDeleted,
+      // isDeleted: message.isDeleted, // Column doesn't exist in database
+      isDeleted: false,
       metadata: message.metadata,
     };
   }

@@ -220,10 +220,13 @@ export class ChatController {
   @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
   async getConversationMessages(
     @Param('id', ParseUUIDPipe) conversationId: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 50,
     @Request() req,
+    @Query('page') pageParam?: string,
+    @Query('limit') limitParam?: string,
   ): Promise<{ messages: MessageResponseDto[]; total: number }> {
+    // Parse page and limit with defaults, handling optional parameters
+    const page = pageParam ? parseInt(pageParam, 10) || 1 : 1;
+    const limit = limitParam ? parseInt(limitParam, 10) || 50 : 50;
     return await this.chatService.getConversationMessages(conversationId, req.user.id, page, limit);
   }
 

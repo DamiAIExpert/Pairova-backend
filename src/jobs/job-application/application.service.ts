@@ -133,8 +133,7 @@ export class ApplicationsService {
         where: { applicantId: user.id },
         relations: [
           'job',
-          'job.postedBy',
-          'job.postedBy.nonprofitProfile',
+          'job.organization',
           'applicant',
           'applicant.applicantProfile'
         ],
@@ -232,7 +231,10 @@ export class ApplicationsService {
     page: number = 1,
     limit: number = 20,
   ): Promise<{ applications: Application[]; total: number; page: number; limit: number }> {
+    this.logger.log(`Getting applications for organization: ${user.email} (${user.id}), role: ${user.role}`);
+    
     if (user.role !== Role.NONPROFIT) {
+      this.logger.warn(`User ${user.email} attempted to access applications but role is ${user.role}, not NONPROFIT`);
       throw new ForbiddenException('Only nonprofit organizations can access this resource.');
     }
 
@@ -256,7 +258,14 @@ export class ApplicationsService {
       queryBuilder.andWhere('application.jobId = :jobId', { jobId: filters.jobId });
     }
 
+    // Log the SQL query for debugging
+    const sql = queryBuilder.getSql();
+    this.logger.debug(`Query SQL: ${sql}`);
+    this.logger.debug(`Query parameters: userId=${user.id}, page=${page}, limit=${limit}`);
+
     const [applications, total] = await queryBuilder.getManyAndCount();
+
+    this.logger.log(`Found ${applications.length} applications (total: ${total}) for user ${user.email}`);
 
     return {
       applications,

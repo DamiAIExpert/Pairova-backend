@@ -16,7 +16,6 @@ const user_entity_1 = require("../../users/shared/user.entity");
 const message_enum_1 = require("../../common/enums/message.enum");
 var message_enum_2 = require("../../common/enums/message.enum");
 Object.defineProperty(exports, "MessageType", { enumerable: true, get: function () { return message_enum_2.MessageType; } });
-const upload_entity_1 = require("../../profiles/uploads/entities/upload.entity");
 let Message = class Message {
     id;
     conversationId;
@@ -26,9 +25,7 @@ let Message = class Message {
     type;
     content;
     attachmentId;
-    attachment;
     sentAt;
-    isDeleted;
     replyToId;
     replyTo;
     metadata;
@@ -65,24 +62,15 @@ __decorate([
     __metadata("design:type", String)
 ], Message.prototype, "content", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, name: 'attachment_id' }),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, name: 'attachment_id', select: false, insert: false, update: false }),
     __metadata("design:type", String)
 ], Message.prototype, "attachmentId", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => upload_entity_1.Upload, { nullable: true, onDelete: 'SET NULL' }),
-    (0, typeorm_1.JoinColumn)({ name: 'attachment_id' }),
-    __metadata("design:type", upload_entity_1.Upload)
-], Message.prototype, "attachment", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'sent_at' }),
     __metadata("design:type", Date)
 ], Message.prototype, "sentAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
-    __metadata("design:type", Boolean)
-], Message.prototype, "isDeleted", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, name: 'reply_to_id' }),
     __metadata("design:type", String)
 ], Message.prototype, "replyToId", void 0);
 __decorate([

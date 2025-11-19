@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
   Unique,
@@ -34,14 +35,14 @@ export class MessageStatus {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'message_id' })
   messageId: string;
 
   @ManyToOne(() => Message, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'message_id' })
   message: Message;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'user_id' })
   userId: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
@@ -55,9 +56,9 @@ export class MessageStatus {
   })
   status: MessageStatusType;
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true, name: 'updated_at' })
   updatedAt: Date | null;
 }

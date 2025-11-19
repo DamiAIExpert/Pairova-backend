@@ -20,7 +20,7 @@ export declare class ChatController {
         message: string;
     }>;
     sendMessage(sendMessageDto: SendMessageDto, req: any): Promise<MessageResponseDto>;
-    getConversationMessages(conversationId: string, page: number, limit: number, req: any): Promise<{
+    getConversationMessages(conversationId: string, req: any, pageParam?: string, limitParam?: string): Promise<{
         messages: MessageResponseDto[];
         total: number;
     }>;

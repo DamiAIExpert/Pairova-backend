@@ -23,18 +23,27 @@ let WsJwtGuard = WsJwtGuard_1 = class WsJwtGuard {
         const client = context.switchToWs().getClient();
         const authToken = client.handshake?.auth?.token ||
             extractBearer(client.handshake?.headers?.authorization) ||
+            extractBearer(client.handshake?.headers?.['authorization']) ||
             client.handshake?.query?.token;
         if (!authToken) {
-            this.logger.warn(`Client ${client.id} failed to connect: No token provided.`);
+            this.logger.warn(`Client ${client.id} failed to connect: No token provided.`, {
+                hasAuth: !!client.handshake?.auth,
+                authKeys: client.handshake?.auth ? Object.keys(client.handshake.auth) : [],
+                hasHeaders: !!client.handshake?.headers,
+                headerKeys: client.handshake?.headers ? Object.keys(client.handshake.headers) : [],
+                hasQuery: !!client.handshake?.query,
+                queryKeys: client.handshake?.query ? Object.keys(client.handshake.query) : [],
+            });
             return false;
         }
         try {
             const user = await this.authService.verifyUserFromToken(authToken);
             client.user = user;
+            this.logger.debug(`Client ${client.id} authenticated as user ${user.email}`);
             return true;
         }
         catch (error) {
-            this.logger.warn(`Client ${client.id} authentication failed: ${error?.message ?? 'Unknown error'}`);
+            this.logger.warn(`Client ${client.id} authentication failed: ${error?.message ?? 'Unknown error'}`, error?.stack);
             return false;
         }
     }

@@ -2,15 +2,20 @@ import { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { EnhancedChatService } from './services/enhanced-chat.service';
 import { SendMessageDto } from './dto/chat.dto';
+import { AuthService } from '../auth/auth.service';
 import { MessageStatusType } from './entities/message-status.entity';
+import { EmailService } from '../notifications/email.service';
 export declare class EnhancedChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly chatService;
+    private readonly authService;
+    private readonly emailService;
     server: Server;
     private readonly logger;
     private connectedUsers;
     private userSockets;
-    constructor(chatService: EnhancedChatService);
-    handleConnection(client: Socket): void;
+    constructor(chatService: EnhancedChatService, authService: AuthService, emailService: EmailService);
+    handleConnection(client: Socket): Promise<void>;
+    private extractBearer;
     handleDisconnect(client: Socket): void;
     handleSendMessage(sendMessageDto: SendMessageDto, client: Socket): Promise<void>;
     handleJoinConversation(conversationId: string, client: Socket): Promise<void>;
@@ -44,4 +49,5 @@ export declare class EnhancedChatGateway implements OnGatewayConnection, OnGatew
     broadcastToConversation(conversationId: string, event: string, data: any): void;
     getOnlineUsersCount(): number;
     isUserOnline(userId: string): boolean;
+    private sendEmailNotificationsToOfflineUsers;
 }

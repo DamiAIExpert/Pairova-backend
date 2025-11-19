@@ -95,6 +95,12 @@ let UsersService = class UsersService {
             throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
         }
     }
+    async update(userId, updateData) {
+        const result = await this.usersRepository.update({ id: userId }, updateData);
+        if (!result.affected) {
+            throw new common_1.NotFoundException(`User with ID "${userId}" not found.`);
+        }
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

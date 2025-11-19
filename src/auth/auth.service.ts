@@ -324,6 +324,7 @@ export class AuthService {
     lastName?: string;
     photoUrl?: string;
     oauthProfile?: any;
+    role?: Role; // Optional role for new OAuth users
   }) {
     // Try to find existing user by OAuth provider and ID
     let user = await this.usersService.findByOAuthProvider(
@@ -344,29 +345,39 @@ export class AuthService {
         });
       } else {
         // Create new user with OAuth data
-        // Default role is APPLICANT for OAuth users
+        // Use provided role or default to APPLICANT
+        const userRole = oauthData.role || Role.APPLICANT;
         user = await this.usersService.create({
           email: oauthData.email,
           passwordHash: null, // OAuth users don't need passwords
-          role: Role.APPLICANT,
+          role: userRole,
           oauthProvider: oauthData.oauthProvider,
           oauthId: oauthData.oauthId,
           oauthProfile: oauthData.oauthProfile,
           isVerified: true, // OAuth emails are pre-verified
         });
 
-        // Create applicant profile with OAuth data
+        // Create appropriate profile based on role
         try {
-          await this.applicantService.createProfile(user.id);
-          
-          if (oauthData.firstName || oauthData.lastName) {
-            const profile = await this.applicantService.getProfile(user);
-            profile.firstName = oauthData.firstName || '';
-            profile.lastName = oauthData.lastName || '';
-            if (oauthData.photoUrl) {
-              profile.photoUrl = oauthData.photoUrl;
+          if (userRole === Role.NONPROFIT) {
+            // Create nonprofit profile
+            // Use email prefix as default org name
+            const defaultOrgName = oauthData.email?.split('@')[0] || 'Organization';
+            await this.nonprofitService.createProfile(user.id, defaultOrgName);
+            // TODO: Update nonprofit profile with OAuth data if needed
+          } else {
+            // Create applicant profile with OAuth data
+            await this.applicantService.createProfile(user.id);
+            
+            if (oauthData.firstName || oauthData.lastName) {
+              const profile = await this.applicantService.getProfile(user);
+              profile.firstName = oauthData.firstName || '';
+              profile.lastName = oauthData.lastName || '';
+              if (oauthData.photoUrl) {
+                profile.photoUrl = oauthData.photoUrl;
+              }
+              await this.applicantService.updateProfile(user, profile);
             }
-            await this.applicantService.updateProfile(user, profile);
           }
         } catch (error) {
           console.error('Failed to create OAuth user profile:', error);

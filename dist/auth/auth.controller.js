@@ -30,13 +30,26 @@ const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const jwt_auth_guard_1 = require("./strategies/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const user_entity_1 = require("../users/shared/user.entity");
+const role_enum_1 = require("../common/enums/role.enum");
 const url_helper_1 = require("../common/utils/url.helper");
+const user_service_1 = require("../users/shared/user.service");
+const nonprofit_service_1 = require("../users/nonprofit/nonprofit.service");
+const applicant_service_1 = require("../users/applicant/applicant.service");
+const jwt_1 = require("@nestjs/jwt");
 let AuthController = class AuthController {
     authService;
     configService;
-    constructor(authService, configService) {
+    usersService;
+    nonprofitService;
+    applicantService;
+    jwtService;
+    constructor(authService, configService, usersService, nonprofitService, applicantService, jwtService) {
         this.authService = authService;
         this.configService = configService;
+        this.usersService = usersService;
+        this.nonprofitService = nonprofitService;
+        this.applicantService = applicantService;
+        this.jwtService = jwtService;
     }
     async login(user, _loginDto) {
         return this.authService.login(user);
@@ -79,14 +92,108 @@ let AuthController = class AuthController {
     }
     async googleAuthCallback(req, res) {
         const user = req.user;
-        const redirectUrl = url_helper_1.UrlHelper.generateOAuthCallbackUrl(this.configService, user.accessToken, user.refreshToken, user.user?.role === 'admin');
+        const oauthRole = req.session?.oauthRole;
+        if (req.session) {
+            delete req.session.oauthRole;
+        }
+        let accessToken = user.accessToken;
+        let refreshToken = user.refreshToken;
+        let finalUser = user.user;
+        if (oauthRole && user.user && user.user.role === role_enum_1.Role.APPLICANT) {
+            const targetRole = oauthRole === 'nonprofit' ? role_enum_1.Role.NONPROFIT : role_enum_1.Role.APPLICANT;
+            if (targetRole === role_enum_1.Role.NONPROFIT && user.user.role !== role_enum_1.Role.NONPROFIT) {
+                try {
+                    console.log('🔄 Updating OAuth user role from APPLICANT to NONPROFIT');
+                    await this.usersService.update(user.user.id, { role: role_enum_1.Role.NONPROFIT });
+                    try {
+                        const applicantProfile = await this.applicantService.getProfile(user.user);
+                        if (applicantProfile) {
+                            console.log('⚠️ Applicant profile exists but deletion not implemented yet');
+                        }
+                    }
+                    catch (e) {
+                    }
+                    try {
+                        const defaultOrgName = user.user.email?.split('@')[0] || 'Organization';
+                        await this.nonprofitService.createProfile(user.user.id, defaultOrgName);
+                        console.log('✅ Created nonprofit profile');
+                    }
+                    catch (e) {
+                        console.error('Failed to create nonprofit profile:', e);
+                    }
+                    const updatedUser = await this.usersService.findOneByIdWithProfile(user.user.id);
+                    if (updatedUser) {
+                        finalUser = updatedUser;
+                        const payload = {
+                            sub: updatedUser.id,
+                            email: updatedUser.email,
+                            role: updatedUser.role,
+                        };
+                        accessToken = this.jwtService.sign(payload);
+                        refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+                        console.log('✅ Regenerated tokens with updated role:', updatedUser.role);
+                    }
+                }
+                catch (error) {
+                    console.error('Failed to update OAuth user role:', error);
+                }
+            }
+        }
+        const redirectUrl = url_helper_1.UrlHelper.generateOAuthCallbackUrl(this.configService, accessToken, refreshToken, finalUser?.role === 'admin');
         res.redirect(redirectUrl);
     }
-    async linkedinAuth() {
+    async linkedinAuth(req) {
     }
     async linkedinAuthCallback(req, res) {
         const user = req.user;
-        const redirectUrl = url_helper_1.UrlHelper.generateOAuthCallbackUrl(this.configService, user.accessToken, user.refreshToken, user.user?.role === 'admin');
+        const oauthRole = req.session?.oauthRole;
+        if (req.session) {
+            delete req.session.oauthRole;
+        }
+        let accessToken = user.accessToken;
+        let refreshToken = user.refreshToken;
+        let finalUser = user.user;
+        if (oauthRole && user.user && user.user.role === role_enum_1.Role.APPLICANT) {
+            const targetRole = oauthRole === 'nonprofit' ? role_enum_1.Role.NONPROFIT : role_enum_1.Role.APPLICANT;
+            if (targetRole === role_enum_1.Role.NONPROFIT && user.user.role !== role_enum_1.Role.NONPROFIT) {
+                try {
+                    console.log('🔄 Updating OAuth user role from APPLICANT to NONPROFIT');
+                    await this.usersService.update(user.user.id, { role: role_enum_1.Role.NONPROFIT });
+                    try {
+                        const applicantProfile = await this.applicantService.getProfile(user.user);
+                        if (applicantProfile) {
+                            console.log('⚠️ Applicant profile exists but deletion not implemented yet');
+                        }
+                    }
+                    catch (e) {
+                    }
+                    try {
+                        const defaultOrgName = user.user.email?.split('@')[0] || 'Organization';
+                        await this.nonprofitService.createProfile(user.user.id, defaultOrgName);
+                        console.log('✅ Created nonprofit profile');
+                    }
+                    catch (e) {
+                        console.error('Failed to create nonprofit profile:', e);
+                    }
+                    const updatedUser = await this.usersService.findOneByIdWithProfile(user.user.id);
+                    if (updatedUser) {
+                        finalUser = updatedUser;
+                        const payload = {
+                            sub: updatedUser.id,
+                            email: updatedUser.email,
+                            role: updatedUser.role,
+                        };
+                        accessToken = this.jwtService.sign(payload);
+                        refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+                        console.log('✅ Regenerated tokens with updated role:', updatedUser.role);
+                    }
+                }
+                catch (error) {
+                    console.error('Failed to update OAuth user role:', error);
+                }
+            }
+        }
+        const redirectUrl = url_helper_1.UrlHelper.generateOAuthCallbackUrl(this.configService, accessToken, refreshToken, finalUser?.role === 'admin');
         res.redirect(redirectUrl);
     }
 };
@@ -369,8 +476,9 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)('linkedin'),
     (0, common_1.UseGuards)(linkedin_auth_guard_1.LinkedInAuthGuard),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "linkedinAuth", null);
 __decorate([
@@ -395,6 +503,10 @@ exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService,
-        config_1.ConfigService])
+        config_1.ConfigService,
+        user_service_1.UsersService,
+        nonprofit_service_1.NonprofitService,
+        applicant_service_1.ApplicantService,
+        jwt_1.JwtService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

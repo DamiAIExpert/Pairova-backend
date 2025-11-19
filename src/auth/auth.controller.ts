@@ -35,6 +35,11 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/shared/user.entity';
 import { Role } from '../common/enums/role.enum';
 import { UrlHelper } from '../common/utils/url.helper';
+import { UsersService } from '../users/shared/user.service';
+import { NonprofitService } from '../users/nonprofit/nonprofit.service';
+import { ApplicantService } from '../users/applicant/applicant.service';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -42,6 +47,10 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
+    private readonly nonprofitService: NonprofitService,
+    private readonly applicantService: ApplicantService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @ApiOperation({ 
@@ -279,7 +288,7 @@ if (response.ok) {
     console.log('🚀 Google OAuth initiated - redirecting to Google...');
     console.log('🚀 Request URL:', req.url);
     console.log('🚀 Request host:', req.headers.host);
-    // Guard redirects to Google
+    // Guard handles role storage and redirects to Google
   }
 
   @ApiOperation({ 
@@ -296,12 +305,76 @@ if (response.ok) {
   async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     const user = req.user as any;
     
-    // Generate OAuth callback URL dynamically
+    // Get OAuth role from session if available
+    const oauthRole = (req.session as any)?.oauthRole as string | undefined;
+    if (req.session) {
+      delete (req.session as any).oauthRole;
+    }
+    
+    let accessToken = user.accessToken;
+    let refreshToken = user.refreshToken;
+    let finalUser = user.user;
+    
+    // If role was specified and user has default APPLICANT role, update it
+    if (oauthRole && user.user && user.user.role === Role.APPLICANT) {
+      const targetRole = oauthRole === 'nonprofit' ? Role.NONPROFIT : Role.APPLICANT;
+      
+      if (targetRole === Role.NONPROFIT && user.user.role !== Role.NONPROFIT) {
+        try {
+          console.log('🔄 Updating OAuth user role from APPLICANT to NONPROFIT');
+          
+          // Update user role
+          await this.usersService.update(user.user.id, { role: Role.NONPROFIT });
+          
+          // Delete applicant profile if exists
+          try {
+            const applicantProfile = await this.applicantService.getProfile(user.user);
+            if (applicantProfile) {
+              // Delete applicant profile (you may need to add a delete method)
+              console.log('⚠️ Applicant profile exists but deletion not implemented yet');
+            }
+          } catch (e) {
+            // Profile doesn't exist, that's fine
+          }
+          
+          // Create nonprofit profile
+          try {
+            // Use email as default org name if no org name is available
+            const defaultOrgName = user.user.email?.split('@')[0] || 'Organization';
+            await this.nonprofitService.createProfile(user.user.id, defaultOrgName);
+            console.log('✅ Created nonprofit profile');
+          } catch (e) {
+            console.error('Failed to create nonprofit profile:', e);
+          }
+          
+          // Refresh user data
+          const updatedUser = await this.usersService.findOneByIdWithProfile(user.user.id);
+          if (updatedUser) {
+            finalUser = updatedUser;
+            
+            // Regenerate tokens with the updated role
+            const payload: JwtPayload = {
+              sub: updatedUser.id,
+              email: updatedUser.email,
+              role: updatedUser.role,
+            };
+            accessToken = this.jwtService.sign(payload);
+            refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+            
+            console.log('✅ Regenerated tokens with updated role:', updatedUser.role);
+          }
+        } catch (error) {
+          console.error('Failed to update OAuth user role:', error);
+        }
+      }
+    }
+    
+    // Generate OAuth callback URL dynamically with updated tokens
     const redirectUrl = UrlHelper.generateOAuthCallbackUrl(
       this.configService,
-      user.accessToken,
-      user.refreshToken,
-      user.user?.role === 'admin',
+      accessToken,
+      refreshToken,
+      finalUser?.role === 'admin',
     );
     
     res.redirect(redirectUrl);
@@ -318,8 +391,8 @@ if (response.ok) {
   @Public()
   @Get('linkedin')
   @UseGuards(LinkedInAuthGuard)
-  async linkedinAuth() {
-    // Guard redirects to LinkedIn
+  async linkedinAuth(@Req() req: Request) {
+    // Guard handles role storage and redirects to LinkedIn
   }
 
   @ApiOperation({ 
@@ -336,12 +409,76 @@ if (response.ok) {
   async linkedinAuthCallback(@Req() req: Request, @Res() res: Response) {
     const user = req.user as any;
     
-    // Generate OAuth callback URL dynamically
+    // Get OAuth role from session if available
+    const oauthRole = (req.session as any)?.oauthRole as string | undefined;
+    if (req.session) {
+      delete (req.session as any).oauthRole;
+    }
+    
+    let accessToken = user.accessToken;
+    let refreshToken = user.refreshToken;
+    let finalUser = user.user;
+    
+    // If role was specified and user has default APPLICANT role, update it
+    if (oauthRole && user.user && user.user.role === Role.APPLICANT) {
+      const targetRole = oauthRole === 'nonprofit' ? Role.NONPROFIT : Role.APPLICANT;
+      
+      if (targetRole === Role.NONPROFIT && user.user.role !== Role.NONPROFIT) {
+        try {
+          console.log('🔄 Updating OAuth user role from APPLICANT to NONPROFIT');
+          
+          // Update user role
+          await this.usersService.update(user.user.id, { role: Role.NONPROFIT });
+          
+          // Delete applicant profile if exists
+          try {
+            const applicantProfile = await this.applicantService.getProfile(user.user);
+            if (applicantProfile) {
+              // Delete applicant profile (you may need to add a delete method)
+              console.log('⚠️ Applicant profile exists but deletion not implemented yet');
+            }
+          } catch (e) {
+            // Profile doesn't exist, that's fine
+          }
+          
+          // Create nonprofit profile
+          try {
+            // Use email as default org name if no org name is available
+            const defaultOrgName = user.user.email?.split('@')[0] || 'Organization';
+            await this.nonprofitService.createProfile(user.user.id, defaultOrgName);
+            console.log('✅ Created nonprofit profile');
+          } catch (e) {
+            console.error('Failed to create nonprofit profile:', e);
+          }
+          
+          // Refresh user data
+          const updatedUser = await this.usersService.findOneByIdWithProfile(user.user.id);
+          if (updatedUser) {
+            finalUser = updatedUser;
+            
+            // Regenerate tokens with the updated role
+            const payload: JwtPayload = {
+              sub: updatedUser.id,
+              email: updatedUser.email,
+              role: updatedUser.role,
+            };
+            accessToken = this.jwtService.sign(payload);
+            refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+            
+            console.log('✅ Regenerated tokens with updated role:', updatedUser.role);
+          }
+        } catch (error) {
+          console.error('Failed to update OAuth user role:', error);
+        }
+      }
+    }
+    
+    // Generate OAuth callback URL dynamically with updated tokens
     const redirectUrl = UrlHelper.generateOAuthCallbackUrl(
       this.configService,
-      user.accessToken,
-      user.refreshToken,
-      user.user?.role === 'admin',
+      accessToken,
+      refreshToken,
+      finalUser?.role === 'admin',
     );
     
     res.redirect(redirectUrl);

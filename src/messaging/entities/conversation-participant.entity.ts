@@ -1,11 +1,12 @@
 // src/messaging/entities/conversation-participant.entity.ts
 import {
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
   ManyToOne,
   JoinColumn,
-  Column,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Conversation } from './conversation.entity';
 import { User } from '../../users/shared/user.entity';
@@ -16,10 +17,13 @@ import { User } from '../../users/shared/user.entity';
  */
 @Entity('conversation_participants')
 export class ConversationParticipant {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'uuid', name: 'conversation_id' })
   conversationId: string;
 
-  @PrimaryColumn({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'user_id' })
   userId: string;
 
   @ManyToOne(() => Conversation, (c) => c.participants, { onDelete: 'CASCADE' })
@@ -30,15 +34,18 @@ export class ConversationParticipant {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  lastReadAt: Date;
-
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true, name: 'last_seen_at' })
   lastSeenAt: Date;
 
-  @Column({ type: 'enum', enum: ['ADMIN', 'MEMBER'], default: 'MEMBER' })
+  @Column({ type: 'varchar', length: 50, default: 'PARTICIPANT' })
   role: string;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'joined_at' })
   joinedAt: Date;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
+  updatedAt: Date;
 }

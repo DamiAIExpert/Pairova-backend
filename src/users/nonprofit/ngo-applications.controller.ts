@@ -9,6 +9,8 @@ import {
   ParseIntPipe,
   Body,
   ValidationPipe,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/strategies/guards/jwt-auth.guard';
@@ -18,6 +20,11 @@ import { Role } from '../../common/enums/role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../shared/user.entity';
 import { ApplicationsService } from '../../jobs/job-application/application.service';
+import { ApplicantService } from '../applicant/applicant.service';
+import { ExperienceService } from '../../profiles/experience/experience.service';
+import { EducationService } from '../../profiles/education/education.service';
+import { CertificationService } from '../../profiles/certifications/certification.service';
+import { UploadService } from '../../profiles/uploads/upload.service';
 
 /**
  * @class NgoApplicationsController
@@ -29,7 +36,14 @@ import { ApplicationsService } from '../../jobs/job-application/application.serv
 @Roles(Role.NONPROFIT)
 @ApiBearerAuth('JWT-auth')
 export class NgoApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+  constructor(
+    private readonly applicationsService: ApplicationsService,
+    private readonly applicantService: ApplicantService,
+    private readonly experienceService: ExperienceService,
+    private readonly educationService: EducationService,
+    private readonly certificationService: CertificationService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   /**
    * Get all applications to jobs posted by the current NGO
@@ -48,9 +62,13 @@ export class NgoApplicationsController {
     @CurrentUser() user: User,
     @Query('status') status?: string,
     @Query('jobId') jobId?: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 20,
+    @Query('page') pageParam?: string,
+    @Query('limit') limitParam?: string,
   ): Promise<{ applications: any[]; total: number; page: number; limit: number }> {
+    // Parse page and limit with defaults, handling optional parameters
+    const page = pageParam ? parseInt(pageParam, 10) || 1 : 1;
+    const limit = limitParam ? parseInt(limitParam, 10) || 20 : 20;
+    
     return this.applicationsService.getApplicationsByOrganization(
       user,
       { status, jobId },
@@ -196,5 +214,69 @@ export class NgoApplicationsController {
       updateData.status,
       updateData.notes,
     );
+  }
+
+  /**
+   * Get applicant profile by applicant ID
+   * This allows NGOs to view full candidate profiles
+   */
+  @Get('applicants/:applicantId/profile')
+  @ApiOperation({ summary: 'Get applicant profile by applicant ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Applicant profile retrieved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Applicant not found' })
+  @ApiResponse({ status: 403, description: 'Unauthorized - No application from this applicant' })
+  async getApplicantProfile(
+    @CurrentUser() user: User,
+    @Param('applicantId', ParseUUIDPipe) applicantId: string,
+  ): Promise<{
+    profile: any;
+    experiences: any[];
+    educations: any[];
+    certifications: any[];
+    attachments: any[];
+  }> {
+    // Verify the NGO has at least one application from this applicant
+    // Fetch applications with a higher limit to find the applicant
+    const applications = await this.applicationsService.getApplicationsByOrganization(
+      user,
+      {},
+      1,
+      1000, // Fetch many to ensure we find the applicant
+    );
+    
+    const application = applications.applications.find(
+      (app) => app.applicantId === applicantId,
+    );
+
+    if (!application) {
+      throw new ForbiddenException(
+        'You are not authorized to view this applicant profile. No application found from this applicant.',
+      );
+    }
+
+    if (!application.applicant?.applicantProfile) {
+      throw new NotFoundException('Applicant profile not found');
+    }
+
+    const profile = application.applicant.applicantProfile;
+
+    // Fetch all profile data in parallel
+    const [experiences, educations, certifications, attachments] = await Promise.all([
+      this.experienceService.findByUserId(applicantId).catch(() => []),
+      this.educationService.findByUserId(applicantId).catch(() => []),
+      this.certificationService.findAllByUserId(applicantId).catch(() => []),
+      this.uploadService.listUserUploads(applicantId, 'attachment').catch(() => []),
+    ]);
+
+    return {
+      profile,
+      experiences,
+      educations,
+      certifications,
+      attachments,
+    };
   }
 }

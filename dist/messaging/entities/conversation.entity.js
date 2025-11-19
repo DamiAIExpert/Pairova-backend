@@ -77,7 +77,7 @@ __decorate([
     __metadata("design:type", String)
 ], Conversation.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, name: 'job_id' }),
     __metadata("design:type", String)
 ], Conversation.prototype, "jobId", void 0);
 __decorate([
@@ -86,7 +86,7 @@ __decorate([
     __metadata("design:type", job_entity_1.Job)
 ], Conversation.prototype, "job", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true, name: 'created_by_id' }),
     __metadata("design:type", String)
 ], Conversation.prototype, "createdById", void 0);
 __decorate([
@@ -95,11 +95,11 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Conversation.prototype, "createdBy", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    (0, typeorm_1.Column)({ type: 'boolean', default: false, name: 'is_archived' }),
     __metadata("design:type", Boolean)
 ], Conversation.prototype, "isArchived", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true, name: 'last_message_at' }),
     __metadata("design:type", Date)
 ], Conversation.prototype, "lastMessageAt", void 0);
 __decorate([
@@ -115,11 +115,11 @@ __decorate([
     __metadata("design:type", Array)
 ], Conversation.prototype, "participants", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz', name: 'created_at' }),
     __metadata("design:type", Date)
 ], Conversation.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz' }),
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz', name: 'updated_at' }),
     __metadata("design:type", Date)
 ], Conversation.prototype, "updatedAt", void 0);
 exports.Conversation = Conversation = __decorate([

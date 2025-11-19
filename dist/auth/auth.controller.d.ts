@@ -9,10 +9,18 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { User } from '../users/shared/user.entity';
 import { Role } from '../common/enums/role.enum';
+import { UsersService } from '../users/shared/user.service';
+import { NonprofitService } from '../users/nonprofit/nonprofit.service';
+import { ApplicantService } from '../users/applicant/applicant.service';
+import { JwtService } from '@nestjs/jwt';
 export declare class AuthController {
     private readonly authService;
     private readonly configService;
-    constructor(authService: AuthService, configService: ConfigService);
+    private readonly usersService;
+    private readonly nonprofitService;
+    private readonly applicantService;
+    private readonly jwtService;
+    constructor(authService: AuthService, configService: ConfigService, usersService: UsersService, nonprofitService: NonprofitService, applicantService: ApplicantService, jwtService: JwtService);
     login(user: User, _loginDto: LoginDto): Promise<{
         accessToken: string;
         refreshToken: string;
@@ -84,6 +92,6 @@ export declare class AuthController {
     }>;
     googleAuth(req: Request): Promise<void>;
     googleAuthCallback(req: Request, res: Response): Promise<void>;
-    linkedinAuth(): Promise<void>;
+    linkedinAuth(req: Request): Promise<void>;
     linkedinAuthCallback(req: Request, res: Response): Promise<void>;
 }

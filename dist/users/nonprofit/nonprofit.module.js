@@ -15,6 +15,11 @@ const nonprofit_entity_1 = require("./nonprofit.entity");
 const ngo_jobs_controller_1 = require("./ngo-jobs.controller");
 const ngo_applications_controller_1 = require("./ngo-applications.controller");
 const jobs_module_1 = require("../../jobs/jobs.module");
+const applicant_module_1 = require("../applicant/applicant.module");
+const experience_module_1 = require("../../profiles/experience/experience.module");
+const education_module_1 = require("../../profiles/education/education.module");
+const certification_module_1 = require("../../profiles/certifications/certification.module");
+const upload_module_1 = require("../../profiles/uploads/upload.module");
 let NonprofitModule = class NonprofitModule {
 };
 exports.NonprofitModule = NonprofitModule;
@@ -23,6 +28,11 @@ exports.NonprofitModule = NonprofitModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([nonprofit_entity_1.NonprofitOrg]),
             jobs_module_1.JobsModule,
+            applicant_module_1.ApplicantModule,
+            experience_module_1.ExperienceModule,
+            education_module_1.EducationModule,
+            certification_module_1.CertificationModule,
+            upload_module_1.UploadModule,
         ],
         controllers: [nonprofit_controller_1.NonprofitController, ngo_jobs_controller_1.NgoJobsController, ngo_applications_controller_1.NgoApplicationsController],
         providers: [nonprofit_service_1.NonprofitService],

@@ -67,24 +67,24 @@ export class Conversation {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, name: 'job_id' })
   jobId: string | null;
 
   @ManyToOne(() => Job, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'job_id' })
   job: Job | null;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, name: 'created_by_id' })
   createdById: string | null;
 
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'created_by_id' })
   createdBy: User | null;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: false, name: 'is_archived' })
   isArchived: boolean;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true, name: 'last_message_at' })
   lastMessageAt: Date | null;
 
   @Column({ type: 'jsonb', nullable: true })
@@ -102,9 +102,9 @@ export class Conversation {
   @OneToMany(() => ConversationParticipant, (participant) => participant.conversation)
   participants: ConversationParticipant[];
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz' })
+  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt: Date;
 }

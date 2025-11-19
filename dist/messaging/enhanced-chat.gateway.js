@@ -19,29 +19,52 @@ const socket_io_1 = require("socket.io");
 const common_1 = require("@nestjs/common");
 const enhanced_chat_service_1 = require("./services/enhanced-chat.service");
 const chat_dto_1 = require("./dto/chat.dto");
-const ws_jwt_guard_1 = require("../auth/strategies/ws-jwt.guard");
+const auth_service_1 = require("../auth/auth.service");
 const message_entity_1 = require("./entities/message.entity");
+const email_service_1 = require("../notifications/email.service");
 let EnhancedChatGateway = EnhancedChatGateway_1 = class EnhancedChatGateway {
     chatService;
+    authService;
+    emailService;
     server;
     logger = new common_1.Logger(EnhancedChatGateway_1.name);
     connectedUsers = new Map();
     userSockets = new Map();
-    constructor(chatService) {
+    constructor(chatService, authService, emailService) {
         this.chatService = chatService;
+        this.authService = authService;
+        this.emailService = emailService;
     }
-    handleConnection(client) {
-        const user = client.user;
-        if (!user) {
-            this.logger.warn(`Client ${client.id} failed to connect: unauthenticated.`);
+    async handleConnection(client) {
+        const authToken = client.handshake?.auth?.token ||
+            this.extractBearer(client.handshake?.headers?.authorization) ||
+            client.handshake?.query?.token;
+        if (!authToken) {
+            this.logger.warn(`Client ${client.id} failed to connect: No token provided.`);
             client.disconnect(true);
             return;
         }
-        this.connectedUsers.set(client.id, user);
-        this.userSockets.set(user.id, client.id);
-        client.join(user.id);
-        this.logger.log(`Client connected: ${user.email} (${client.id})`);
-        this.notifyContactsOnlineStatus(user.id, true);
+        try {
+            const user = await this.authService.verifyUserFromToken(authToken);
+            client.user = user;
+            this.connectedUsers.set(client.id, user);
+            this.userSockets.set(user.id, client.id);
+            client.join(user.id);
+            this.logger.log(`Client connected: ${user.email} (${client.id})`);
+            this.notifyContactsOnlineStatus(user.id, true);
+        }
+        catch (error) {
+            this.logger.warn(`Client ${client.id} authentication failed: ${error?.message ?? 'Unknown error'}`);
+            client.disconnect(true);
+        }
+    }
+    extractBearer(header) {
+        if (!header)
+            return undefined;
+        const [scheme, token] = header.split(' ');
+        if (scheme?.toLowerCase() === 'bearer' && token)
+            return token;
+        return undefined;
     }
     handleDisconnect(client) {
         const user = this.connectedUsers.get(client.id);
@@ -64,6 +87,25 @@ let EnhancedChatGateway = EnhancedChatGateway_1 = class EnhancedChatGateway {
         try {
             const message = await this.chatService.sendMessage(sendMessageDto, sender);
             this.server.to(sendMessageDto.conversationId).emit('newMessage', message);
+            client.emit('newMessage', message);
+            const conversationEntity = await this.chatService.getConversationEntity(sendMessageDto.conversationId);
+            const offlineRecipients = conversationEntity.participants
+                .filter(p => p.userId !== sender.id && !this.userSockets.has(p.userId))
+                .map(p => ({
+                id: p.userId,
+                email: p.user.email,
+                profile: {
+                    firstName: p.user.applicantProfile?.firstName,
+                    lastName: p.user.applicantProfile?.lastName,
+                    orgName: p.user.nonprofitOrg?.orgName,
+                },
+            }));
+            if (offlineRecipients.length > 0) {
+                const conversation = await this.chatService.getConversation(sendMessageDto.conversationId, sender.id);
+                this.sendEmailNotificationsToOfflineUsers(offlineRecipients, message, sender, conversation).catch(err => {
+                    this.logger.error(`Failed to send email notifications: ${err.message}`);
+                });
+            }
             this.server.to(sendMessageDto.conversationId).emit('stopTyping', {
                 userId: sender.id,
                 conversationId: sendMessageDto.conversationId,
@@ -251,6 +293,35 @@ let EnhancedChatGateway = EnhancedChatGateway_1 = class EnhancedChatGateway {
     isUserOnline(userId) {
         return this.userSockets.has(userId);
     }
+    async sendEmailNotificationsToOfflineUsers(offlineRecipients, message, sender, conversation) {
+        const senderName = sender.nonprofitOrg?.orgName ||
+            (sender.applicantProfile ? `${sender.applicantProfile.firstName} ${sender.applicantProfile.lastName}`.trim() : sender.email) ||
+            sender.email;
+        for (const recipient of offlineRecipients) {
+            try {
+                const recipientName = recipient.profile?.orgName ||
+                    (recipient.profile?.firstName && recipient.profile?.lastName
+                        ? `${recipient.profile.firstName} ${recipient.profile.lastName}`.trim()
+                        : recipient.email) ||
+                    recipient.email;
+                const conversationTitle = conversation.title || `Conversation with ${senderName}`;
+                const messagePreview = message.content || 'New message';
+                const messageUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/non-profit/messages?conversationId=${conversation.id}`;
+                await this.emailService.sendFromTemplate(recipient.email, `New message from ${senderName} on Pairova`, 'new-message', {
+                    recipientName,
+                    senderName,
+                    conversationTitle,
+                    messagePreview,
+                    messageUrl,
+                    timestamp: new Date().toLocaleString(),
+                });
+                this.logger.log(`Email notification sent to ${recipient.email} for new message from ${sender.email}`);
+            }
+            catch (error) {
+                this.logger.error(`Failed to send email notification to ${recipient.email}: ${error.message}`);
+            }
+        }
+    }
 };
 exports.EnhancedChatGateway = EnhancedChatGateway;
 __decorate([
@@ -323,7 +394,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], EnhancedChatGateway.prototype, "handleGetOnlineStatus", null);
 exports.EnhancedChatGateway = EnhancedChatGateway = EnhancedChatGateway_1 = __decorate([
-    (0, common_1.UseGuards)(ws_jwt_guard_1.WsJwtGuard),
     (0, websockets_1.WebSocketGateway)({
         namespace: '/chat',
         cors: {
@@ -361,6 +431,8 @@ exports.EnhancedChatGateway = EnhancedChatGateway = EnhancedChatGateway_1 = __de
             credentials: true
         }
     }),
-    __metadata("design:paramtypes", [enhanced_chat_service_1.EnhancedChatService])
+    __metadata("design:paramtypes", [enhanced_chat_service_1.EnhancedChatService,
+        auth_service_1.AuthService,
+        email_service_1.EmailService])
 ], EnhancedChatGateway);
 //# sourceMappingURL=enhanced-chat.gateway.js.map

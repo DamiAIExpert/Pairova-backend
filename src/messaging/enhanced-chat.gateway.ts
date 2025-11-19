@@ -8,20 +8,20 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 
 import { EnhancedChatService } from './services/enhanced-chat.service';
 import { SendMessageDto } from './dto/chat.dto';
-import { WsJwtGuard } from '../auth/strategies/ws-jwt.guard';
+import { AuthService } from '../auth/auth.service';
 import { User } from '../users/shared/user.entity';
 import { MessageStatusType } from './entities/message-status.entity';
 import { MessageType } from './entities/message.entity';
+import { EmailService } from '../notifications/email.service';
 
 /**
  * @class EnhancedChatGateway
  * @description Enhanced WebSocket gateway for real-time chat functionality
  */
-@UseGuards(WsJwtGuard)
 @WebSocketGateway({ 
   namespace: '/chat', 
   cors: { 
@@ -72,27 +72,53 @@ export class EnhancedChatGateway implements OnGatewayConnection, OnGatewayDiscon
   private connectedUsers: Map<string, User> = new Map();
   private userSockets: Map<string, string> = new Map(); // userId -> socketId
 
-  constructor(private readonly chatService: EnhancedChatService) {}
+  constructor(
+    private readonly chatService: EnhancedChatService,
+    private readonly authService: AuthService,
+    private readonly emailService: EmailService,
+  ) {}
 
-  handleConnection(client: Socket) {
-    const user = (client as any).user as User | undefined;
+  async handleConnection(client: Socket) {
+    // Extract token from handshake
+    const authToken =
+      (client.handshake?.auth as any)?.token ||
+      this.extractBearer(client.handshake?.headers?.authorization) ||
+      (client.handshake?.query?.token as string | undefined);
 
-    if (!user) {
-      this.logger.warn(`Client ${client.id} failed to connect: unauthenticated.`);
+    if (!authToken) {
+      this.logger.warn(`Client ${client.id} failed to connect: No token provided.`);
       client.disconnect(true);
       return;
     }
 
-    this.connectedUsers.set(client.id, user);
-    this.userSockets.set(user.id, client.id);
-    
-    // Join user to their personal room
-    client.join(user.id);
-    
-    this.logger.log(`Client connected: ${user.email} (${client.id})`);
-    
-    // Notify user's contacts about online status
-    this.notifyContactsOnlineStatus(user.id, true);
+    try {
+      // Verify token and get user
+      const user = await this.authService.verifyUserFromToken(authToken);
+      (client as any).user = user;
+
+      this.connectedUsers.set(client.id, user);
+      this.userSockets.set(user.id, client.id);
+      
+      // Join user to their personal room
+      client.join(user.id);
+      
+      this.logger.log(`Client connected: ${user.email} (${client.id})`);
+      
+      // Notify user's contacts about online status
+      this.notifyContactsOnlineStatus(user.id, true);
+    } catch (error: any) {
+      this.logger.warn(
+        `Client ${client.id} authentication failed: ${error?.message ?? 'Unknown error'}`,
+      );
+      client.disconnect(true);
+    }
+  }
+
+  private extractBearer(header?: string): string | undefined {
+    if (!header) return undefined;
+    const [scheme, token] = header.split(' ');
+    if (scheme?.toLowerCase() === 'bearer' && token) return token;
+    return undefined;
   }
 
   handleDisconnect(client: Socket) {
@@ -127,8 +153,35 @@ export class EnhancedChatGateway implements OnGatewayConnection, OnGatewayDiscon
     try {
       const message = await this.chatService.sendMessage(sendMessageDto, sender);
       
-      // Emit to all participants in the conversation
+      // Emit to all participants in the conversation (including sender)
       this.server.to(sendMessageDto.conversationId).emit('newMessage', message);
+      
+      // Also emit directly to sender's client to ensure they receive it
+      client.emit('newMessage', message);
+      
+      // Check which recipients are offline and send email notifications
+      // Get participants with their user IDs from the conversation entity
+      const conversationEntity = await this.chatService.getConversationEntity(sendMessageDto.conversationId);
+      const offlineRecipients = conversationEntity.participants
+        .filter(p => p.userId !== sender.id && !this.userSockets.has(p.userId))
+        .map(p => ({
+          id: p.userId,
+          email: p.user.email,
+          profile: {
+            firstName: p.user.applicantProfile?.firstName,
+            lastName: p.user.applicantProfile?.lastName,
+            orgName: p.user.nonprofitOrg?.orgName,
+          },
+        }));
+      
+      if (offlineRecipients.length > 0) {
+        // Get formatted conversation for email template
+        const conversation = await this.chatService.getConversation(sendMessageDto.conversationId, sender.id);
+        // Send email notifications to offline recipients
+        this.sendEmailNotificationsToOfflineUsers(offlineRecipients, message, sender, conversation).catch(err => {
+          this.logger.error(`Failed to send email notifications: ${err.message}`);
+        });
+      }
       
       // Emit typing stop event
       this.server.to(sendMessageDto.conversationId).emit('stopTyping', {
@@ -434,5 +487,51 @@ export class EnhancedChatGateway implements OnGatewayConnection, OnGatewayDiscon
    */
   public isUserOnline(userId: string): boolean {
     return this.userSockets.has(userId);
+  }
+
+  /**
+   * Send email notifications to offline users when they receive a message
+   */
+  private async sendEmailNotificationsToOfflineUsers(
+    offlineRecipients: Array<{ id: string; email: string; profile?: { firstName?: string; lastName?: string; orgName?: string } }>,
+    message: any,
+    sender: User,
+    conversation: any,
+  ): Promise<void> {
+    const senderName = sender.nonprofitOrg?.orgName || 
+                      (sender.applicantProfile ? `${sender.applicantProfile.firstName} ${sender.applicantProfile.lastName}`.trim() : sender.email) ||
+                      sender.email;
+
+    for (const recipient of offlineRecipients) {
+      try {
+        const recipientName = recipient.profile?.orgName || 
+                              (recipient.profile?.firstName && recipient.profile?.lastName 
+                                ? `${recipient.profile.firstName} ${recipient.profile.lastName}`.trim() 
+                                : recipient.email) ||
+                              recipient.email;
+
+        const conversationTitle = conversation.title || `Conversation with ${senderName}`;
+        const messagePreview = message.content || 'New message';
+        const messageUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/non-profit/messages?conversationId=${conversation.id}`;
+
+        await this.emailService.sendFromTemplate(
+          recipient.email,
+          `New message from ${senderName} on Pairova`,
+          'new-message',
+          {
+            recipientName,
+            senderName,
+            conversationTitle,
+            messagePreview,
+            messageUrl,
+            timestamp: new Date().toLocaleString(),
+          }
+        );
+
+        this.logger.log(`Email notification sent to ${recipient.email} for new message from ${sender.email}`);
+      } catch (error: any) {
+        this.logger.error(`Failed to send email notification to ${recipient.email}: ${error.message}`);
+      }
+    }
   }
 }

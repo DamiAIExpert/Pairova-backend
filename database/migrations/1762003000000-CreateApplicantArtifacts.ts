@@ -146,3 +146,8 @@ export class CreateApplicantArtifacts1762003000000 implements MigrationInterface
 
 
 
+
+
+
+
+

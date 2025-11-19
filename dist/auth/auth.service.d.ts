@@ -91,6 +91,7 @@ export declare class AuthService {
         lastName?: string;
         photoUrl?: string;
         oauthProfile?: any;
+        role?: Role;
     }): Promise<{
         accessToken: string;
         refreshToken: string;

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var EnhancedChatService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnhancedChatService = void 0;
 const common_1 = require("@nestjs/common");
@@ -23,7 +24,7 @@ const message_status_entity_1 = require("../entities/message-status.entity");
 const user_entity_1 = require("../../users/shared/user.entity");
 const job_entity_1 = require("../../jobs/entities/job.entity");
 const upload_entity_1 = require("../../profiles/uploads/entities/upload.entity");
-let EnhancedChatService = class EnhancedChatService {
+let EnhancedChatService = EnhancedChatService_1 = class EnhancedChatService {
     messageRepository;
     conversationRepository;
     participantRepository;
@@ -31,6 +32,7 @@ let EnhancedChatService = class EnhancedChatService {
     userRepository;
     jobRepository;
     uploadRepository;
+    logger = new common_1.Logger(EnhancedChatService_1.name);
     constructor(messageRepository, conversationRepository, participantRepository, messageStatusRepository, userRepository, jobRepository, uploadRepository) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
@@ -48,6 +50,32 @@ let EnhancedChatService = class EnhancedChatService {
         });
         if (participants.length !== participantIds.length) {
             throw new common_1.BadRequestException('One or more participants not found');
+        }
+        if (type === conversation_entity_1.ConversationType.DIRECT && participantIds.length === 1) {
+            const existingConversation = await this.conversationRepository
+                .createQueryBuilder('conversation')
+                .innerJoin('conversation.participants', 'p1', 'p1.user_id = :creatorId', { creatorId: creator.id })
+                .innerJoin('conversation.participants', 'p2', 'p2.user_id = :participantId', { participantId: participantIds[0] })
+                .where('conversation.type = :type', { type: conversation_entity_1.ConversationType.DIRECT })
+                .andWhere('conversation.is_archived = :isArchived', { isArchived: false })
+                .getOne();
+            if (existingConversation) {
+                this.logger.log(`Found existing conversation ${existingConversation.id} between ${creator.id} and ${participantIds[0]}`);
+                const conversationWithRelations = await this.conversationRepository.findOne({
+                    where: { id: existingConversation.id },
+                    relations: [
+                        'participants',
+                        'participants.user',
+                        'participants.user.applicantProfile',
+                        'participants.user.nonprofitOrg',
+                        'job',
+                        'job.organization',
+                    ],
+                });
+                if (conversationWithRelations) {
+                    return await this.formatConversationResponse(conversationWithRelations, creator.id);
+                }
+            }
         }
         let job = null;
         if (jobId) {
@@ -72,35 +100,50 @@ let EnhancedChatService = class EnhancedChatService {
             },
         });
         const savedConversation = await this.conversationRepository.save(conversation);
-        const participantEntities = participantIds.map((userId, index) => this.participantRepository.create({
+        const allParticipantIds = [...new Set([creator.id, ...participantIds])];
+        const participantEntities = allParticipantIds.map((userId) => this.participantRepository.create({
             conversationId: savedConversation.id,
             userId,
             joinedAt: new Date(),
             role: userId === creator.id ? 'CREATOR' : 'PARTICIPANT',
         }));
         await this.participantRepository.save(participantEntities);
-        return this.formatConversationResponse(savedConversation, creator.id);
+        const conversationWithRelations = await this.conversationRepository.findOne({
+            where: { id: savedConversation.id },
+            relations: [
+                'participants',
+                'participants.user',
+                'participants.user.applicantProfile',
+                'participants.user.nonprofitOrg',
+                'job',
+                'job.organization',
+            ],
+        });
+        if (!conversationWithRelations) {
+            throw new common_1.NotFoundException('Conversation not found after creation');
+        }
+        return await this.formatConversationResponse(conversationWithRelations, creator.id);
     }
     async getUserConversations(userId, searchDto = {}) {
         const { query, type, jobId, participantId, includeArchived = false, page = 1, limit = 20 } = searchDto;
+        this.logger.log(`Getting conversations for user ${userId} with filters:`, searchDto);
         const queryBuilder = this.conversationRepository
             .createQueryBuilder('conversation')
-            .leftJoinAndSelect('conversation.participants', 'participant')
-            .leftJoinAndSelect('participant.user', 'user')
+            .innerJoin('conversation.participants', 'participant', 'participant.user_id = :userId', { userId })
+            .leftJoinAndSelect('conversation.participants', 'participants')
+            .leftJoinAndSelect('participants.user', 'user')
             .leftJoinAndSelect('user.applicantProfile', 'applicantProfile')
-            .leftJoinAndSelect('user.nonprofitProfile', 'nonprofitProfile')
+            .leftJoinAndSelect('user.nonprofitOrg', 'nonprofitOrg')
             .leftJoinAndSelect('conversation.job', 'job')
-            .leftJoinAndSelect('job.postedBy', 'jobPostedBy')
-            .leftJoinAndSelect('jobPostedBy.nonprofitProfile', 'jobOrgProfile')
-            .where('participant.userId = :userId', { userId });
+            .leftJoinAndSelect('job.organization', 'jobOrganization');
         if (!includeArchived) {
-            queryBuilder.andWhere('conversation.isArchived = :isArchived', { isArchived: false });
+            queryBuilder.andWhere('conversation.is_archived = :isArchived', { isArchived: false });
         }
         if (type) {
             queryBuilder.andWhere('conversation.type = :type', { type });
         }
         if (jobId) {
-            queryBuilder.andWhere('conversation.jobId = :jobId', { jobId });
+            queryBuilder.andWhere('conversation.job_id = :jobId', { jobId });
         }
         if (query) {
             queryBuilder.andWhere('(conversation.title ILIKE :query OR conversation.description ILIKE :query)', { query: `%${query}%` });
@@ -114,7 +157,9 @@ let EnhancedChatService = class EnhancedChatService {
             .skip((page - 1) * limit)
             .take(limit);
         const [conversations, total] = await queryBuilder.getManyAndCount();
+        this.logger.log(`Found ${conversations.length} conversations (total: ${total}) for user ${userId}`);
         const formattedConversations = await Promise.all(conversations.map(conv => this.formatConversationResponse(conv, userId)));
+        this.logger.log(`Formatted ${formattedConversations.length} conversations for user ${userId}`);
         return {
             conversations: formattedConversations,
             total,
@@ -129,9 +174,30 @@ let EnhancedChatService = class EnhancedChatService {
         if (!conversation) {
             throw new common_1.NotFoundException('Conversation not found');
         }
-        const isParticipant = conversation.participants.some(p => p.userId === sender.id);
+        let isParticipant = conversation.participants?.some(p => p.userId === sender.id);
         if (!isParticipant) {
-            throw new common_1.UnauthorizedException('You are not a participant in this conversation');
+            const participant = await this.participantRepository.findOne({
+                where: {
+                    conversationId: conversationId,
+                    userId: sender.id,
+                },
+            });
+            if (!participant) {
+                this.logger.warn(`User ${sender.id} (${sender.email}) attempted to send message in conversation ${conversationId} but is not a participant. ` +
+                    `Participants in conversation: ${conversation.participants?.map(p => p.userId).join(', ') || 'none'}`);
+                throw new common_1.UnauthorizedException('You are not a participant in this conversation');
+            }
+            const reloadedConversation = await this.conversationRepository.findOne({
+                where: { id: conversationId },
+                relations: ['participants'],
+            });
+            if (reloadedConversation) {
+                isParticipant = reloadedConversation.participants?.some(p => p.userId === sender.id) || false;
+            }
+            if (!isParticipant) {
+                this.logger.error(`Participant record exists but user ${sender.id} still not found in conversation ${conversationId} participants`);
+                throw new common_1.UnauthorizedException('You are not a participant in this conversation');
+            }
         }
         let attachment = null;
         if (attachmentId) {
@@ -144,10 +210,14 @@ let EnhancedChatService = class EnhancedChatService {
         }
         let replyTo = null;
         if (replyToId) {
-            replyTo = await this.messageRepository.findOne({
-                where: { id: replyToId, conversationId },
-                relations: ['sender', 'sender.applicantProfile', 'sender.nonprofitProfile'],
-            });
+            replyTo = await this.messageRepository
+                .createQueryBuilder('message')
+                .leftJoinAndSelect('message.sender', 'sender')
+                .leftJoinAndSelect('sender.applicantProfile', 'applicantProfile')
+                .leftJoinAndSelect('sender.nonprofitOrg', 'nonprofitOrg')
+                .where('message.id = :replyToId', { replyToId })
+                .andWhere('message.conversation_id = :conversationId', { conversationId })
+                .getOne();
             if (!replyTo) {
                 throw new common_1.BadRequestException('Reply-to message not found');
             }
@@ -157,7 +227,6 @@ let EnhancedChatService = class EnhancedChatService {
             senderId: sender.id,
             type: type,
             content,
-            attachmentId,
             replyToId,
             metadata,
         });
@@ -180,7 +249,22 @@ let EnhancedChatService = class EnhancedChatService {
             status: message_status_entity_1.MessageStatusType.DELIVERED,
         });
         await this.messageStatusRepository.save(senderStatus);
-        return this.formatMessageResponse(savedMessage, sender.id);
+        const messageWithRelations = await this.messageRepository.findOne({
+            where: { id: savedMessage.id },
+            relations: [
+                'sender',
+                'sender.applicantProfile',
+                'sender.nonprofitOrg',
+                'replyTo',
+                'replyTo.sender',
+                'replyTo.sender.applicantProfile',
+                'replyTo.sender.nonprofitOrg',
+            ],
+        });
+        if (!messageWithRelations) {
+            throw new common_1.NotFoundException('Message not found after creation');
+        }
+        return await this.formatMessageResponse(messageWithRelations, sender.id);
     }
     async getConversationMessages(conversationId, userId, page = 1, limit = 50) {
         const isParticipant = await this.isUserInConversation(userId, conversationId);
@@ -188,16 +272,15 @@ let EnhancedChatService = class EnhancedChatService {
             throw new common_1.UnauthorizedException('You are not authorized to view these messages');
         }
         const [messages, total] = await this.messageRepository.findAndCount({
-            where: { conversationId, isDeleted: false },
+            where: { conversationId },
             relations: [
                 'sender',
                 'sender.applicantProfile',
-                'sender.nonprofitProfile',
-                'attachment',
+                'sender.nonprofitOrg',
                 'replyTo',
                 'replyTo.sender',
                 'replyTo.sender.applicantProfile',
-                'replyTo.sender.nonprofitProfile',
+                'replyTo.sender.nonprofitOrg',
             ],
             order: { sentAt: 'DESC' },
             skip: (page - 1) * limit,
@@ -287,16 +370,30 @@ let EnhancedChatService = class EnhancedChatService {
                 'participants',
                 'participants.user',
                 'participants.user.applicantProfile',
-                'participants.user.nonprofitProfile',
+                'participants.user.nonprofitOrg',
                 'job',
-                'job.postedBy',
-                'job.postedBy.nonprofitProfile',
+                'job.organization',
             ],
         });
         if (!conversation) {
             throw new common_1.NotFoundException('Conversation not found');
         }
-        return this.formatConversationResponse(conversation, userId);
+        return await this.formatConversationResponse(conversation, userId);
+    }
+    async getConversationEntity(conversationId) {
+        const conversation = await this.conversationRepository.findOne({
+            where: { id: conversationId },
+            relations: [
+                'participants',
+                'participants.user',
+                'participants.user.applicantProfile',
+                'participants.user.nonprofitOrg',
+            ],
+        });
+        if (!conversation) {
+            throw new common_1.NotFoundException('Conversation not found');
+        }
+        return conversation;
     }
     async isUserInConversation(userId, conversationId) {
         const participant = await this.participantRepository.findOne({
@@ -318,35 +415,31 @@ let EnhancedChatService = class EnhancedChatService {
             if (p.applicantProfile) {
                 return `${p.applicantProfile.firstName} ${p.applicantProfile.lastName}`;
             }
-            if (p.nonprofitProfile) {
-                return p.nonprofitProfile.orgName;
+            if (p.nonprofitOrg) {
+                return p.nonprofitOrg.orgName;
             }
             return p.email;
         });
         return names.join(', ');
     }
     async formatConversationResponse(conversation, userId) {
-        const unreadCount = await this.messageStatusRepository.count({
-            where: {
-                userId,
-                status: message_status_entity_1.MessageStatusType.SENT,
-                message: {
-                    conversationId: conversation.id,
-                    isDeleted: false,
-                },
-            },
-            relations: ['message'],
-        });
+        const unreadCount = await this.messageStatusRepository
+            .createQueryBuilder('ms')
+            .innerJoin('ms.message', 'message')
+            .where('ms.user_id = :userId', { userId })
+            .andWhere('ms.status = :status', { status: message_status_entity_1.MessageStatusType.SENT })
+            .andWhere('message.conversation_id = :conversationId', { conversationId: conversation.id })
+            .getCount();
         const lastMessage = await this.messageRepository.findOne({
-            where: { conversationId: conversation.id, isDeleted: false },
+            where: { conversationId: conversation.id },
             relations: [
                 'sender',
                 'sender.applicantProfile',
-                'sender.nonprofitProfile',
-                'attachment',
+                'sender.nonprofitOrg',
             ],
             order: { sentAt: 'DESC' },
         });
+        this.logger.debug(`Last message for conversation ${conversation.id}: ${lastMessage ? lastMessage.id : 'none'}`);
         return {
             id: conversation.id,
             type: conversation.type,
@@ -356,7 +449,7 @@ let EnhancedChatService = class EnhancedChatService {
             job: conversation.job ? {
                 id: conversation.job.id,
                 title: conversation.job.title,
-                orgName: conversation.job.postedBy.nonprofitProfile?.orgName || 'Unknown',
+                orgName: conversation.job.organization?.orgName || 'Unknown',
             } : undefined,
             participants: conversation.participants.map(p => ({
                 id: p.user.id,
@@ -367,11 +460,11 @@ let EnhancedChatService = class EnhancedChatService {
                 profile: {
                     firstName: p.user.applicantProfile?.firstName,
                     lastName: p.user.applicantProfile?.lastName,
-                    orgName: p.user.nonprofitProfile?.orgName,
-                    photoUrl: p.user.applicantProfile?.photoUrl || p.user.nonprofitProfile?.logoUrl,
+                    orgName: p.user.nonprofitOrg?.orgName,
+                    photoUrl: p.user.applicantProfile?.photoUrl || p.user.nonprofitOrg?.logoUrl,
                 },
             })),
-            lastMessage: lastMessage ? await this.formatMessageResponse(lastMessage, userId) : undefined,
+            lastMessage: lastMessage ? await this.formatMessageResponse(lastMessage, userId) : null,
             lastMessageAt: conversation.lastMessageAt,
             unreadCount,
             createdAt: conversation.createdAt,
@@ -393,36 +486,30 @@ let EnhancedChatService = class EnhancedChatService {
                 profile: {
                     firstName: message.sender.applicantProfile?.firstName,
                     lastName: message.sender.applicantProfile?.lastName,
-                    orgName: message.sender.nonprofitProfile?.orgName,
+                    orgName: message.sender.nonprofitOrg?.orgName,
                 },
             },
             type: message.type,
             content: message.content,
-            attachment: message.attachment ? {
-                id: message.attachment.id,
-                filename: message.attachment.filename,
-                url: message.attachment.url,
-                size: message.attachment.size,
-                mimeType: message.attachment.mimeType,
-            } : undefined,
+            attachment: undefined,
             replyTo: message.replyTo ? {
                 id: message.replyTo.id,
                 content: message.replyTo.content,
                 sender: {
                     firstName: message.replyTo.sender.applicantProfile?.firstName,
                     lastName: message.replyTo.sender.applicantProfile?.lastName,
-                    orgName: message.replyTo.sender.nonprofitProfile?.orgName,
+                    orgName: message.replyTo.sender.nonprofitOrg?.orgName,
                 },
             } : undefined,
             status: status?.status || message_status_entity_1.MessageStatusType.SENT,
             sentAt: message.sentAt,
-            isDeleted: message.isDeleted,
+            isDeleted: false,
             metadata: message.metadata,
         };
     }
 };
 exports.EnhancedChatService = EnhancedChatService;
-exports.EnhancedChatService = EnhancedChatService = __decorate([
+exports.EnhancedChatService = EnhancedChatService = EnhancedChatService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(message_entity_1.Message)),
     __param(1, (0, typeorm_1.InjectRepository)(conversation_entity_1.Conversation)),

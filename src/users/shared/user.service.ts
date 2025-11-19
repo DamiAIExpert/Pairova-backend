@@ -161,4 +161,17 @@ export class UsersService {
       throw new NotFoundException(`User with ID "${userId}" not found.`);
     }
   }
+
+  /**
+   * Updates a user's data.
+   */
+  async update(userId: string, updateData: Partial<User>): Promise<void> {
+    const result: UpdateResult = await this.usersRepository.update(
+      { id: userId },
+      updateData,
+    );
+    if (!result.affected) {
+      throw new NotFoundException(`User with ID "${userId}" not found.`);
+    }
+  }
 }

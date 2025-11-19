@@ -12,23 +12,34 @@ export class WsJwtGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const client: Socket = context.switchToWs().getClient<Socket>();
 
+    // Try multiple ways to get the token
     const authToken =
       (client.handshake?.auth as any)?.token ||
       extractBearer(client.handshake?.headers?.authorization) ||
+      extractBearer((client.handshake?.headers as any)?.['authorization']) ||
       (client.handshake?.query?.token as string | undefined);
 
     if (!authToken) {
-      this.logger.warn(`Client ${client.id} failed to connect: No token provided.`);
+      this.logger.warn(`Client ${client.id} failed to connect: No token provided.`, {
+        hasAuth: !!client.handshake?.auth,
+        authKeys: client.handshake?.auth ? Object.keys(client.handshake.auth) : [],
+        hasHeaders: !!client.handshake?.headers,
+        headerKeys: client.handshake?.headers ? Object.keys(client.handshake.headers) : [],
+        hasQuery: !!client.handshake?.query,
+        queryKeys: client.handshake?.query ? Object.keys(client.handshake.query) : [],
+      });
       return false;
     }
 
     try {
       const user = await this.authService.verifyUserFromToken(authToken);
       (client as any).user = user; // attach user to socket
+      this.logger.debug(`Client ${client.id} authenticated as user ${user.email}`);
       return true;
     } catch (error: any) {
       this.logger.warn(
         `Client ${client.id} authentication failed: ${error?.message ?? 'Unknown error'}`,
+        error?.stack,
       );
       return false;
     }
